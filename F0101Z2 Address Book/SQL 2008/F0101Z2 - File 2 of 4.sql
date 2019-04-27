@@ -18,7 +18,8 @@
 SELECT DISTINCT
  'JDE'					SZEDUS						
 ,'BAL0002'				SZEDBT
-,CAST(72000 + CUSTOMER.ROWID AS INTEGER)	SZEDTN -- primary key edi
+,CAST(72000 + CUSTOMER.ROWID AS INTEGER)	
+						SZEDTN -- primary key edi
 ,0						SZEDLN
 ,''						SZEDCT
 ,'JDEAB'				SZTYTN
@@ -29,8 +30,10 @@ SELECT DISTINCT
 ,'N'					SZEDSP
 ,''						SZPNID
 ,'A'					SZTNAC
-,CAST(72000 + CUSTOMER.ROWID AS INTEGER)		SZAN8 -- primary key
-,LEFT('BC_' + LTRIM(RTRIM(CUSTOMER.ID)),21)			SZALKY -- for CSB and SB this is default old CUSTOMER.ID, for CS, it's CUST_ADDRESS.CUSTOMER_ID + ADDR_NO
+,CAST(72000 + CUSTOMER.ROWID AS INTEGER)		
+						SZAN8 -- primary key
+,'BC_' + LTRIM(RTRIM(CUSTOMER.ID))		
+						SZALKY -- for CSB and SB this is default old CUSTOMER.ID, for CS, it's CUST_ADDRESS.CUSTOMER_ID + ADDR_NO
 ,''						SZTAX
 ,LEFT(
 	LTRIM(RTRIM(
@@ -58,7 +61,8 @@ SELECT DISTINCT
 ,'N'					SZAB3
 ,'N'					SZATE
 ,''						SZSBLI
-,(DATEPART(year, GETDATE())-1900)*1000 + DATEPART(dayofyear, GETDATE())	SZEFTB -- JDE julian today
+,(DATEPART(year, GETDATE())-1900)*1000 + DATEPART(dayofyear, GETDATE())	
+						SZEFTB -- JDE julian today
 ,''						SZAN81 -- CB Lookup only where CS
 ,''						SZAN82
 ,''						SZAN83
@@ -196,7 +200,8 @@ SELECT DISTINCT
 ,'TSAMPSON'				SZUSER
 ,'Import'				SZPID
 ,''						SZJOBN
-,(DATEPART(year, GETDATE())-1900)*1000 + DATEPART(dayofyear, GETDATE())	SZUPMJ
+,(DATEPART(year, GETDATE())-1900)*1000 + DATEPART(dayofyear, GETDATE())	
+						SZUPMJ
 ,''						SZTDAY
 ,''						SZUPMT
 ,''						SZPRGF
