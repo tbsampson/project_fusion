@@ -1,7 +1,7 @@
 /*
 F4101Z1 Item Master VER0006
 Tom Sampson IR 4/10/2019
-CR 4/28/2019
+CR 4/29/2019
 
 VER0002
 - Fixed constraint issue with SZUOM4 and others
@@ -13,13 +13,24 @@ VER0005
 - Changes per Steve from 4/15 applied
 VER0006
 - Modified for SQL 2008
+ VER007
+ - added multi-pass feature
+VER0008
+ - updates from Bill in
 
 */
 -- USE BALCO;	
+DECLARE @Pass INTEGER
+
+SET @Pass = 1
+
 SELECT
 		 'JDE'			SZEDUS	 -- EDI - User ID	String	Generic Edit	10
 -- ---------------------------------------- First run, SZEDBT is Q
-		,'Q'			SZEDBT	 -- EDI - Batch Number	String	Generic Edit	15
+		,CASE 
+			WHEN @Pass = 1 THEN 'Q'
+			WHEN @Pass = 2 THEN 'R'
+		 END			SZEDBT	 -- EDI - Batch Number	String	Generic Edit	15
 -- ----------------------------------------
 		,ROW_NUMBER() OVER(ORDER BY	PART.ROWID)
 						SZEDTN	 -- EDI - Transaction Number	String	Generic Edit	22
@@ -32,11 +43,19 @@ SELECT
 		,1				SZDRIN	 -- Direction Indicator	Character	UDC (00 DN)	1
 		,''				SZEDDL	 -- EDI - Detail Lines Processed	Numeric	Generic Edit	5
 -- ----------------------------------------
-		,'N'			SZEDSP	 -- EDI - Successfully Processed	Character	Generic Edit	1
+		,CASE 
+			WHEN @Pass = 1 THEN 'N'
+			WHEN @Pass = 2 THEN 'N'
+		 END			SZEDSP	 -- EDI - Successfully Processed	Character	Generic Edit	1
 -- ----------------------------------------
 		,''				SZPNID	 -- Trading Partner ID	String	Generic Edit	15
 		,'A'			SZTNAC	 -- Transaction Action	String	UDC (00 TA)	2
-		,1				SZITBR	 -- Update Item Branch	Character	Generic Edit	1
+-- ----------------------------------------		
+		,CASE 
+			WHEN @Pass = 1 THEN '1'
+			WHEN @Pass = 2 THEN '2'
+		 END			SZITBR	 -- Update Item Branch	Character	Generic Edit	1
+-- ----------------------------------------
 		,CAST(PART.ROWID + 50000 AS INTEGER)
 						SZITM	 -- Item Number - Short	Numeric	Generic Edit	8
 		,''				SZKIT	 -- Parent (short) Item Number	Numeric	Generic Edit	8
@@ -136,10 +155,7 @@ SELECT
 		,''				SZPRPO	 -- Grade/Potency Pricing	Character	UDC (40 LP)	1
 		,'Y'			SZCKAV	 -- Check Availability Y/N	Character	Generic Edit	1
 		,'P'			SZBPFG	 -- Bulk/Packed Flag	Character	UDC (41B BF)	1
-		,CASE
-				WHEN LEFT(DESCRIPTION,6) = 'SYSTEM' THEN 1
-				ELSE ''
-		 END			SZSRCE	 -- Layer Code - Source	Character	UDC (H41 SR)	1
+		,''				SZSRCE	 -- Layer Code - Source	Character	UDC (H41 SR)	1
 		,'N'			SZOT1Y	 -- Potency Control	Character	Generic Edit	1
 		,'N'			SZOT2Y	 -- Grade Control	Character	Generic Edit	1
 		,''				SZSTDP	 -- Standard Potency	Numeric	Generic Edit	7
@@ -180,10 +196,7 @@ SELECT
 		,''				SZPMTH	 -- Method - Kit/Configurator Pricing	Character	UDC (H41 PM)	1
 		,''				SZFIFO	 -- FIFO Processing	Character	Generic Edit	1
 		,''				SZLOTS	 -- Lot Status Code	Character	UDC (41 L)	1
-		,CASE
-			WHEN LEFT(LTRIM(RTRIM(PART.DESCRIPTION)),6) = 'SYSTEM' THEN 99999
-		 ELSE ''
-		 END			SZSLD	 -- Days - Shelf Life Days	Numeric	Generic Edit	6
+		,''				SZSLD	 -- Days - Shelf Life Days	Numeric	Generic Edit	6
 		,CAST(_ITEM_MASTER_SIDE.SZANPL AS INTEGER)
 						SZANPL	 -- Planner Number	Numeric	Generic Edit	8
 		,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZMPST)),1)
@@ -232,10 +245,7 @@ SELECT
 		 END 			SZMAKE	 -- Make/Buy Code	Character	UDC (H40 MA)	1
 		,''				SZCOBY	 -- Co-Products/By-Products/Intermediate	Character	UDC (H40 CO)	1
 		,''				SZLLX	 -- Low Level Code	Numeric	Generic Edit	3
-		,CASE
-			WHEN LEFT(DESCRIPTION,6) = 'SYSTEM' THEN 3
-			ELSE 1
-		 END 			SZCMGL	 -- Commitment Method	Character	UDC (H40 CM)	1
+		,1				SZCMGL	 -- Commitment Method	Character	UDC (H40 CM)	1
 		,999			SZCOMH	 -- Commitment - Specific (Days)	Numeric	Generic Edit	3
 		,''				SZAVRT	 -- Replenishment Hours - Standard	Numeric	Generic Edit	15
 		,''				SZUPCN	 -- UPC Number	String	Generic Edit	13
