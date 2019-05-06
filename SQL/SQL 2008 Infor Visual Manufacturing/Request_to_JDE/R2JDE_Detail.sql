@@ -13,31 +13,31 @@ SET @SectionID = 205515
 
 SELECT DISTINCT
 
-	 Orders.OrderID AS                  "55BORDER"
-	,QuoteSectionItems.SectionID        "55BSECID"
-	,QuoteSectionItems.ItemID           "55BLINE"
-	,''                                 "EDSP"
-	,Systems.SystemNumber AS            "AITM"
-	,QuoteSectionItems.Quantity         "UORG"
+	 Orders.OrderID AS                  "BD55BORDER"
+	,QuoteSectionItems.SectionID        "BD55BSECID"
+	,QuoteSectionItems.ItemID           "DB55BLINE"
+	,'N'                                 "BDEDSP"
+	,Systems.SystemNumber AS            "BDAITM"
+	,QuoteSectionItems.Quantity         "BDUORG"
 	,CAST((QuoteSectionItems.UnitPrice) AS NUMERIC(12,2)) AS 
-                                        "UPRC"
+                                        "BDUPRC"
 	,CAST(ISNULL(dbo.fn_findDiscount(SystemCategories.CategoryID, (QuoteSectionItems.UnitPrice * QuoteSectionItems.Quantity)),0) * QuoteSectionItems.UnitPrice AS DECIMAL (12,4)) 
-                                        "ADSA"
+                                        "BDADSA"
 	,CAST((((QuoteSectionItems.Quantity * QuoteSectionItems.UnitPrice) / NULLIF(Subtotal.Amount,0)) * QuoteSectionCommissions.Commission)/NULLIF(QuoteSectionItems.Quantity,0) AS NUMERIC(12,4)) AS 
-                                        "IPRV"
+                                        "BDIPRV"
 	,CASE 
 		WHEN LEFT(RTRIM(LTRIM(QuoteSectionItems.Custom)),60) IS NULL THEN ''
 		ELSE LEFT(RTRIM(LTRIM(QuoteSectionItems.Custom)),60)
-	 END                                "TXLN"
-	,''                                 "KCOO"
-	,''                                 "DOCO"
-	,''                                 "DCTO"
-	,''                                 "LIND"
-	,''                                 "USER"
-	,''                                 "PID"
-	,''                                 "UPMJ"
-	,''                                 "UPMT"
-	,''                                 "JOBN"	
+	 END                                "BDTXLN"
+	,''                                 "BDKCOO"
+	,''                                 "BDDOCO"
+	,''                                 "BDDCTO"
+	,''                                 "BDLIND"
+	,''                                 "BDUSER"
+	,''                                 "BDPID"
+	,''                                 "BDUPMJ"
+	,''                                 "BDUPMT"
+	,''                                 "BDJOBN"	
 
 FROM QuoteSectionItems QuoteSectionItems
 
@@ -84,29 +84,29 @@ UNION ALL
 
 SELECT TOP 1
 
-	 Orders.OrderID AS                  "55BORDER"
-	,QuoteSectionItems.SectionID        "55BSECID"
+	 Orders.OrderID AS                  "BD55BORDER"
+	,QuoteSectionItems.SectionID        "BD55BSECID"
 	,LTRIM(RTRIM(CAST(RIGHT(DATEPART(HOUR, GETDATE()),2) AS CHAR)))
 		+ LTRIM(RTRIM(CAST(RIGHT(DATEPART(MINUTE, GETDATE()),2) AS CHAR)))
 		+ LTRIM(RTRIM(CAST(RIGHT(DATEPART(SECOND, GETDATE()),2) AS CHAR)))	
 		+ LTRIM(RTRIM(CAST(RIGHT(DATEPART(MILLISECOND, GETDATE()),2) AS CHAR)))
-	                                    "55BLINE"
-	,''                                 "EDSP"
-	,'FREIGHT' AS                       "AITM"
-	,1                                  "UORG"
-	,Orders.ShippingAmount              "UPRC"
-	,0                                  "ADSA"
-	,0                                  "IPRV"
-	,ShippingCosts.ShippingDescription  "TXLN"
-	,''                                 "KCOO"
-	,''                                 "DOCO"
-	,''                                 "DCTO"
-	,''                                 "LIND"
-	,''                                 "USER"
-	,''                                 "PID"
-	,''                                 "UPMJ"
-	,''                                 "UPMT"
-	,''                                 "JOBN"	
+	                                    "BD55BLINE"
+	,'N'                                "BDEDSP"
+	,'FREIGHT' AS                       "BDAITM"
+	,1                                  "BDUORG"
+	,Orders.ShippingAmount              "BDUPRC"
+	,0                                  "BDADSA"
+	,0                                  "BDIPRV"
+	,ShippingCosts.ShippingDescription  "BDTXLN"
+	,''                                 "BDKCOO"
+	,''                                 "BDDOCO"
+	,''                                 "BDDCTO"
+	,''                                 "BDLIND"
+	,''                                 "BDUSER"
+	,''                                 "BDPID"
+	,''                                 "BDUPMJ"
+	,''                                 "BDUPMT"
+	,''                                 "BDJOBN"	
 	
 FROM 
 	QuoteSectionItems QuoteSectionItems

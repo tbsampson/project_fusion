@@ -12,55 +12,55 @@ SET @OrderID = 55722
 SET @SectionID = 205515
 
 SELECT DISTINCT
-	 Orders.OrderID                     "55BORDER"
-	,QuoteSectionItems.SectionID        "55BSECID"
-	,''                                 "EDSP" -- EDI Successfully Processed
-	,'BC_' + Customers.CustomerNumber   "55BBT"
+	 Orders.OrderID                     "BH55BORDER"
+	,QuoteSectionItems.SectionID        "BH55BSECID"
+	,'N'                                "BHEDSP" -- EDI Successfully Processed
+	,'BC_' + Customers.CustomerNumber   "BH55BBT"
 	,CAST(LTRIM(RTRIM(CAST((DATEPART(year, Orders.OrderDate) -1900) AS CHAR))) + LTRIM(RTRIM(CAST((DATEPART(dy, Orders.OrderDate)) AS CHAR))) AS INTEGER) 
-                                        "TRDJ"
+                                        "BHTRDJ"
 	,LEFT(LTRIM(RTRIM(Orders.CustomerPO)),25) 
-                                        "VR02"
-	,RepCompanies.RepNumber             "SLSM"
+                                        "BHVR02"
+	,RepCompanies.RepNumber             "BHSLSM"
 	,CAST(ROUND(ISNULL(NULLIF(QuoteSectionCommissions.Commission,0)  / NULLIF(SubT.Amt - QuoteSections.Discount,0),0),5) AS DECIMAL(4,2)) 
-                                        "SLCM"
+                                        "BHSLCM"
 	,CASE
 		WHEN Users.SecurityLevel BETWEEN 1 AND 2 THEN 1
 		WHEN Users.SecurityLevel = 16 THEN 2
 		ELSE 3
-	 END                                "55BOCODE"
-	,Orders.Name                        "55BJOB"
+	 END                                "BH55BOCODE"
+	,Orders.Name                        "BH55BJOB"
 	,CASE WHEN LTRIM(RTRIM(Orders.JobType)) IS NOT NULL
 		THEN LTRIM(RTRIM(Orders.JobType))
 		ELSE ''
-	 END                                "55BJTYPE"
-	,Orders.ShippingMethodID            "55BSMETH"
-	,Orders.Forward                     "55BFWD"
-	,SubT.Lbs                           "WTLB"
+	 END                                "BH55BJTYPE"
+	,Orders.ShippingMethodID            "BH55BSMETH"
+	,Orders.Forward                     "BH55BFWD"
+	,SubT.Lbs                           "BHWTLB"
 	,CASE WHEN
 		LTRIM(RTRIM(Orders.Address)) IS NULL THEN ''
 		ELSE LTRIM(RTRIM(Orders.Address))
-	 END                                "ADD1"
+	 END                                "BHADD1"
 	,CASE WHEN
 		LTRIM(RTRIM(Orders.City)) IS NULL THEN ''
 		ELSE LTRIM(RTRIM(Orders.City))
-	 END                                "CTY1"
+	 END                                "BHCTY1"
 	,CASE WHEN
 		LTRIM(RTRIM(Orders.State)) IS NULL THEN ''
 		ELSE LTRIM(RTRIM(Orders.State))
-	 END                                "ADDS"
+	 END                                "BHADDS"
 	,CASE WHEN
 		LTRIM(RTRIM(Orders.Zipcode)) IS NULL THEN ''
 		ELSE LTRIM(RTRIM(Orders.Zipcode))
-	 END                                "ADDZ"
-	,''                                 "KCOO"
-	,''                                 "DOCO"
-	,''                                 "DCTO"
-	,''                                 "LIND"
-	,''                                 "USER"
-	,''                                 "PID"
-	,''                                 "UPMJ"
-	,''                                 "UPMT"
-	,''                                 "JOBN"	
+	 END                                "BHADDZ"
+	,''                                 "BHKCOO"
+	,''                                 "BHDOCO"
+	,''                                 "BHDCTO"
+	,''                                 "BHLIND"
+	,''                                 "BHUSER"
+	,''                                 "BHPID"
+	,''                                 "BHUPMJ"
+	,''                                 "BHUPMT"
+	,''                                 "BHJOBN"	
 
 FROM 
 	QuoteSectionItems QuoteSectionItems

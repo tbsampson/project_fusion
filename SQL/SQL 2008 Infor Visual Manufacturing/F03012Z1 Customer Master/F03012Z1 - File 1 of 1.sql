@@ -116,7 +116,7 @@ SELECT
 	THEN (DATEPART(year, CUSTOMER.OPEN_DATE)-1900)*1000 + DATEPART(dayofyear, CUSTOMER.OPEN_DATE)
 	ELSE (DATEPART(year, GETDATE())-1900)*1000 + DATEPART(dayofyear, GETDATE())
  END VODAOJ   -- Date - Account Opened Date Generic Edit (6)
-,''   VOAN8R   -- Related - Address Number Numeric Generic Edit (8)
+,'7'   VOAN8R   -- Related - Address Number Numeric Generic Edit (8)
 ,CASE
 	WHEN _ADDRESS_BOOK.SZAT1 = 'CB' THEN 'B'
 	WHEN _ADDRESS_BOOK.SZAT1 = 'C' THEN 'X'

@@ -61,7 +61,7 @@ SELECT
 		,''				SZKIT	 -- Parent (short) Item Number	Numeric	Generic Edit	8
 		,'' -- LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZLITM)),25)
 						SZLITM	 -- 2nd Item Number	String	Generic Edit	25
-		,'' -- LEFT(LTRIM(RTRIM(PART.ID)),25)
+		,LEFT(LTRIM(RTRIM(PART.ID)),25) -- LEFT(LTRIM(RTRIM(PART.ID)),25)
 						SZAITM	 -- 3rd Item Number	String	Generic Edit	25
 		,LEFT(LTRIM(RTRIM(PART.DESCRIPTION)),30)
 						SZDSC1	 -- Description	String	Generic Edit	30
@@ -264,8 +264,8 @@ SELECT
 		,'N'			SZWTRQ	 -- Item Weight Required Y/N	Character	Generic Edit	1
 		,''				SZEQTY	 -- Container Code	String	UDC (46 EQ)	5
 		,0				SZPOC	 -- Issue and Receipt	Character	UDC (43 IR)	1
-		,20001			SZMCU	 -- Business Unit	String	Generic Edit	12
-		,20001			SZMMCU	 -- Branch	String	Generic Edit	12
+		,'       20001'	SZMCU	 -- Business Unit	String	Generic Edit	12
+		,'       20001'	SZMMCU	 -- Branch	String	Generic Edit	12
 		,600			SZVEND	 -- Primary / Last Supplier Number	Numeric	Generic Edit	8
 		,''				SZORIG	 -- Country of Origin	String	UDC (00 CN)	3
 		,CASE WHEN CAST(PART.ORDER_POINT AS INTEGER) IS NULL THEN 0
