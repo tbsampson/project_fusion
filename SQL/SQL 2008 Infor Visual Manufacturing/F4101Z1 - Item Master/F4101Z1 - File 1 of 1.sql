@@ -1,5 +1,5 @@
 /*
-F4101Z1 Item Master VER0006
+F4101Z1 Item Master VER0009
 Tom Sampson IR 4/10/2019
 CR 4/29/2019
 
@@ -17,6 +17,8 @@ VER0006
  - added multi-pass feature
 VER0008
  - updates from Bill in
+VER0009
+- updates in from Steve 5/7/2019
 
 */
 -- USE BALCO;	
@@ -28,13 +30,13 @@ SELECT
 		 'JDE'			SZEDUS	 -- EDI - User ID	String	Generic Edit	10
 -- ---------------------------------------- First run, SZEDBT is Q
 		,CASE 
-			WHEN @Pass = 1 THEN 'Q'
-			WHEN @Pass = 2 THEN 'R'
+			WHEN @Pass = 1 THEN 'Q' -- Item Master
+			WHEN @Pass = 2 THEN 'R' -- Branch/Plant
 		 END			SZEDBT	 -- EDI - Batch Number	String	Generic Edit	15
 -- ----------------------------------------
-		,ROW_NUMBER() OVER(ORDER BY	PART.ROWID)
+		,ROW_NUMBER() OVER(ORDER BY	PART.ID)
 						SZEDTN	 -- EDI - Transaction Number	String	Generic Edit	22
-		,ROW_NUMBER() OVER(ORDER BY	PART.ROWID)
+		,ROW_NUMBER() OVER(ORDER BY	PART.ID)
 						SZEDLN	 -- EDI - Line Number	Numeric	Generic Edit	7
 		,''				SZEDCT	 -- EDI - Document Type	String	Generic Edit	2
 		,'JDEITEM'		SZTYTN	 -- Type - Transaction	String	UDC (00 TT)	8
@@ -56,10 +58,10 @@ SELECT
 			WHEN @Pass = 2 THEN '2'
 		 END			SZITBR	 -- Update Item Branch	Character	Generic Edit	1
 -- ----------------------------------------
-		,CAST(PART.ROWID + 50000 AS INTEGER)
+		,ROW_NUMBER() OVER(ORDER BY	PART.ID) + 50000
 						SZITM	 -- Item Number - Short	Numeric	Generic Edit	8
 		,''				SZKIT	 -- Parent (short) Item Number	Numeric	Generic Edit	8
-		,'' -- LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZLITM)),25)
+		,_ITEM_MASTER_SIDE.SZLITM
 						SZLITM	 -- 2nd Item Number	String	Generic Edit	25
 		,LEFT(LTRIM(RTRIM(PART.ID)),25) -- LEFT(LTRIM(RTRIM(PART.ID)),25)
 						SZAITM	 -- 3rd Item Number	String	Generic Edit	25
@@ -75,11 +77,23 @@ SELECT
 						SZSRP2	 -- Sub Section	String	UDC (41 S2)	3
 		,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSRP3)),3)
 						SZSRP3	 -- Sales Category Code 3	String	UDC (41 S3)	3
-		,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSRP4)),3)
+		,CASE
+			WHEN _ITEM_MASTER_SIDE.SZSRP4 IS NULL OR _ITEM_MASTER_SIDE.SZSRP4 = '' 
+			THEN ''
+			ELSE'00' + CAST(CAST(LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSRP4)),3) AS INTEGER) AS VARCHAR)
+		 END
 						SZSRP4	 -- Sales Category Code 4	String	UDC (41 S4)	3
-		,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSRP5)),3)
+		,CASE
+			WHEN _ITEM_MASTER_SIDE.SZSRP5 IS NULL OR _ITEM_MASTER_SIDE.SZSRP5 = '' 
+			THEN ''
+			ELSE'00' + CAST(CAST(LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSRP5)),3) AS INTEGER) AS VARCHAR)
+		 END
 						SZSRP5	 -- Sales Category Code 5	String	UDC (41 S5)	3
-		,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSRP6)),3)
+		,CASE
+			WHEN _ITEM_MASTER_SIDE.SZSRP6 IS NULL OR _ITEM_MASTER_SIDE.SZSRP6 = '' 
+			THEN ''
+			ELSE'00' + CAST(CAST(LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSRP6)),3) AS INTEGER) AS VARCHAR)
+		 END
 						SZSRP6	 -- Category Code 6	String	UDC (41 06)	6
 		,''				SZSRP7	 -- Category Code 7	String	UDC (41 07)	6
 		,''				SZSRP8	 -- Category Code 8	String	UDC (41 08)	6
@@ -113,25 +127,56 @@ SELECT
 		,''				SZCARP	 -- Preferred Carrier - Purchasing	Numeric	Generic Edit	8
 		,''				SZSHCN	 -- Shipping Conditions Code	String	UDC (41 C)	3
 		,''				SZSHCM	 -- Shipping Commodity Class	String	UDC (41 E)	3
-		,LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		,CASE
+			WHEN LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2) = 'GL'
+			THEN 'GA'
+			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		 END
 						SZUOM1	 -- Unit of Measure - Primary	String	UDC (00 UM)	2
-		,LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		,CASE
+			WHEN LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2) = 'GL'
+			THEN 'GA'
+			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		 END
 						SZUOM2	 -- Unit of Measure - Secondary	String	UDC (00 UM)	2
-		,CASE WHEN PO_LINE.PURCHASE_UM IS NOT NULL
-			THEN PO_LINE.PURCHASE_UM
-			ELSE ''
-		 END			SZUOM3	 -- Unit of Measure - Purchasing	String	UDC (00 UM)	2
-		,LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		,CASE 
+			WHEN PO_LINE.PURCHASE_UM IS NULL THEN ''
+			WHEN PO_LINE.PURCHASE_UM = 'M' THEN 'MT'
+			WHEN PO_LINE.PURCHASE_UM = 'GL' THEN 'GA'
+			ELSE PO_LINE.PURCHASE_UM
+		 END
+		 				SZUOM3	 -- Unit of Measure - Purchasing	String	UDC (00 UM)	2
+		,CASE
+			WHEN LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2) = 'GL'
+			THEN 'GA'
+			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		 END
 						SZUOM4	 -- Unit of Measure - Pricing	String	UDC (00 UM)	2
-		,LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		,CASE
+			WHEN LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2) = 'GL'
+			THEN 'GA'
+			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		 END
 						SZUOM6	 -- Unit of Measure - Shipping	String	UDC (00 UM)	2
-		,LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		,CASE
+			WHEN LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2) = 'GL'
+			THEN 'GA'
+			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		 END
 						SZUOM8	 -- Unit of Measure - Production	String	UDC (00 UM)	2
-		,LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		,CASE
+			WHEN LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2) = 'GL'
+			THEN 'GA'
+			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		 END
 						SZUOM9	 -- Unit of Measure - Component	String	UDC (00 UM)	2
 		,'LB'			SZUWUM	 -- Unit of Measure - Weight	String	UDC (00 UM)	2
 		,'FC'			SZUVM1	 -- Unit of Measure - Volume	String	UDC (00 UM)	2
-		,LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		,CASE
+			WHEN LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2) = 'GL'
+			THEN 'GA'
+			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		 END
 						SZSUTM	 -- Unit of Measure - Stocking	String	UDC (00 UM)	2
 		,'W'			SZUMVW	 -- Unit of Measure - Volume or Weight	Character	UDC (39 VW)	1
 		,CASE
@@ -143,15 +188,15 @@ SELECT
 		,CASE 
 			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'P' THEN 'BC10'
 			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'S' THEN 'BC50'
-			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'SYSTEM' THEN 'BC30'
+			WHEN (
+						LEFT(_ITEM_MASTER_SIDE.OLD_DESCRIPTION,6) = 'SYSTEM' 
+					OR	LEFT(_ITEM_MASTER_SIDE.OLD_DESCRIPTION,2) = 'FG'
+				  ) THEN 'BC30'
 			ELSE 'BC20'
 		 END				SZGLPT	 -- Category - G/L	String	UDC (41 9)	4
 		,2				SZPLEV	 -- Level - Sales Base Price	Character	UDC (H40 PL)	1
 		,3				SZPPLV	 -- Level - Purchase Price	Character	UDC (H40 PP)	1
-		,CASE
-			WHEN LEFT(PART.DESCRIPTION,6) = 'SYSTEM' THEN 3
-			ELSE 2
-		 END			SZCLEV	 -- Level - Inventory Cost	Character	UDC (H40 CL)	1
+		,2				SZCLEV	 -- Level - Inventory Cost	Character	UDC (H40 CL)	1
 		,''				SZPRPO	 -- Grade/Potency Pricing	Character	UDC (40 LP)	1
 		,'Y'			SZCKAV	 -- Check Availability Y/N	Character	Generic Edit	1
 		,'P'			SZBPFG	 -- Bulk/Packed Flag	Character	UDC (41B BF)	1
@@ -268,9 +313,7 @@ SELECT
 		,'       20001'	SZMMCU	 -- Branch	String	Generic Edit	12
 		,600			SZVEND	 -- Primary / Last Supplier Number	Numeric	Generic Edit	8
 		,''				SZORIG	 -- Country of Origin	String	UDC (00 CN)	3
-		,CASE WHEN CAST(PART.ORDER_POINT AS INTEGER) IS NULL THEN 0
-			ELSE CAST(PART.ORDER_POINT AS INTEGER)
-		 END			SZROPI	 -- Reorder Point - Input	Numeric	Generic Edit	15
+		,''				SZROPI	 -- Reorder Point - Input	Numeric	Generic Edit	15
 		,ISNULL(PART.ORDER_POINT*10000,0)		
 						SZROQI	 -- Reorder Quantity - Input	Numeric	Generic Edit	15
 		,''				SZRQMX	 -- Reorder Quantity - Maximum	Numeric	Generic Edit	15
@@ -393,21 +436,24 @@ JOIN _ITEM_MASTER_SIDE _ITEM_MASTER_SIDE
 LEFT JOIN 
 	(
 		SELECT DISTINCT
-			 PART_ID
-			,PURCHASE_UM
-			,MAX(DESIRED_RECV_DATE) RC_DATE
-		  FROM PURC_ORDER_LINE
+			 POL2.PART_ID
+			,POL2.PURCHASE_UM
+		FROM
+			(
+				SELECT
+					 PART_ID
+					,MAX(DESIRED_RECV_DATE) RC_DATE
 
-		WHERE PART_ID IS NOT NULL
-		AND PURCHASE_UM IS NOT NULL
+				FROM PURC_ORDER_LINE
+				GROUP BY PART_ID
+			) POL1
 
-		GROUP BY
-			 PART_ID
-			,PURCHASE_UM
+		JOIN PURC_ORDER_LINE POL2
+			ON POL1.RC_DATE = POL2.DESIRED_RECV_DATE
+			AND POL1.PART_ID = POL2.PART_ID
 	) PO_LINE
 
 	ON PART.ID = PO_LINE.PART_ID
-
 
 
 WHERE PART.ABC_CODE <> 'Z'

@@ -10,7 +10,7 @@ SELECT
 
  'JDE'   VOEDUS   -- EDI - User ID String Generic Edit 10 (0)
 ,'BALCM'   VOEDBT   -- EDI - Batch Number String Generic Edit (15)
-,ROW_NUMBER() OVER(ORDER BY	CUSTOMER.ROWID)   VOEDTN   -- EDI - Transaction Number String Generic Edit (22)
+,_BILLTO.SZAN8  VOEDTN   -- EDI - Transaction Number String Generic Edit (22)
 ,0   VOEDLN   -- EDI - Line Number Numeric Generic Edit (7)
 ,''   VOEDCT   -- EDI - Document Type String Generic Edit (2)
 ,'JDECM'   VOTYTN   -- Type - Transaction String UDC (00 TT) (8)
@@ -21,7 +21,7 @@ SELECT
 ,'N'   VOEDSP   -- EDI - Successfully Processed Character Generic Edit (1)
 ,''   VOPNID   -- Trading Partner ID String Generic Edit (15)
 ,'A'   VOTNAC   -- Transaction Action String UDC (00 TA) (2)
-,CUSTOMER.ROWID + 72000   VOAN8   -- Address Number Numeric UDC (8)
+,_BILLTO.SZAN8  VOAN8   -- Address Number Numeric UDC (8)
 ,'00020'   VOCO   -- Company String Generic Edit (5)
 ,''   VOARC   -- G/L Offset String UDC (55 AR) (4)
 ,''   VOMCUR   -- Business Unit - A/R Default String Generic Edit (12)
@@ -267,6 +267,9 @@ FROM
 JOIN CUSTOMER CUSTOMER -- Bill To Addresses
 	ON CUSLIST.CUSTOMER_ID = CUSTOMER.ID
 
+JOIN _BILLTO
+	ON 'BC_' + LTRIM(RTRIM(CUSTOMER.ID)) = _BILLTO.SZALKY
+
 JOIN CUST_ADDRESS CUST_ADDRESS -- Ship To Address
 	ON CUSTOMER.ID = CUST_ADDRESS.CUSTOMER_ID
 	AND CUST_ADDRESS.ADDR_NO = 1
@@ -280,6 +283,7 @@ LEFT JOIN RECEIVABLE RECEIVABLE
 GROUP BY
 
 	 CUSTOMER.ROWID
+	,_BILLTO.SZAN8
 	,CUSTOMER.TERMS_NET_DAYS
 	,(DATEPART(year, CUSTOMER.OPEN_DATE)-1900)*1000 + DATEPART(dayofyear, CUSTOMER.OPEN_DATE)  
 	,CSB_REF.CSB
@@ -300,7 +304,7 @@ SELECT
 
  'JDE'   VOEDUS   -- EDI - User ID String Generic Edit 10 (0)
 ,'BALCM'   VOEDBT   -- EDI - Batch Number String Generic Edit (15)
-,ROW_NUMBER() OVER(ORDER BY	CUSTOMER.ROWID) + 1070  VOEDTN   -- EDI - Transaction Number String Generic Edit (22)
+,_BILLTO.SZAN8  VOEDTN   -- EDI - Transaction Number String Generic Edit (22)
 ,0   VOEDLN   -- EDI - Line Number Numeric Generic Edit (7)
 ,''   VOEDCT   -- EDI - Document Type String Generic Edit (2)
 ,'JDECM'   VOTYTN   -- Type - Transaction String UDC (00 TT) (8)
@@ -311,7 +315,7 @@ SELECT
 ,'N'   VOEDSP   -- EDI - Successfully Processed Character Generic Edit (1)
 ,''   VOPNID   -- Trading Partner ID String Generic Edit (15)
 ,'A'   VOTNAC   -- Transaction Action String UDC (00 TA) (2)
-,CUSTOMER.ROWID + 72000   VOAN8   -- Address Number Numeric UDC (8)
+,_BILLTO.SZAN8     VOAN8   -- Address Number Numeric UDC (8)
 ,'00020'   VOCO   -- Company String Generic Edit (5)
 ,''   VOARC   -- G/L Offset String UDC (55 AR) (4)
 ,''   VOMCUR   -- Business Unit - A/R Default String Generic Edit (12)
@@ -542,6 +546,9 @@ SELECT
 
 FROM CUSTOMER CUSTOMER
 
+JOIN _BILLTO
+	ON 'BC_' + LTRIM(RTRIM(CUSTOMER.ID)) = _BILLTO.SZALKY
+
 LEFT JOIN CUST_ADDRESS CUST_ADDRESS ON
 	CUSTOMER.ID = CUST_ADDRESS.CUSTOMER_ID
 
@@ -563,6 +570,7 @@ LEFT JOIN RECEIVABLE RECEIVABLE
 GROUP BY
 
 	 CUSTOMER.ROWID
+	,_BILLTO.SZAN8
 	,CUSTOMER.TERMS_NET_DAYS
 	,(DATEPART(year, CUSTOMER.OPEN_DATE)-1900)*1000 + DATEPART(dayofyear, CUSTOMER.OPEN_DATE)  
 	,CUSTOMER.CONTACT_EMAIL
@@ -582,7 +590,7 @@ SELECT
 
  'JDE'   VOEDUS   -- EDI - User ID String Generic Edit 10 (0)
 ,'BALCM'   VOEDBT   -- EDI - Batch Number String Generic Edit (15)
-,ROW_NUMBER() OVER(ORDER BY	CUSTOMER.ROWID) + 2139  VOEDTN   -- EDI - Transaction Number String Generic Edit (22)
+,_BILLTO.SZAN8   VOEDTN   -- EDI - Transaction Number String Generic Edit (22)
 ,0   VOEDLN   -- EDI - Line Number Numeric Generic Edit (7)
 ,''   VOEDCT   -- EDI - Document Type String Generic Edit (2)
 ,'JDECM'   VOTYTN   -- Type - Transaction String UDC (00 TT) (8)
@@ -593,7 +601,7 @@ SELECT
 ,'N'   VOEDSP   -- EDI - Successfully Processed Character Generic Edit (1)
 ,''   VOPNID   -- Trading Partner ID String Generic Edit (15)
 ,'A'   VOTNAC   -- Transaction Action String UDC (00 TA) (2)
-,CUSTOMER.ROWID + 72000   VOAN8   -- Address Number Numeric UDC (8)
+,_BILLTO.SZAN8    VOAN8   -- Address Number Numeric UDC (8)
 ,'00020'   VOCO   -- Company String Generic Edit (5)
 ,''   VOARC   -- G/L Offset String UDC (55 AR) (4)
 ,''   VOMCUR   -- Business Unit - A/R Default String Generic Edit (12)
@@ -828,6 +836,9 @@ JOIN CUSTOMER CUSTOMER -- Bill To Addresses
 	ON CUSTOMER.ID = CUST_ADDRESS.CUSTOMER_ID
 	AND CUST_ADDRESS.ADDR_NO = 1
 
+JOIN _BILLTO
+	ON 'BC_' + LTRIM(RTRIM(CUSTOMER.ID)) = _BILLTO.SZALKY
+
 JOIN _CSB_REF$ CSB_REF
 	ON CUST_ADDRESS.CUSTOMER_ID = CSB_REF.CUSTOMER_ID
 
@@ -849,6 +860,7 @@ LEFT JOIN RECEIVABLE RECEIVABLE
 GROUP BY
 
 	 CUSTOMER.ROWID
+	,_BILLTO.SZAN8
 	,CUSTOMER.TERMS_NET_DAYS
 	,(DATEPART(year, CUSTOMER.OPEN_DATE)-1900)*1000 + DATEPART(dayofyear, CUSTOMER.OPEN_DATE)  
 	,CUSTOMER.CONTACT_EMAIL
@@ -867,7 +879,7 @@ SELECT
 
  'JDE'   VOEDUS   -- EDI - User ID String Generic Edit 10 (0)
 ,'BALCM'   VOEDBT   -- EDI - Batch Number String Generic Edit (15)
-,ROW_NUMBER() OVER(ORDER BY	CUSTOMER.ROWID) + 2981  VOEDTN   -- EDI - Transaction Number String Generic Edit (22)
+,_BILLTO.SZAN8   VOEDTN   -- EDI - Transaction Number String Generic Edit (22)
 ,0   VOEDLN   -- EDI - Line Number Numeric Generic Edit (7)
 ,''   VOEDCT   -- EDI - Document Type String Generic Edit (2)
 ,'JDECM'   VOTYTN   -- Type - Transaction String UDC (00 TT) (8)
@@ -878,7 +890,7 @@ SELECT
 ,'N'   VOEDSP   -- EDI - Successfully Processed Character Generic Edit (1)
 ,''   VOPNID   -- Trading Partner ID String Generic Edit (15)
 ,'A'   VOTNAC   -- Transaction Action String UDC (00 TA) (2)
-,CUSTOMER.ROWID + 72000   VOAN8   -- Address Number Numeric UDC (8)
+,_BILLTO.SZAN8    VOAN8   -- Address Number Numeric UDC (8)
 ,'00020'   VOCO   -- Company String Generic Edit (5)
 ,''   VOARC   -- G/L Offset String UDC (55 AR) (4)
 ,''   VOMCUR   -- Business Unit - A/R Default String Generic Edit (12)
@@ -1112,6 +1124,9 @@ FROM CUST_ADDRESS CUST_ADDRESS
 LEFT JOIN CUSTOMER CUSTOMER ON
 	CUST_ADDRESS.CUSTOMER_ID = CUSTOMER.ID
 
+JOIN _BILLTO
+	ON 'BC_' + LTRIM(RTRIM(CUSTOMER.ID)) = _BILLTO.SZALKY
+
 JOIN CUSTOMER_ORDER ORDERS
 	ON CUST_ADDRESS.CUSTOMER_ID = ORDERS.CUSTOMER_ID
 	AND CUST_ADDRESS.ADDR_NO = ORDERS.SHIP_TO_ADDR_NO
@@ -1137,6 +1152,7 @@ AND YEAR(ORDERS.ORDER_DATE) >= 2015
 GROUP BY
 
 	 CUSTOMER.ROWID
+	,_BILLTO.SZAN8
 	,CUSTOMER.TERMS_NET_DAYS
 	,(DATEPART(year, CUSTOMER.OPEN_DATE)-1900)*1000 + DATEPART(dayofyear, CUSTOMER.OPEN_DATE)  
 	,CUSTOMER.CONTACT_EMAIL

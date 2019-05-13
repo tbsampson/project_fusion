@@ -2,7 +2,7 @@
 	Custom Header for Request to E1 integration
 	IR 20190420
 	Tom Sampson
-	VER0004
+	VER0005
 */
 USE Requests;
 
@@ -16,12 +16,12 @@ SELECT DISTINCT
 	,QuoteSectionItems.SectionID        "BH55BSECID"
 	,'N'                                "BHEDSP" -- EDI Successfully Processed
 	,'BC_' + Customers.CustomerNumber   "BH55BBT"
-	,CAST(LTRIM(RTRIM(CAST((DATEPART(year, Orders.OrderDate) -1900) AS CHAR))) + LTRIM(RTRIM(CAST((DATEPART(dy, Orders.OrderDate)) AS CHAR))) AS INTEGER) 
+	,dbo.JDEJulian(Orders.OrderDate)
                                         "BHTRDJ"
 	,LEFT(LTRIM(RTRIM(Orders.CustomerPO)),25) 
                                         "BHVR02"
 	,RepCompanies.RepNumber             "BHSLSM"
-	,CAST(ROUND(ISNULL(NULLIF(QuoteSectionCommissions.Commission,0)  / NULLIF(SubT.Amt - QuoteSections.Discount,0),0),5) AS DECIMAL(4,2)) 
+	,CAST(CAST(ROUND(ISNULL(NULLIF(QuoteSectionCommissions.Commission,0)  / NULLIF(SubT.Amt - QuoteSections.Discount,0),0),5) AS DECIMAL(4,2)) * 10000 AS INTEGER)
                                         "BHSLCM"
 	,CASE
 		WHEN Users.SecurityLevel BETWEEN 1 AND 2 THEN 1
@@ -35,23 +35,28 @@ SELECT DISTINCT
 	 END                                "BH55BJTYPE"
 	,Orders.ShippingMethodID            "BH55BSMETH"
 	,Orders.Forward                     "BH55BFWD"
-	,SubT.Lbs                           "BHWTLB"
-	,CASE WHEN
-		LTRIM(RTRIM(Orders.Address)) IS NULL THEN ''
-		ELSE LTRIM(RTRIM(Orders.Address))
-	 END                                "BHADD1"
-	,CASE WHEN
-		LTRIM(RTRIM(Orders.City)) IS NULL THEN ''
-		ELSE LTRIM(RTRIM(Orders.City))
-	 END                                "BHCTY1"
-	,CASE WHEN
-		LTRIM(RTRIM(Orders.State)) IS NULL THEN ''
-		ELSE LTRIM(RTRIM(Orders.State))
-	 END                                "BHADDS"
-	,CASE WHEN
-		LTRIM(RTRIM(Orders.Zipcode)) IS NULL THEN ''
-		ELSE LTRIM(RTRIM(Orders.Zipcode))
-	 END                                "BHADDZ"
+	,CAST(SubT.Lbs * 10000 AS INTEGER)  "BHWTLB"
+	,ISNULL(CASE
+		WHEN LEN(LTRIM(RTRIM(Orders.State))) <> 2
+			OR LTRIM(RTRIM(Orders.State)) IS NULL
+			OR LTRIM(RTRIM(Orders.State)) = ''
+			OR LEFT(LTRIM(RTRIM(Orders.Zipcode)),1) > '9'
+			OR LTRIM(RTRIM(Orders.Zipcode)) IS NULL
+			OR LTRIM(RTRIM(Orders.Zipcode)) = ''
+			THEN LEFT(UPPER(LTRIM(RTRIM(Orders.City)) +','+ LTRIM(RTRIM(Orders.State)) + ' ' + LTRIM(RTRIM(Orders.Zipcode))),23)
+			ELSE ''
+	 END, '') 							"BHADD1"
+	
+	,ISNULL(LEFT(UPPER(LTRIM(RTRIM(Orders.City))), 30),'') 
+										"BHCTY1"
+	,CASE 
+		WHEN LEN(LTRIM(RTRIM(Orders.State))) = 2 THEN UPPER(LTRIM(RTRIM(Orders.State)))
+		ELSE ''
+	 END 								"BHADDS"
+	,CASE
+		WHEN LEFT(LTRIM(RTRIM(Orders.Zipcode)),1) <= '9' THEN ISNULL(LTRIM(RTRIM(Orders.Zipcode)),'')
+		ELSE ''
+	 END 								"BHADDZ"
 	,''                                 "BHKCOO"
 	,''                                 "BHDOCO"
 	,''                                 "BHDCTO"

@@ -2,7 +2,7 @@
 	Custom Detail for Request to E1 integration
 	IR 20190420
 	Tom Sampson
-	VER0002
+	VER0003
 */
 USE Requests;
 
@@ -13,17 +13,18 @@ SET @SectionID = 205515
 
 SELECT DISTINCT
 
-	 Orders.OrderID AS                  "BD55BORDER"
+	 Orders.OrderID                  	"BD55BORDER"
 	,QuoteSectionItems.SectionID        "BD55BSECID"
-	,QuoteSectionItems.ItemID           "DB55BLINE"
-	,'N'                                 "BDEDSP"
-	,Systems.SystemNumber AS            "BDAITM"
-	,QuoteSectionItems.Quantity         "BDUORG"
-	,CAST((QuoteSectionItems.UnitPrice) AS NUMERIC(12,2)) AS 
+	,QuoteSectionItems.ItemID           "BD55BLINE"
+	,'N'                                "BDEDSP"
+	,Systems.SystemNumber            	"BDAITM"
+	,CAST(QuoteSectionItems.Quantity * 10000 AS INTEGER)
+										"BDUORG"
+	,CAST(CAST((QuoteSectionItems.UnitPrice) AS NUMERIC(12,4)) * 10000 AS INTEGER) 
                                         "BDUPRC"
-	,CAST(ISNULL(dbo.fn_findDiscount(SystemCategories.CategoryID, (QuoteSectionItems.UnitPrice * QuoteSectionItems.Quantity)),0) * QuoteSectionItems.UnitPrice AS DECIMAL (12,4)) 
+	,CAST(CAST(ISNULL(dbo.fn_findDiscount(SystemCategories.CategoryID, (QuoteSectionItems.UnitPrice * QuoteSectionItems.Quantity)),0) * QuoteSectionItems.UnitPrice AS DECIMAL (12,4)) * 10000 AS INTEGER)
                                         "BDADSA"
-	,CAST((((QuoteSectionItems.Quantity * QuoteSectionItems.UnitPrice) / NULLIF(Subtotal.Amount,0)) * QuoteSectionCommissions.Commission)/NULLIF(QuoteSectionItems.Quantity,0) AS NUMERIC(12,4)) AS 
+	,CAST(CAST((((QuoteSectionItems.Quantity * QuoteSectionItems.UnitPrice) / NULLIF(Subtotal.Amount,0)) * QuoteSectionCommissions.Commission)/NULLIF(QuoteSectionItems.Quantity,0) AS NUMERIC(12,4)) * 10000 AS INTEGER)
                                         "BDIPRV"
 	,CASE 
 		WHEN LEFT(RTRIM(LTRIM(QuoteSectionItems.Custom)),60) IS NULL THEN ''
@@ -92,9 +93,10 @@ SELECT TOP 1
 		+ LTRIM(RTRIM(CAST(RIGHT(DATEPART(MILLISECOND, GETDATE()),2) AS CHAR)))
 	                                    "BD55BLINE"
 	,'N'                                "BDEDSP"
-	,'FREIGHT' AS                       "BDAITM"
-	,1                                  "BDUORG"
-	,Orders.ShippingAmount              "BDUPRC"
+	,'FREIGHT'                       	"BDAITM"
+	,1 * 10000                          "BDUORG"
+	,CAST(Orders.ShippingAmount * 10000 AS INTEGER)
+									    "BDUPRC"
 	,0                                  "BDADSA"
 	,0                                  "BDIPRV"
 	,ShippingCosts.ShippingDescription  "BDTXLN"
