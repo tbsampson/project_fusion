@@ -9,7 +9,7 @@ USE Requests;
 DECLARE @OrderID INTEGER, @SectionID INTEGER
 -- Test values, production will be SP paramters
 SET @OrderID = 55722
-SET @SectionID = 205515
+SET @SectionID = 205521
 
 SELECT DISTINCT
 	 Orders.OrderID                     "BH55BORDER"
@@ -36,6 +36,7 @@ SELECT DISTINCT
 	,Orders.ShippingMethodID            "BH55BSMETH"
 	,Orders.Forward                     "BH55BFWD"
 	,CAST(SubT.Lbs * 10000 AS INTEGER)  "BHWTLB"
+	/*
 	,ISNULL(CASE
 		WHEN LEN(LTRIM(RTRIM(Orders.State))) <> 2
 			OR LTRIM(RTRIM(Orders.State)) IS NULL
@@ -46,6 +47,10 @@ SELECT DISTINCT
 			THEN LEFT(UPPER(LTRIM(RTRIM(Orders.City)) +','+ LTRIM(RTRIM(Orders.State)) + ' ' + LTRIM(RTRIM(Orders.Zipcode))),23)
 			ELSE ''
 	 END, '') 							"BHADD1"
+	 */
+	,LEFT(CAST(Quotes.QuoteID AS VARCHAR) + '/' + QuoteSections.SectionName,40)
+										"BHADD1"
+	
 	
 	,ISNULL(LEFT(UPPER(LTRIM(RTRIM(Orders.City))), 30),'') 
 										"BHCTY1"

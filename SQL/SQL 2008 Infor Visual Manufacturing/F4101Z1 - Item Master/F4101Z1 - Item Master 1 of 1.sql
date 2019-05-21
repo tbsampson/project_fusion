@@ -1,5 +1,5 @@
 /*
-F4101Z1 Item Master VER0009
+F4101Z1 Item Master VER0010
 Tom Sampson IR 4/10/2019
 CR 4/29/2019
 
@@ -19,6 +19,8 @@ VER0008
  - updates from Bill in
 VER0009
 - updates in from Steve 5/7/2019
+VER0010
+- corrected UOM 5/14/2019
 
 */
 -- USE BALCO;	
@@ -128,48 +130,61 @@ SELECT
 		,''				SZSHCN	 -- Shipping Conditions Code	String	UDC (41 C)	3
 		,''				SZSHCM	 -- Shipping Commodity Class	String	UDC (41 E)	3
 		,CASE
-			WHEN LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2) = 'GL'
-			THEN 'GA'
+			WHEN PART.STOCK_UM IS NULL THEN ''
+			WHEN PART.STOCK_UM = 'BG' THEN 'BC'
+			WHEN PART.STOCK_UM = 'GL' THEN 'GA'
+			WHEN PART.STOCK_UM = 'GRAMS' THEN 'GM'
+			WHEN PART.STOCK_UM = 'M' THEN 'MT'
 			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
-		 END
-						SZUOM1	 -- Unit of Measure - Primary	String	UDC (00 UM)	2
+		END             SZUOM1	 -- Unit of Measure - Primary	String	UDC (00 UM)	2		
 		,CASE
-			WHEN LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2) = 'GL'
-			THEN 'GA'
+			WHEN PART.STOCK_UM IS NULL THEN ''
+			WHEN PART.STOCK_UM = 'BG' THEN 'BC'
+			WHEN PART.STOCK_UM = 'GL' THEN 'GA'
+			WHEN PART.STOCK_UM = 'GRAMS' THEN 'GM'
+			WHEN PART.STOCK_UM = 'M' THEN 'MT'
 			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
-		 END
-						SZUOM2	 -- Unit of Measure - Secondary	String	UDC (00 UM)	2
-		,CASE 
+		END             SZUOM2	 -- Unit of Measure - Secondary	String	UDC (00 UM)	2	
+		,CASE
 			WHEN PO_LINE.PURCHASE_UM IS NULL THEN ''
-			WHEN PO_LINE.PURCHASE_UM = 'M' THEN 'MT'
+			WHEN PO_LINE.PURCHASE_UM = 'BG' THEN 'BC'
 			WHEN PO_LINE.PURCHASE_UM = 'GL' THEN 'GA'
-			ELSE PO_LINE.PURCHASE_UM
-		 END
-		 				SZUOM3	 -- Unit of Measure - Purchasing	String	UDC (00 UM)	2
-		,CASE
-			WHEN LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2) = 'GL'
-			THEN 'GA'
+			WHEN PO_LINE.PURCHASE_UM = 'GRAMS' THEN 'GM'
+			WHEN PO_LINE.PURCHASE_UM = 'M' THEN 'MT'
 			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
-		 END
-						SZUOM4	 -- Unit of Measure - Pricing	String	UDC (00 UM)	2
+		END             SZUOM3	 -- Unit of Measure - Purchasing	String	UDC (00 UM)	2	
 		,CASE
-			WHEN LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2) = 'GL'
-			THEN 'GA'
+			WHEN PART.STOCK_UM IS NULL THEN ''
+			WHEN PART.STOCK_UM = 'BG' THEN 'BC'
+			WHEN PART.STOCK_UM = 'GL' THEN 'GA'
+			WHEN PART.STOCK_UM = 'GRAMS' THEN 'GM'
+			WHEN PART.STOCK_UM = 'M' THEN 'MT'
 			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
-		 END
-						SZUOM6	 -- Unit of Measure - Shipping	String	UDC (00 UM)	2
+		END             SZUOM4	 -- Unit of Measure - Pricing	String	UDC (00 UM)	2
 		,CASE
-			WHEN LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2) = 'GL'
-			THEN 'GA'
+			WHEN PART.STOCK_UM IS NULL THEN ''
+			WHEN PART.STOCK_UM = 'BG' THEN 'BC'
+			WHEN PART.STOCK_UM = 'GL' THEN 'GA'
+			WHEN PART.STOCK_UM = 'GRAMS' THEN 'GM'
+			WHEN PART.STOCK_UM = 'M' THEN 'MT'
 			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
-		 END
-						SZUOM8	 -- Unit of Measure - Production	String	UDC (00 UM)	2
+		END             SZUOM6	 -- Unit of Measure - Shipping	String	UDC (00 UM)	2
 		,CASE
-			WHEN LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2) = 'GL'
-			THEN 'GA'
+			WHEN PART.STOCK_UM IS NULL THEN ''
+			WHEN PART.STOCK_UM = 'BG' THEN 'BC'
+			WHEN PART.STOCK_UM = 'GL' THEN 'GA'
+			WHEN PART.STOCK_UM = 'GRAMS' THEN 'GM'
+			WHEN PART.STOCK_UM = 'M' THEN 'MT'
 			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
-		 END
-						SZUOM9	 -- Unit of Measure - Component	String	UDC (00 UM)	2
+		END             SZUOM8	 -- Unit of Measure - Production	String	UDC (00 UM)	2
+		,CASE
+			WHEN PART.STOCK_UM IS NULL THEN ''
+			WHEN PART.STOCK_UM = 'BG' THEN 'BC'
+			WHEN PART.STOCK_UM = 'GL' THEN 'GA'
+			WHEN PART.STOCK_UM = 'GRAMS' THEN 'GM'
+			WHEN PART.STOCK_UM = 'M' THEN 'MT'
+			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+		END             SZUOM9	 -- Unit of Measure - Component	String	UDC (00 UM)	2
 		,'LB'			SZUWUM	 -- Unit of Measure - Weight	String	UDC (00 UM)	2
 		,'FC'			SZUVM1	 -- Unit of Measure - Volume	String	UDC (00 UM)	2
 		,CASE
@@ -314,8 +329,8 @@ SELECT
 		,600			SZVEND	 -- Primary / Last Supplier Number	Numeric	Generic Edit	8
 		,''				SZORIG	 -- Country of Origin	String	UDC (00 CN)	3
 		,''				SZROPI	 -- Reorder Point - Input	Numeric	Generic Edit	15
-		,ISNULL(PART.ORDER_POINT*10000,0)		
-						SZROQI	 -- Reorder Quantity - Input	Numeric	Generic Edit	15
+		-- ,ISNULL(PART.ORDER_POINT*10000,0)		
+		,''				SZROQI	 -- Reorder Quantity - Input	Numeric	Generic Edit	15
 		,''				SZRQMX	 -- Reorder Quantity - Maximum	Numeric	Generic Edit	15
 		,''				SZRQMN	 -- Reorder Quantity - Minimum	Numeric	Generic Edit	15
 		,''				SZWOMO	 -- Quantity - Order Multiples (SO/PO)	Numeric	Generic Edit	7

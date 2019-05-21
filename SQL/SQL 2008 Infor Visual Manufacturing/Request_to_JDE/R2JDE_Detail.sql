@@ -2,14 +2,14 @@
 	Custom Detail for Request to E1 integration
 	IR 20190420
 	Tom Sampson
-	VER0003
+	VER0004
 */
 USE Requests;
 
 DECLARE @OrderID INTEGER, @SectionID INTEGER
 
 SET @OrderID = 55722
-SET @SectionID = 205515
+SET @SectionID = 205521
 
 SELECT DISTINCT
 
@@ -18,12 +18,11 @@ SELECT DISTINCT
 	,QuoteSectionItems.ItemID           "BD55BLINE"
 	,'N'                                "BDEDSP"
 	,Systems.SystemNumber            	"BDAITM"
-	,CAST(QuoteSectionItems.Quantity * 10000 AS INTEGER)
-										"BDUORG"
-	,CAST(CAST((QuoteSectionItems.UnitPrice) AS NUMERIC(12,4)) * 10000 AS INTEGER) 
-                                        "BDUPRC"
-	,CAST(CAST(ISNULL(dbo.fn_findDiscount(SystemCategories.CategoryID, (QuoteSectionItems.UnitPrice * QuoteSectionItems.Quantity)),0) * QuoteSectionItems.UnitPrice AS DECIMAL (12,4)) * 10000 AS INTEGER)
-                                        "BDADSA"
+	,CAST((QuoteSectionItems.Quantity * (1 + CAST(ROUND((QuoteSectionCommissions.Commission  / (Subtotal.Amount - QuoteSections.Discount)),5) AS DECIMAL(4,2)))) * 10000 AS INTEGER)
+										"BDUORG" -- Qty
+	,CAST(((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * dbo.fn_findDiscount(SystemCategories.CategoryID, Subtotal.Amount))) + ((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * dbo.fn_findDiscount(SystemCategories.CategoryID, Subtotal.Amount))) * (CAST(ROUND(ISNULL(NULLIF(QuoteSectionCommissions.Commission,0)  / NULLIF(Subtotal.Amount - QuoteSections.Discount,0),0),5) AS DECIMAL(4,2))))) * 10000 AS BIGINT)	"BDUPRC" -- per unit price
+	,CAST((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * dbo.fn_findDiscount(SystemCategories.CategoryID, Subtotal.Amount))) * 10000 AS BIGINT)
+                                        "BDADSA" -- discount
 	,CAST(CAST((((QuoteSectionItems.Quantity * QuoteSectionItems.UnitPrice) / NULLIF(Subtotal.Amount,0)) * QuoteSectionCommissions.Commission)/NULLIF(QuoteSectionItems.Quantity,0) AS NUMERIC(12,4)) * 10000 AS INTEGER)
                                         "BDIPRV"
 	,CASE 
@@ -80,7 +79,7 @@ LEFT JOIN SystemCategories SystemCategories
 WHERE 
 	Orders.OrderID = @OrderID
 	AND QuoteSectionItems.SectionID = @SectionID
-
+	
 UNION ALL
 
 SELECT TOP 1
@@ -93,10 +92,9 @@ SELECT TOP 1
 		+ LTRIM(RTRIM(CAST(RIGHT(DATEPART(MILLISECOND, GETDATE()),2) AS CHAR)))
 	                                    "BD55BLINE"
 	,'N'                                "BDEDSP"
-	,'FREIGHT'                       	"BDAITM"
-	,1 * 10000                          "BDUORG"
-	,CAST(Orders.ShippingAmount * 10000 AS INTEGER)
-									    "BDUPRC"
+	,'FREIGHT' AS                       "BDAITM"
+	,1                                  "BDUORG"
+	,Orders.ShippingAmount              "BDUPRC"
 	,0                                  "BDADSA"
 	,0                                  "BDIPRV"
 	,ShippingCosts.ShippingDescription  "BDTXLN"
@@ -161,8 +159,4 @@ LEFT JOIN Permissions Permissions
 WHERE 
 	Orders.OrderID = @OrderID
 	AND QuoteSectionItems.SectionID = @SectionID
-
-ORDER BY
-	 Orders.OrderID
-	,QuoteSectionItems.SectionID
-	,QuoteSectionItems.ItemID
+	
