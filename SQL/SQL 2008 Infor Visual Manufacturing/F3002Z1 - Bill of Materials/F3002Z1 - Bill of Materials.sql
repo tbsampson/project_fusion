@@ -39,9 +39,11 @@ SELECT
 ,'Y'			SZPRTA -- Partials Allowed (Y/N) Character Generic Edit(1)
 
 ,CASE 
-       WHEN REQUIREMENT.QTY_PER <> 0 
+       WHEN REQUIREMENT.FIXED_QTY <> 0
+	   THEN CAST(CAST(REQUIREMENT.FIXED_QTY AS DECIMAL(12,6)) * 10000 AS BIGINT)
+	   WHEN REQUIREMENT.FIXED_QTY = 0 AND REQUIREMENT.QTY_PER <> 0 
        THEN CAST(CAST(REQUIREMENT.QTY_PER AS DECIMAL(12,6)) * 10000 AS BIGINT)
-       ELSE CAST(CAST(REQUIREMENT.FIXED_QTY AS DECIMAL(12,6)) * 10000 AS BIGINT)
+	   ELSE 1
  END			SZQNTY -- Quantity - Standard Required Quantity Numeric Generic Edit(15)
 
 ,IM2.SZUOM1		SZUM -- Unit of Measure String UDC (00 UM)(2)
@@ -86,7 +88,7 @@ SELECT
 ,''				SZECO -- ECO Number String Generic Edit(12)
 ,''				SZECTY -- Engineering Change Reason String UDC (40 CR)(2)
 ,''				SZECOD -- Date - Engineering Change Date Date Generic Edit(6)
-,LEFT(IM2.SZDSC1,30)   
+,'' -- LEFT(IM2.SZDSC1,30)   NULL per Bill
 				SZDSC1 -- Description String Generic Edit(30)
 ,'S'			SZLNTY -- Line Type String Generic Edit(2)
 ,''				SZPRIC -- Unit Price per Primary Numeric Generic Edit(15)
