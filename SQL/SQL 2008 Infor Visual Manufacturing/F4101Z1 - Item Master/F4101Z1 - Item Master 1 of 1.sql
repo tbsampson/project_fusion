@@ -201,6 +201,7 @@ SELECT
 			ELSE ''
 		 END				SZCYCL	 -- Cycle Count Category	String	UDC (41 8)	3
 		,CASE 
+			WHEN PART.ID = 'PLC105FC12' THEN 'M'
 			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'P' THEN 'BC10'
 			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'S' THEN 'BC50'
 			WHEN (
@@ -225,8 +226,9 @@ SELECT
 		,''				SZFRGD	 -- From Grade	String	UDC (40 LG)	3
 		,''				SZTHGD	 -- Thru Grade	String	UDC (40 LG)	3
 		,''				SZCOTY	 -- Component Type	Character	UDC (H40 CP)	1
-		,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSTKT)),1)
-						SZSTKT	 -- Stocking Type	Character	UDC (41 I)	1
+		,CASE WHEN PART.ID = 'PLC105FC12' THEN 'M'
+			ELSE LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSTKT)),1)
+		 END SZSTKT	 -- Stocking Type	Character	UDC (41 I)	1
 		,CASE
             WHEN LEFT(PART.DESCRIPTION,6) = 'SYSTEM' AND LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSTKT)) = 'M' THEN 'W'
             WHEN LEFT(PART.DESCRIPTION,2) = 'FG' AND LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSTKT)) = 'M' THEN 'W'
@@ -326,7 +328,11 @@ SELECT
 		,0				SZPOC	 -- Issue and Receipt	Character	UDC (43 IR)	1
 		,'       20001'	SZMCU	 -- Business Unit	String	Generic Edit	12
 		,'       20001'	SZMMCU	 -- Branch	String	Generic Edit	12
-		,600			SZVEND	 -- Primary / Last Supplier Number	Numeric	Generic Edit	8
+		,CASE 
+			WHEN PART.ID = 'PLC105FC12' THEN ''
+			WHEN LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSTKT)),1) = 'M' THEN ''
+			ELSE 600
+		 END			SZVEND	 -- Primary / Last Supplier Number	Numeric	Generic Edit	8
 		,''				SZORIG	 -- Country of Origin	String	UDC (00 CN)	3
 		,''				SZROPI	 -- Reorder Point - Input	Numeric	Generic Edit	15
 		-- ,ISNULL(PART.ORDER_POINT*10000,0)		
