@@ -73,7 +73,7 @@ SELECT
 ,''   SHAFT -- Apply Freight - Y/N [Generic Edit] Character (1)
 ,''   SHFUF1 -- AIA Document Flag [UDC (H40 FU)] Character (1)
 ,''   SHFRTC -- Freight Calculated (Y/N) [Generic Edit] Character (1)
-,''   SHMORD -- Merge Orders (Y/N) [Generic Edit] Character (1)
+,'Y'   SHMORD -- Merge Orders (Y/N) [Generic Edit] Character (1)
 ,''   SHRCD -- Reason Code [UDC (42 RC)] String (3)
 ,''   SHFUF2 -- Post Quantities [Generic Edit] Character (1)
 ,''   SHOTOT -- Amount - Order Gross [Generic Edit] Numeric (15)
@@ -150,7 +150,7 @@ SELECT
 ,'0'   SHCCIDLN -- Customer Contact Line Number ID [Generic Edit] Numeric (5)
 ,'0'   SHSHCCIDLN -- Ship To Cust Contact Line Num ID [Generic Edit] Numeric (5)
 
-FROM _ORDER_REF ORDER_REF
+FROM _ORDER_REF_TABLE ORDER_REF
 
 JOIN _ADDRESS_BOOK ADDRESS_BOOK
     ON ORDER_REF.SHIPTO_ID = ADDRESS_BOOK.SZAN8

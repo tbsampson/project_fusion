@@ -6,7 +6,7 @@ use BALCO;
 SELECT
 
  '00020'   SDKCOO -- Order Company (Order Number) [Generic Edit] String (5)
-,ORDER_REF.NEW_ID   SDDOCO -- Document (Order No Invoice etc.) [Generic Edit] Numeric (8)
+,CAST(LTRIM(RTRIM(ORDER_REF.NEW_ID)) AS BIGINT)   SDDOCO -- Document (Order No Invoice etc.) [Generic Edit] Numeric (8)
 ,'SO'   SDDCTO -- Order Type [UDC (00 DT)] String (2)
 ,CAST(CUST_ORDER_LINE.LINE_NO AS BIGINT) * 1000   SDLNID -- Line Number [Generic Edit] Numeric (6)
 ,'000'   SDSFXO -- Order Suffix [Generic Edit] String (3)
@@ -38,11 +38,11 @@ END   SDDGL -- Date - For G/L (and Voucher) [Generic Edit] Date (6)
 ,ISNULL(dbo.JDEJulian(CUST_ORDER_LINE.DESIRED_SHIP_DATE),'')    SDRSDJ -- Date - Promised Delivery [Generic Edit] Date (6)
 ,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.ORDER_DATE),'')   SDPEFJ -- Date - Price Effective Date [Generic Edit] Date (6)
 ,ISNULL(dbo.JDEJulian(CUST_ORDER_LINE.DESIRED_SHIP_DATE),'')    SDPPDJ -- Date - Promised Shipment [Generic Edit] Date (6)
-,CUSTOMER_ORDER.CUSTOMER_PO_REF   SDVR01 -- Reference [Generic Edit] String (25)
+,ISNULL(LEFT(LTRIM(RTRIM(CUSTOMER_ORDER.CUSTOMER_PO_REF)),25),'')   SDVR01 -- Reference [Generic Edit] String (25)
 ,''   SDVR02 -- Reference 2 [Generic Edit] String (25)
 ,ITEM_MASTER_1.SZITM   SDITM -- Item Number - Short [Generic Edit] Numeric (8)
-,ITEM_MASTER_1.SZLITM   SDLITM -- 2nd Item Number [Generic Edit] String (25)
-,CUST_ORDER_LINE.CUSTOMER_PART_ID   SDAITM -- 3rd Item Number [Generic Edit] String (25)
+,LEFT(LTRIM(RTRIM(ITEM_MASTER_1.SZLITM)),25)   SDLITM -- 2nd Item Number [Generic Edit] String (25)
+,ISNULL(LEFT(LTRIM(RTRIM(CUST_ORDER_LINE.CUSTOMER_PART_ID)),25),'')   SDAITM -- 3rd Item Number [Generic Edit] String (25)
 ,''   SDLOCN -- Location [Generic Edit] String (20)
 ,''   SDLOTN -- Lot/Serial Number [Generic Edit] String (30)
 ,''   SDFRGD -- From Grade [UDC (40 LG)] String (3)
@@ -50,20 +50,8 @@ END   SDDGL -- Date - For G/L (and Voucher) [Generic Edit] Date (6)
 ,''   SDFRMP -- From Potency [Generic Edit] Numeric (7)
 ,''   SDTHRP -- Thru Potency [Generic Edit] Numeric (7)
 ,''   SDEXDP -- Days Before Expiration [Generic Edit] Numeric (5)
-,ITEM_MASTER_1.SZDSC1   SDDSC1 -- Description [Generic Edit] String (30)
-,ITEM_MASTER_1.SZDSC1   SDDSC2 -- Description - Line 2 [Generic Edit] String (30)
-/*
-,CASE 
-    WHEN LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3)  
-                  IN () THEN 'S'  
-    WHEN LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3)  
-                  IN () THEN 'N'
-    WHEN LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3)  
-                  IN () THEN 'F'
-     ELSE ''
- END
-*/
-
+,ISNULL(LEFT(LTRIM(RTRIM(ITEM_MASTER_1.SZDSC1)),30),'')   SDDSC1 -- Description [Generic Edit] String (30)
+,ISNULL(LEFT(LTRIM(RTRIM(ITEM_MASTER_1.SZDSC1)),30),'')   SDDSC2 -- Description - Line 2 [Generic Edit] String (30)
 ,''   SDLNTY -- Line Type [Generic Edit] String (2)
 ,'999'   SDNXTR -- Status Code - Next [UDC (40 AT)] String (3)
 ,'620'   SDLTTR -- Status Code - Last [UDC (40 AT)] String (3)
@@ -76,14 +64,14 @@ END   SDDGL -- Date - For G/L (and Voucher) [Generic Edit] Date (6)
 ,''   SDSRP1 -- Sales Catalog Section [UDC (41 S1)] String (3)
 ,''   SDSRP2 -- Sub Section [UDC (41 S2)] String (3)
 ,''   SDSRP3 -- Sales Category Code 3 [UDC (41 S3)] String (3)
-,ITEM_MASTER_1.SZPRP4   SDSRP4 -- Sales Category Code 4 [UDC (41 S4)] String (3)
+,ISNULL(ITEM_MASTER_1.SZPRP4,'')   SDSRP4 -- Sales Category Code 4 [UDC (41 S4)] String (3)
 ,''   SDSRP5 -- Sales Category Code 5 [UDC (41 S5)] String (3)
 ,''   SDPRP1 -- Commodity Class [UDC (41 P1)] String (3)
 ,''   SDPRP2 -- Commodity Sub Class [UDC (41 P2)] String (3)
 ,''   SDPRP3 -- Supplier Rebate Code [UDC (41 P3)] String (3)
 ,''   SDPRP4 -- Master Planning Family [UDC (41 P4)] String (3)
 ,''   SDPRP5 -- Purchasing Category Code 5 [UDC (41 P5)] String (3)
-,ITEM_MASTER_1.SZUOM1   SDUOM -- Unit of Measure as Input [UDC (00 UM)] String (2)
+,ISNULL(ITEM_MASTER_1.SZUOM1,'')  SDUOM -- Unit of Measure as Input [UDC (00 UM)] String (2)
 ,CAST((CUST_ORDER_LINE.ORDER_QTY * 10000) AS BIGINT)  SDUORG -- Units - Order/Transaction Quantity [Generic Edit] Numeric (15)
 ,CAST((CUST_ORDER_LINE.TOTAL_SHIPPED_QTY * 10000) AS BIGINT)  SDSOQS -- Quantity Shipped [Generic Edit] Numeric (15)
 ,''   SDSOBK -- Units - Qty Backordered/Held [Generic Edit] Numeric (15)
@@ -99,7 +87,7 @@ END   SDDGL -- Date - For G/L (and Voucher) [Generic Edit] Date (6)
 ,''   SDAOPN -- Amount - Open [Generic Edit] Numeric (15)
 ,'0'   SDPROV -- Price Override Code [Generic Edit] Character (1)
 ,''   SDTPC -- Temporary Price (Y/N) [Generic Edit] Character (1)
-,ITEM_MASTER_1.SZUOM1   SDAPUM -- Unit of Measure - Entered for Unit Price [UDC (00 UM)] String (2)
+,ISNULL(ITEM_MASTER_1.SZUOM1,'')   SDAPUM -- Unit of Measure - Entered for Unit Price [UDC (00 UM)] String (2)
 ,CAST((CUST_ORDER_LINE.UNIT_PRICE * 10000) AS BIGINT)   SDLPRC -- Amount - List Price [Generic Edit] Numeric (15)
 ,''   SDUNCS -- Amount - Unit Cost [Generic Edit] Numeric (15)
 ,''   SDECST -- Amount - Extended Cost [Generic Edit] Numeric (15)
@@ -159,11 +147,14 @@ END   SDDGL -- Date - For G/L (and Voucher) [Generic Edit] Date (6)
 ,''   SDSHCN -- Shipping Conditions Code [UDC (41 C)] String (3)
 ,''   SDSERN -- Serial Number - Lot [Generic Edit] String (30)
 ,ITEM_MASTER_1.SZUOM1   SDUOM1 -- Unit of Measure - Primary [UDC (00 UM)] String (2)
-,CUST_ORDER_LINE.ORDER_QTY   SDPQOR -- Units - Primary Quantity Ordered [Generic Edit] Numeric (15)
+,CAST((CUST_ORDER_LINE.ORDER_QTY * 10000) AS BIGINT)  SDPQOR -- Units - Primary Quantity Ordered [Generic Edit] Numeric (15)
 ,ITEM_MASTER_1.SZUOM1   SDUOM2 -- Unit of Measure - Secondary [UDC (00 UM)] String (2)
-,CUST_ORDER_LINE.ORDER_QTY   SDSQOR -- Units - Secondary Quantity Ordered [Generic Edit] Numeric (15)
+,CAST((CUST_ORDER_LINE.ORDER_QTY * 10000) AS BIGINT)  SDSQOR -- Units - Secondary Quantity Ordered [Generic Edit] Numeric (15)
 ,ITEM_MASTER_1.SZUOM1   SDUOM4 -- Unit of Measure - Pricing [UDC (00 UM)] String (2)
-,PART.WEIGHT   SDITWT -- Unit Weight [Generic Edit] Numeric (15)
+,CASE
+    WHEN PART.WEIGHT IS NULL THEN ''
+    ELSE CAST(CAST((PART.WEIGHT * 10000) AS BIGINT) AS VARCHAR)
+ END   SDITWT -- Unit Weight [Generic Edit] Numeric (15)
 ,'LB'   SDWTUM -- Weight Unit of Measure [UDC (00 UM)] String (2)
 ,''   SDITVL -- Unit Volume [Generic Edit] Numeric (15)
 ,'GA'   SDVLUM -- Volume Unit of Measure [UDC (00 UM)] String (2)
@@ -276,7 +267,7 @@ END   SDDGL -- Date - For G/L (and Voucher) [Generic Edit] Date (6)
 ,''   SDPMTN -- Promotion ID [Generic Edit] String (12)
 ,''   SDNUMB -- Asset Item Number [Generic Edit] Numeric (8)
 ,''   SDAAID -- Parent Number [Generic Edit] Numeric (8)
-,CUSTOMER_ORDER.FREE_ON_BOARD   SDSPATTN -- Ship To Attention [Generic Edit] String (50)
+,ISNULL(LEFT(LTRIM(RTRIM(CUSTOMER_ORDER.FREE_ON_BOARD)),50),'')   SDSPATTN -- Ship To Attention [Generic Edit] String (50)
 ,'0'   SDPRAN8 -- Partner Address Number [Generic Edit] Numeric (8)
 ,'0'   SDPRCIDLN -- Partner Contact Line Number ID [Generic Edit] Numeric (5)
 ,'0'   SDCCIDLN -- Customer Contact Line Number ID [Generic Edit] Numeric (5)
@@ -300,26 +291,26 @@ END   SDDGL -- Date - For G/L (and Voucher) [Generic Edit] Date (6)
 ,''   SDPMPN -- Production Number [Generic Edit] String (30)
 ,''   SDPNS -- Production Number Short [Generic Edit] Numeric (10)
 
-FROM _ORDER_REF ORDER_REF
+FROM _ORDER_REF_TABLE ORDER_REF
 
-JOIN _ADDRESS_BOOK ADDRESS_BOOK
-    ON ORDER_REF.SHIPTO_ID = CAST(ADDRESS_BOOK.SZAN8 AS BIGINT)
+JOIN _ADDRESS_BOOK_TABLE ADDRESS_BOOK
+    ON CAST(ORDER_REF.SHIPTO_ID AS BIGINT) = CAST(ADDRESS_BOOK.SZAN8 AS BIGINT)
 
 JOIN CUSTOMER_ORDER CUSTOMER_ORDER
-    ON CUSTOMER_ORDER.ID = ORDER_REF.OLD_ID
+	ON CUSTOMER_ORDER.ID = LTRIM(RTRIM(ORDER_REF.OLD_ID))
 
 JOIN CUST_ORDER_LINE CUST_ORDER_LINE
     ON CUST_ORDER_LINE.CUST_ORDER_ID = CUSTOMER_ORDER.ID
-
+    
 JOIN RECEIVABLE_LINE RECEIVABLE_LINE
     ON RECEIVABLE_LINE.CUST_ORDER_ID = CUST_ORDER_LINE.CUST_ORDER_ID
     AND RECEIVABLE_LINE.CUST_ORDER_LINE_NO = CUST_ORDER_LINE.LINE_NO
-
+    
 JOIN RECEIVABLE RECEIVABLE
     ON RECEIVABLE.INVOICE_ID = RECEIVABLE_LINE.INVOICE_ID
-
-JOIN _ITEM_MASTER_1 ITEM_MASTER_1
-    ON CUST_ORDER_LINE.PART_ID = CAST(ITEM_MASTER_1.SZITM AS BIGINT)
+    
+JOIN _ITEM_MASTER_1_TABLE ITEM_MASTER_1
+    ON CUST_ORDER_LINE.PART_ID = LTRIM(RTRIM(ITEM_MASTER_1.SZAITM))  
 
 JOIN PART PART
-    ON PART.ID = CUST_ORDER_LINE.PART_ID
+    ON PART.ID = CUST_ORDER_LINE.PART_ID      
