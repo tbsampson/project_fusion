@@ -1,31 +1,33 @@
 /*
 	Custom Detail for Request to E1 integration
 	IR 20190420
+	REWRITE 20190603
 	Tom Sampson
-	VER0004
+	VER0010
 */
-USE Requests;
+
+
+USE RequestsStaging;
 
 DECLARE @OrderID INTEGER, @SectionID INTEGER
 
 SET @OrderID = 55722
 SET @SectionID = 205521
 
-SELECT DISTINCT
-
-	 Orders.OrderID                  	"BD55BORDER"
-	,QuoteSectionItems.SectionID        "BD55BSECID"
-	,QuoteSectionItems.ItemID           "BD55BLINE"
-	,'N'                                "BDEDSP"
-	,Systems.SystemNumber            	"BDAITM"
-	,CAST((QuoteSectionItems.Quantity * (1 + CAST(ROUND((QuoteSectionCommissions.Commission  / (Subtotal.Amount - QuoteSections.Discount)),5) AS DECIMAL(4,2)))) * 10000 AS INTEGER)
-										"BDUORG" -- Qty
-	,CAST(((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * dbo.fn_findDiscount(SystemCategories.CategoryID, Subtotal.Amount))) + ((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * dbo.fn_findDiscount(SystemCategories.CategoryID, Subtotal.Amount))) * (CAST(ROUND(ISNULL(NULLIF(QuoteSectionCommissions.Commission,0)  / NULLIF(Subtotal.Amount - QuoteSections.Discount,0),0),5) AS DECIMAL(4,2))))) * 10000 AS BIGINT)	
+SELECT 
+	 Orders.OrderID                  	"BD55BORDER" -- OrderID
+	,QuoteSectionItems.SectionID        "BD55BSECID" -- SectionID
+	,QuoteSectionItems.ItemID           "BD55BLINE" -- ItemID
+	,'N'                                "BDEDSP" -- hard code to N
+	,Systems.SystemNumber            	"BDAITM" -- System number.  This is freeform and may not match item in JDE
+	,CAST((QuoteSectionItems.Quantity * (1 + CAST(ROUND((ISNULL(Comm.CommissionAmount, 0.00)  / (AvgPrice.Total - QuoteSections.Discount)),5) AS DECIMAL(4,2)))) * 10000 AS INTEGER)
+										"BDUORG" -- Qty * commission / price after discounts
+	,CAST(((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * CAST(ISNULL(1 - Disc.Discount, 0.00) AS MONEY))) + ((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * CAST(ISNULL(1 - Disc.Discount, 0.00) AS MONEY))) * (CAST(ROUND(ISNULL(NULLIF(ISNULL(Comm.CommissionAmount, 0.00),0)  / NULLIF(AvgPrice.Total - QuoteSections.Discount,0),0),5) AS DECIMAL(4,2))))) * 10000 AS BIGINT)	
 										"BDUPRC" -- per unit price
-	,CAST((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * dbo.fn_findDiscount(SystemCategories.CategoryID, Subtotal.Amount))) * 10000 AS BIGINT)
+	,CAST((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * CAST(ISNULL(1 - Disc.Discount, 0.00) AS MONEY))) * 10000 AS BIGINT)
                                         "BDADSA" -- discount
-	,CAST(CAST((((QuoteSectionItems.Quantity * QuoteSectionItems.UnitPrice) / NULLIF(Subtotal.Amount,0)) * QuoteSectionCommissions.Commission)/NULLIF(QuoteSectionItems.Quantity,0) AS NUMERIC(12,4)) * 10000 AS INTEGER)
-                                        "BDIPRV"
+	,CAST(CAST((((QuoteSectionItems.Quantity * QuoteSectionItems.UnitPrice) / NULLIF(AvgPrice.Total,0)) * ISNULL(Comm.CommissionAmount, 0.00)) AS NUMERIC(12,4)) * 10000 AS INTEGER)
+                                        "BDIPRV" -- comm
 	,CASE 
 		WHEN LEFT(RTRIM(LTRIM(QuoteSectionItems.Custom)),60) IS NULL THEN ''
 		ELSE LEFT(RTRIM(LTRIM(QuoteSectionItems.Custom)),60)
@@ -38,49 +40,98 @@ SELECT DISTINCT
 	,''                                 "BDPID"
 	,''                                 "BDUPMJ"
 	,''                                 "BDUPMT"
-	,''                                 "BDJOBN"	
+	,''                                 "BDJOBN"
+	                                        
+FROM Quotes
 
-FROM QuoteSectionItems QuoteSectionItems
+INNER JOIN ShippingCosts
+	ON Quotes.ShippingID = ShippingCosts.ShippingID
 
-JOIN QuoteSections QuoteSections
-	ON QuoteSectionItems.SectionID = QuoteSections.SectionID
+INNER JOIN QuoteSections
+	ON Quotes.QuoteID = QuoteSections.QuoteID
+
+INNER JOIN QuoteSectionItems
+	ON QuoteSections.SectionID = QuoteSectionItems.SectionID
+
+INNER JOIN Systems
+	ON QuoteSectionItems.SystemID = Systems.SystemID
+
+INNER JOIN ConversionUnits
+	ON Systems.UnitOfMeasure = ConversionUnits.UnitID
+
+INNER JOIN Users
+	ON Quotes.UserID = Users.UserID
+
+LEFT OUTER JOIN Plans
+	ON Quotes.PlanID = Plans.PlanID
+
+LEFT OUTER JOIN SystemCategories
+	ON Systems.CategoryID = SystemCategories.CategoryID
+
+LEFT OUTER JOIN (
+	SELECT T.SectionID
+		,T.DiscountID
+		,MAX(D.Amount) AS Discount
+
+	FROM DiscountDetails AS D
+
+	INNER JOIN (
+		SELECT I.SectionID
+			,C.DiscountID
+			,SUM(CAST(I.UnitPrice AS MONEY) * I.Quantity) AS Price
+
+		FROM QuoteSectionItems AS I
+
+		INNER JOIN Systems AS S
+			ON I.SystemID = S.SystemID
+
+		INNER JOIN SystemCategories AS C
+			ON S.CategoryID = C.CategoryID
+
+		WHERE (C.DiscountID <> 0)
+
+		GROUP BY I.SectionID
+			,C.DiscountID
+		) AS T
+		ON D.DiscountID = T.DiscountID
+			AND D.Minimum < T.Price
+
+	GROUP BY T.SectionID
+		,T.DiscountID
+		,T.Price
+	) AS Disc
+
+	ON QuoteSections.SectionID = Disc.SectionID
+		AND SystemCategories.DiscountID = Disc.DiscountID
+
+LEFT OUTER JOIN (
+	SELECT S.QuoteID
+		,S.SectionID
+		,SUM(I.Quantity * I.UnitPrice) AS Total
+	FROM QuoteSections AS S
+
+	INNER JOIN QuoteSectionItems AS I
+		ON S.SectionID = I.SectionID
+	GROUP BY S.QuoteID
+		,S.SectionID
+	) AS AvgPrice
+	ON Quotes.QuoteID = AvgPrice.QuoteID
+		AND QuoteSections.SectionID = AvgPrice.SectionID
+
+LEFT OUTER JOIN (
+	SELECT SectionID
+		,SUM(Commission) AS CommissionAmount
+	FROM QuoteSectionCommissions
+	GROUP BY SectionID
+	) AS Comm
+	ON QuoteSections.SectionID = Comm.SectionID
 
 JOIN Orders Orders
 	ON Orders.QuoteID = QuoteSections.QuoteID
+	AND Orders.SectionID = QuoteSections.SectionID
 
-JOIN ShippingCosts ShippingCosts
-	ON Orders.ShippingID = ShippingCosts.ShippingID
-	
-INNER JOIN Systems Systems 
-	ON QuoteSectionItems.SystemID = Systems.SystemID
-	
-INNER JOIN
-	(
-		SELECT 
-			 SectionID
-			, CAST(SUM(Quantity * UnitPrice) AS decimal(13,3)) AS Amount
-			, CAST(SUM(Quantity * UnitWeight) AS decimal(13,3)) AS Weight
-		FROM
-			QuoteSectionItems QIT
-		GROUP BY
-			SectionID
-	) Subtotal 
-	ON QuoteSectionItems.SectionID = Subtotal.SectionID
-	
-JOIN RepCompanies RepCompanies
-	ON 	Orders.RepID = RepCompanies.RepID
+WHERE (QuoteSections.SectionID = @SectionID)
 
-JOIN
-	QuoteSectionCommissions QuoteSectionCommissions 
-			ON QuoteSectionItems.SectionID = QuoteSectionCommissions.SectionID
-			AND QuoteSectionCommissions.RepID = Orders.RepID
-
-LEFT JOIN SystemCategories SystemCategories
-	ON Systems.CategoryID = SystemCategories.CategoryID
-WHERE 
-	Orders.OrderID = @OrderID
-	AND QuoteSectionItems.SectionID = @SectionID
-	
 UNION ALL
 
 SELECT TOP 1
@@ -160,4 +211,3 @@ LEFT JOIN Permissions Permissions
 WHERE 
 	Orders.OrderID = @OrderID
 	AND QuoteSectionItems.SectionID = @SectionID
-	

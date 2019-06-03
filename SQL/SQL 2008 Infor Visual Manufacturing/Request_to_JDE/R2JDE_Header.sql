@@ -4,7 +4,7 @@
 	Tom Sampson
 	VER0005
 */
-USE Requests;
+USE RequestsStaging;
 
 DECLARE @OrderID INTEGER, @SectionID INTEGER
 -- Test values, production will be SP paramters
