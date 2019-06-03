@@ -20,7 +20,8 @@ SELECT DISTINCT
 	,Systems.SystemNumber            	"BDAITM"
 	,CAST((QuoteSectionItems.Quantity * (1 + CAST(ROUND((QuoteSectionCommissions.Commission  / (Subtotal.Amount - QuoteSections.Discount)),5) AS DECIMAL(4,2)))) * 10000 AS INTEGER)
 										"BDUORG" -- Qty
-	,CAST(((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * dbo.fn_findDiscount(SystemCategories.CategoryID, Subtotal.Amount))) + ((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * dbo.fn_findDiscount(SystemCategories.CategoryID, Subtotal.Amount))) * (CAST(ROUND(ISNULL(NULLIF(QuoteSectionCommissions.Commission,0)  / NULLIF(Subtotal.Amount - QuoteSections.Discount,0),0),5) AS DECIMAL(4,2))))) * 10000 AS BIGINT)	"BDUPRC" -- per unit price
+	,CAST(((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * dbo.fn_findDiscount(SystemCategories.CategoryID, Subtotal.Amount))) + ((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * dbo.fn_findDiscount(SystemCategories.CategoryID, Subtotal.Amount))) * (CAST(ROUND(ISNULL(NULLIF(QuoteSectionCommissions.Commission,0)  / NULLIF(Subtotal.Amount - QuoteSections.Discount,0),0),5) AS DECIMAL(4,2))))) * 10000 AS BIGINT)	
+										"BDUPRC" -- per unit price
 	,CAST((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * dbo.fn_findDiscount(SystemCategories.CategoryID, Subtotal.Amount))) * 10000 AS BIGINT)
                                         "BDADSA" -- discount
 	,CAST(CAST((((QuoteSectionItems.Quantity * QuoteSectionItems.UnitPrice) / NULLIF(Subtotal.Amount,0)) * QuoteSectionCommissions.Commission)/NULLIF(QuoteSectionItems.Quantity,0) AS NUMERIC(12,4)) * 10000 AS INTEGER)
@@ -93,8 +94,8 @@ SELECT TOP 1
 	                                    "BD55BLINE"
 	,'N'                                "BDEDSP"
 	,'FREIGHT' AS                       "BDAITM"
-	,1                                  "BDUORG"
-	,Orders.ShippingAmount              "BDUPRC"
+	,10000                              "BDUORG"
+	,CAST(Orders.ShippingAmount * 10000 AS INTEGER)              "BDUPRC"
 	,0                                  "BDADSA"
 	,0                                  "BDIPRV"
 	,ShippingCosts.ShippingDescription  "BDTXLN"

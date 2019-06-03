@@ -184,7 +184,7 @@ SELECT
 		,'N'					SZAB3
 		,'N'					SZATE
 		,''						SZSBLI
-		,(DATEPART(year, GETDATE())-1900)*1000 + DATEPART(dayofyear, GETDATE()) 
+		,dbo.JDEJulian(GETDATE()) 
 								SZEFTB -- JDE julian today
 		,''						SZAN81 -- CB Lookup only where CS
 		,''						SZAN82
@@ -330,7 +330,7 @@ SELECT
 		,'TSAMPSON'				SZUSER
 		,'Import'				SZPID
 		,''						SZJOBN
-		,(DATEPART(year, GETDATE())-1900)*1000 + DATEPART(dayofyear, GETDATE())	
+		,dbo.JDEJulian(GETDATE())	
 								SZUPMJ
 		,''						SZTDAY
 		,''						SZUPMT
