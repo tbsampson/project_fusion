@@ -8,8 +8,29 @@ USE RequestsStaging;
 
 DECLARE @OrderID INTEGER, @SectionID INTEGER
 -- Test values, production will be SP paramters
-SET @OrderID = 55722
-SET @SectionID = 205521
+
+SET @OrderID = 60307
+SET @SectionID = 224801
+
+/*
+-- case 1
+SET @OrderID = 60307
+SET @SectionID = 224801
+
+-- case 2
+SET @OrderID = 60308
+SET @SectionID = 224802
+
+-- case 3
+SET @OrderID = 60309
+SET @SectionID = 224803
+
+-- case 4
+SET @OrderID = 60310
+SET @SectionID = 224804
+
+
+*/
 
 SELECT DISTINCT
 	 Orders.OrderID                     "BH55BORDER"
@@ -21,7 +42,7 @@ SELECT DISTINCT
 	,LEFT(LTRIM(RTRIM(Orders.CustomerPO)),25) 
                                         "BHVR02"
 	,RepCompanies.RepNumber             "BHSLSM"
-	,CAST(CAST(ROUND(ISNULL(NULLIF(QuoteSectionCommissions.Commission,0)  / NULLIF(SubT.Amt - QuoteSections.Discount,0),0),5) AS DECIMAL(4,2)) * 10000 AS INTEGER)
+	,CAST(CAST(ROUND(ISNULL(NULLIF(QuoteSectionCommissions.Commission,0)  / NULLIF(SubT.Amt - QuoteSections.Discount,0),0),5) AS DECIMAL(4,2)) * 100000 AS INTEGER)
                                         "BHSLCM"
 	,CASE
 		WHEN Users.SecurityLevel BETWEEN 1 AND 2 THEN 1
@@ -30,7 +51,7 @@ SELECT DISTINCT
 	 END                                "BH55BOCODE"
 	,Orders.Name                        "BH55BJOB"
 	,CASE WHEN LTRIM(RTRIM(Orders.JobType)) IS NOT NULL
-		THEN LTRIM(RTRIM(Orders.JobType))
+		THEN LEFT(LTRIM(RTRIM(Orders.JobType)),10)
 		ELSE ''
 	 END                                "BH55BJTYPE"
 	,Orders.ShippingMethodID            "BH55BSMETH"

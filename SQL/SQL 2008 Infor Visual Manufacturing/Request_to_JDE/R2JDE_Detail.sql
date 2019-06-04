@@ -3,7 +3,7 @@
 	IR 20190420
 	REWRITE 20190603
 	Tom Sampson
-	VER0010
+	VER0011
 */
 
 
@@ -11,23 +11,54 @@ USE RequestsStaging;
 
 DECLARE @OrderID INTEGER, @SectionID INTEGER
 
-SET @OrderID = 55722
-SET @SectionID = 205521
+SET @OrderID = 60307
+SET @SectionID = 224801
+
+/*
+-- case 1
+SET @OrderID = 60307
+SET @SectionID = 224801
+
+-- case 2
+SET @OrderID = 60308
+SET @SectionID = 224802
+
+-- case 3
+SET @OrderID = 60309
+SET @SectionID = 224803
+
+-- case 4
+SET @OrderID = 60310
+SET @SectionID = 224804
+
+
+*/
+
 
 SELECT 
-	 Orders.OrderID                  	"BD55BORDER" -- OrderID
-	,QuoteSectionItems.SectionID        "BD55BSECID" -- SectionID
-	,QuoteSectionItems.ItemID           "BD55BLINE" -- ItemID
-	,'N'                                "BDEDSP" -- hard code to N
-	,Systems.SystemNumber            	"BDAITM" -- System number.  This is freeform and may not match item in JDE
-	,CAST((QuoteSectionItems.Quantity * (1 + CAST(ROUND((ISNULL(Comm.CommissionAmount, 0.00)  / (AvgPrice.Total - QuoteSections.Discount)),5) AS DECIMAL(4,2)))) * 10000 AS INTEGER)
-										"BDUORG" -- Qty * commission / price after discounts
-	,CAST(((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * CAST(ISNULL(1 - Disc.Discount, 0.00) AS MONEY))) + ((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * CAST(ISNULL(1 - Disc.Discount, 0.00) AS MONEY))) * (CAST(ROUND(ISNULL(NULLIF(ISNULL(Comm.CommissionAmount, 0.00),0)  / NULLIF(AvgPrice.Total - QuoteSections.Discount,0),0),5) AS DECIMAL(4,2))))) * 10000 AS BIGINT)	
-										"BDUPRC" -- per unit price
-	,CAST((QuoteSectionItems.UnitPrice - (QuoteSectionItems.UnitPrice * CAST(ISNULL(1 - Disc.Discount, 0.00) AS MONEY))) * 10000 AS BIGINT)
-                                        "BDADSA" -- discount
-	,CAST(CAST((((QuoteSectionItems.Quantity * QuoteSectionItems.UnitPrice) / NULLIF(AvgPrice.Total,0)) * ISNULL(Comm.CommissionAmount, 0.00)) AS NUMERIC(12,4)) * 10000 AS INTEGER)
-                                        "BDIPRV" -- comm
+
+	 Orders.OrderID                  	"BD55BORDER"
+	,QuoteSectionItems.SectionID        "BD55BSECID"
+	,QuoteSectionItems.ItemID           "BD55BLINE"
+	,'N'                                "BDEDSP"
+	,Systems.SystemNumber            	"BDAITM"
+/*	
+	,QuoteSectionItems.UnitPrice list_price
+	,ISNULL(Disc.Discount,0) discount
+	,QuoteSectionItems.UnitPrice * (1 - ISNULL(Disc.Discount,0)) after_discount
+	,ISNULL(Comm.CommissionAmount / (AvgPrice.Total - QuoteSections.Discount),0) commission_rate
+	,ISNULL(ISNULL((Comm.CommissionAmount / (AvgPrice.Total - QuoteSections.Discount)),0) * QuoteSectionItems.UnitPrice * (1 - ISNULL(Disc.Discount,0)),0) comm_amt
+	,QuoteSectionItems.UnitPrice * (1 - ISNULL(Disc.Discount,0)) + ISNULL(ISNULL((Comm.CommissionAmount / (AvgPrice.Total - QuoteSections.Discount)),0) * QuoteSectionItems.UnitPrice * (1 - ISNULL(Disc.Discount,0)),0) cust_unit_price
+*/	
+	
+	,CAST(QuoteSectionItems.Quantity * 10000 AS INTEGER)
+										"BDUORG" -- Qty
+	,CAST((QuoteSectionItems.UnitPrice * (1 - ISNULL(Disc.Discount,0)) + ISNULL(ISNULL((Comm.CommissionAmount / (AvgPrice.Total - QuoteSections.Discount)),0) * QuoteSectionItems.UnitPrice * (1 - ISNULL(Disc.Discount,0)),0)) * 10000 AS BIGINT)
+										"BDUPRC" -- customer unit price (list price - discounts + commission)
+	,CAST(ISNULL(QuoteSectionItems.Quantity * QuoteSectionItems.UnitPrice * (ISNULL(Disc.Discount,0)),0) * 100 AS BIGINT)
+										"BDADSA" -- list price - discount								
+	,CAST((QuoteSectionItems.Quantity * (ISNULL(ISNULL((Comm.CommissionAmount / (AvgPrice.Total - QuoteSections.Discount)),0) * QuoteSectionItems.UnitPrice * (1 - ISNULL(Disc.Discount,0)),0))) * 100 AS BIGINT)
+										"BDIPRV" -- total commission
 	,CASE 
 		WHEN LEFT(RTRIM(LTRIM(QuoteSectionItems.Custom)),60) IS NULL THEN ''
 		ELSE LEFT(RTRIM(LTRIM(QuoteSectionItems.Custom)),60)
@@ -41,6 +72,8 @@ SELECT
 	,''                                 "BDUPMJ"
 	,''                                 "BDUPMT"
 	,''                                 "BDJOBN"
+
+
 	                                        
 FROM Quotes
 
@@ -131,6 +164,7 @@ JOIN Orders Orders
 	AND Orders.SectionID = QuoteSections.SectionID
 
 WHERE (QuoteSections.SectionID = @SectionID)
+
 
 UNION ALL
 
