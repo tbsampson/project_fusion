@@ -1,7 +1,7 @@
 /*
-F4101Z1 Item Master VER0010
+F4101Z1 Item Master VER0011
 Tom Sampson IR 4/10/2019
-CR 4/29/2019
+CR 6/6/2019
 
 VER0002
 - Fixed constraint issue with SZUOM4 and others
@@ -21,14 +21,17 @@ VER0009
 - updates in from Steve 5/7/2019
 VER0010
 - corrected UOM 5/14/2019
+VER0011
+- added pref vendor
 
 */
--- USE BALCO;	
+USE BALCO;	
 DECLARE @Pass INTEGER
 
 SET @Pass = 1
 
 SELECT
+
 		 'JDE'			SZEDUS	 -- EDI - User ID	String	Generic Edit	10
 -- ---------------------------------------- First run, SZEDBT is Q
 		,CASE 
@@ -60,14 +63,15 @@ SELECT
 			WHEN @Pass = 2 THEN '2'
 		 END			SZITBR	 -- Update Item Branch	Character	Generic Edit	1
 -- ----------------------------------------
-		,ROW_NUMBER() OVER(ORDER BY	PART.ID) + 50000
+	--	,ROW_NUMBER() OVER(ORDER BY	PART.ID) + 51000
+		,_ITEM_MASTER_SIDE.SZITM
 						SZITM	 -- Item Number - Short	Numeric	Generic Edit	8
 		,''				SZKIT	 -- Parent (short) Item Number	Numeric	Generic Edit	8
 		,_ITEM_MASTER_SIDE.SZLITM
 						SZLITM	 -- 2nd Item Number	String	Generic Edit	25
-		,LEFT(LTRIM(RTRIM(PART.ID)),25) -- LEFT(LTRIM(RTRIM(PART.ID)),25)
+		,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZAITM)),25) -- LEFT(LTRIM(RTRIM(PART.ID)),25)
 						SZAITM	 -- 3rd Item Number	String	Generic Edit	25
-		,LEFT(LTRIM(RTRIM(PART.DESCRIPTION)),30)
+		,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZDSC1)),30)
 						SZDSC1	 -- Description	String	Generic Edit	30
 		,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZDSC2)),30)
 						SZDSC2	 -- Description - Line 2	String	Generic Edit	30
@@ -190,7 +194,7 @@ SELECT
 		,CASE
 			WHEN LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2) = 'GL'
 			THEN 'GA'
-			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
+			ELSE ISNULL(LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2),'')
 		 END
 						SZSUTM	 -- Unit of Measure - Stocking	String	UDC (00 UM)	2
 		,'W'			SZUMVW	 -- Unit of Measure - Volume or Weight	Character	UDC (39 VW)	1
@@ -205,8 +209,8 @@ SELECT
 			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'P' THEN 'BC10'
 			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'S' THEN 'BC50'
 			WHEN (
-						LEFT(_ITEM_MASTER_SIDE.OLD_DESCRIPTION,6) = 'SYSTEM' 
-					OR	LEFT(_ITEM_MASTER_SIDE.OLD_DESCRIPTION,2) = 'FG'
+						LEFT(_ITEM_MASTER_SIDE.SZDSC1,6) = 'SYSTEM' 
+					OR	LEFT(_ITEM_MASTER_SIDE.SZDSC1,2) = 'FG'
 				  ) THEN 'BC30'
 			ELSE 'BC20'
 		 END				SZGLPT	 -- Category - G/L	String	UDC (41 9)	4
@@ -274,7 +278,7 @@ SELECT
 		,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZOPC)),1)
 						SZOPC	 -- Order Policy Code	Character	UDC (H41 OP)	1
 		,CASE WHEN
-			LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZOPV)) = 'N/A' THEN NULL
+			LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZOPV)) = 'N/A' THEN ''
 			ELSE CAST(_ITEM_MASTER_SIDE.SZOPV AS INTEGER)		
 		 END			SZOPV	 -- Value - Order Policy	Numeric	Generic Edit	15
 		,100*10000		SZACQ	 -- Quantity - Accounting Cost	Numeric	Generic Edit	15
@@ -282,7 +286,7 @@ SELECT
 		,''				SZMLQ	 -- Quantity - MFG Leadtime	Numeric	Generic Edit	15
 		,''				SZLTPU	 -- Leadtime Per Unit	Numeric	Generic Edit	5
 		,CASE 
-			WHEN LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZMPSP)) = 'N/A' THEN NULL
+			WHEN LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZMPSP)) = 'N/A' THEN ''
 			WHEN LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZMPSP)) IS NULL OR LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZMPSP)) = '' THEN ''
 			WHEN LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZMPSP)),1) IS NULL THEN ''
 			ELSE LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZMPSP)),1)	
@@ -290,7 +294,7 @@ SELECT
 		,'F'			SZMRPP	 -- Fixed or Variable Leadtime	Character	UDC (H41 MS)	1
 		,'U'			SZITC	 -- Issue Type Code	Character	UDC (41 IT)	1
 		,'N'			SZORDW	 -- Order With	Character	Generic Edit	1
-		,CASE WHEN LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZMTF1)) = 'N/A' THEN NULL
+		,CASE WHEN LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZMTF1)) = 'N/A' THEN ''
 			ELSE CAST(_ITEM_MASTER_SIDE.SZMTF1 AS INTEGER)
 		 END			SZMTF1	 -- Planning Time Fence Days	Numeric	Generic Edit	5
 		,''				SZMTF2	 -- Freeze Time Fence Days	Numeric	Generic Edit	5
@@ -328,11 +332,7 @@ SELECT
 		,0				SZPOC	 -- Issue and Receipt	Character	UDC (43 IR)	1
 		,'       20001'	SZMCU	 -- Business Unit	String	Generic Edit	12
 		,'       20001'	SZMMCU	 -- Branch	String	Generic Edit	12
-		,CASE 
-			WHEN PART.ID = 'PLC105FC12' THEN ''
-			WHEN LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSTKT)),1) = 'M' THEN ''
-			ELSE 600
-		 END			SZVEND	 -- Primary / Last Supplier Number	Numeric	Generic Edit	8
+		,ISNULL(TV.ID1,'')			SZVEND	 -- Primary / Last Supplier Number	Numeric	Generic Edit	8
 		,''				SZORIG	 -- Country of Origin	String	UDC (00 CN)	3
 		,''				SZROPI	 -- Reorder Point - Input	Numeric	Generic Edit	15
 		-- ,ISNULL(PART.ORDER_POINT*10000,0)		
@@ -449,10 +449,10 @@ SELECT
 		,''				SZPNYN	 -- Production Number Controlled	Character	Generic Edit	1
 
 			
-FROM PART PART
+FROM _ITEM_MASTER_SIDE _ITEM_MASTER_SIDE
 
-JOIN _ITEM_MASTER_SIDE _ITEM_MASTER_SIDE
-	ON LTRIM(RTRIM(_ITEM_MASTER_SIDE.PART_ID)) = LTRIM(RTRIM(PART.ID))
+LEFT JOIN PART PART
+	ON _ITEM_MASTER_SIDE.SZAITM = PART.ID
 		
 LEFT JOIN 
 	(
@@ -474,11 +474,12 @@ LEFT JOIN
 			AND POL1.PART_ID = POL2.PART_ID
 	) PO_LINE
 
-	ON PART.ID = PO_LINE.PART_ID
+	ON _ITEM_MASTER_SIDE.SZAITM = PO_LINE.PART_ID
 
+LEFT JOIN VENDOR VENDOR
+	ON PART.PREF_VENDOR_ID = VENDOR.ID
 
-WHERE PART.ABC_CODE <> 'Z'
-
--- AND LTRIM(RTRIM(_ITEM_MASTER_SIDE.PART_ID)) IS NOT NULL
+LEFT JOIN _TEMP_VENDORS TV
+	ON TV.ID2 = 'BC_' + CAST(VENDOR.ID AS VARCHAR)
 
 ORDER BY PART.ROWID
