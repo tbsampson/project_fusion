@@ -5,6 +5,7 @@
 use BALCO;
 SELECT
 
+
  '00020'   SDKCOO -- Order Company (Order Number) [Generic Edit] String (5)
 ,CAST(LTRIM(RTRIM(ORDER_REF.NEW_ID)) AS BIGINT)   SDDOCO -- Document (Order No Invoice etc.) [Generic Edit] Numeric (8)
 ,'SO'   SDDCTO -- Order Type [UDC (00 DT)] String (2)
@@ -18,7 +19,14 @@ SELECT
 ,''   SDOGNO -- Original Line Number [Generic Edit] Numeric (7)
 ,''   SDRKCO -- Company - Key (Related Order) [Generic Edit] String (5)
 ,WORK_ORDER.BASE_ID SDRORN -- Related PO/SO/WO Number [Generic Edit] String (8)
-,''   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
+,CASE
+     WHEN LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3)  
+                  IN (210,  217,  220,  230,  310,  320,  340,  350,  380,  
+                        410,  420,  470,  500,  610,  710,  720,  730,  745,  750,  780) Then 'WO'  
+     WHEN LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3)  
+                  IN (240, 390, 450, 460, 740, 755) Then 'OD'
+     ELSE ''
+END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
 ,''   SDRLLN -- Related PO/SO Line Number [Generic Edit] Numeric (7)
 ,''   SDDMCT -- Agreement Number - Distribution [Generic Edit] String (12)
 ,''   SDDMCS -- Agreement Supplement - Distribution [Generic Edit] Numeric (3)
@@ -94,7 +102,7 @@ END   SDDGL -- Date - For G/L (and Voucher) [Generic Edit] Date (6)
 ,''   SDQRLV -- Units - Relieved [Generic Edit] Numeric (15)
 ,'H'   SDCOMM -- Committed (H/S) [UDC (H42 CP)] Character (1)
 ,''   SDOTQY -- Other Quantity (1/2) [UDC] Character (1)
-,CAST((CUST_ORDER_LINE.UNIT_PRICE * 1000000) AS BIGINT)   SDUPRC -- Amount - Price per Unit [Generic Edit] Numeric (15)
+,CAST((CUST_ORDER_LINE.UNIT_PRICE * 10000) AS BIGINT)   SDUPRC -- Amount - Price per Unit [Generic Edit] Numeric (15)
 ,CAST((CUST_ORDER_LINE.TOTAL_AMT_SHIPPED * 100) AS BIGINT)   SDAEXP -- Amount - Extended Price [Generic Edit] Numeric (15)
 ,''   SDAOPN -- Amount - Open [Generic Edit] Numeric (15)
 ,'0'   SDPROV -- Price Override Code [Generic Edit] Character (1)
@@ -105,13 +113,15 @@ END   SDDGL -- Date - For G/L (and Voucher) [Generic Edit] Date (6)
 	WHEN WORK_ORDER.ACT_MATERIAL_COST = 0
 		OR WORK_ORDER.DESIRED_QTY = 0 
 	THEN 0
-	ELSE CAST(((WORK_ORDER.ACT_MATERIAL_COST/WORK_ORDER.DESIRED_QTY) * 1.7) * 10000 AS BIGINT)
+	WHEN _ITEM_MASTER_SIDE.SZSTKT = 'S' THEN CAST((WORK_ORDER.ACT_MATERIAL_COST/WORK_ORDER.DESIRED_QTY) * 100 AS BIGINT)
+	ELSE CAST(((WORK_ORDER.ACT_MATERIAL_COST/WORK_ORDER.DESIRED_QTY) * 1.7) * 100 AS BIGINT)
  END    SDUNCS -- Amount - Unit Cost [Generic Edit] Numeric (15)
 ,CASE
 	WHEN WORK_ORDER.ACT_MATERIAL_COST = 0
 		OR WORK_ORDER.DESIRED_QTY = 0 
 	THEN 0
-	ELSE CAST(((WORK_ORDER.ACT_MATERIAL_COST) * 1.7) * 10000 AS BIGINT)
+    WHEN _ITEM_MASTER_SIDE.SZSTKT = 'S' THEN CAST((WORK_ORDER.ACT_MATERIAL_COST) * 100 AS BIGINT)
+	ELSE CAST(((WORK_ORDER.ACT_MATERIAL_COST) * 1.7) * 100 AS BIGINT)
  END   SDECST -- Amount - Extended Cost [Generic Edit] Numeric (15)
 ,'0'   SDCSTO -- Cost Override Code [Generic Edit] Character (1)
 ,''   SDTCST -- Extended Cost - Transfer [Generic Edit] Numeric (15)
@@ -158,7 +168,7 @@ END   SDDGL -- Date - For G/L (and Voucher) [Generic Edit] Date (6)
 ,''   SDDTYS -- Duty Status [UDC (40 DS)] String (2)
 ,''   SDNTR -- Nature of Transaction [UDC (00 NT)] String (2)
 
-,''  SDVEND -- Primary / Last Supplier Number [Generic Edit] Numeric (8)
+,ISNULL(_PREF_VENDORS.SZAN8,'') SDVEND -- Primary / Last Supplier Number [Generic Edit] Numeric (8)
 /*
 "IF LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3) IN (240, 390, 420, 460, 740, 755) 
 Then SELECT ABAN8 FROM CVDTA.F0101 WHERE ABALKY = 'BC_'||(SELECT PREF_VENDOR_ID
@@ -344,7 +354,7 @@ JOIN _ORDER_REF_TABLE ORDER_REF
 	ON DEMAND_SUPPLY_LINK.DEMAND_BASE_ID = ORDER_REF.OLD_ID
 
 JOIN CUST_ORDER_LINE CUST_ORDER_LINE
-	ON ORDER_REF.OLD_ID = CUST_ORDER_LINE.CUST_ORDER_ID
+	ON CUST_ORDER_LINE.CUST_ORDER_ID = ORDER_REF.OLD_ID
 	AND CUST_ORDER_LINE.LINE_NO = DEMAND_SUPPLY_LINK.DEMAND_SEQ_NO
 
 JOIN _ADDRESS_BOOK_TABLE ADDRESS_BOOK
@@ -360,9 +370,15 @@ JOIN RECEIVABLE_LINE RECEIVABLE_LINE
 JOIN RECEIVABLE RECEIVABLE
     ON RECEIVABLE.INVOICE_ID = RECEIVABLE_LINE.INVOICE_ID
     
-LEFT JOIN _ITEM_MASTER_1_TABLE ITEM_MASTER_1
+JOIN _ITEM_MASTER_1_TABLE ITEM_MASTER_1
     ON CUST_ORDER_LINE.PART_ID = LTRIM(RTRIM(ITEM_MASTER_1.SZAITM))  
 
+JOIN _ITEM_MASTER_SIDE _ITEM_MASTER_SIDE
+	ON CUST_ORDER_LINE.PART_ID = _ITEM_MASTER_SIDE.SZAITM
+
 JOIN PART PART
-    ON PART.ID = CUST_ORDER_LINE.PART_ID    
+    ON CUST_ORDER_LINE.PART_ID = PART.ID   
+    
+LEFT JOIN _PREF_VENDORS _PREF_VENDORS
+	ON 'BC_' + CAST(PART.PREF_VENDOR_ID AS VARCHAR) = _PREF_VENDORS.SZALKY
 

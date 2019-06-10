@@ -1,6 +1,7 @@
 /*
     F0101Z2 Address Book backup and clear.sql
     Run this in oracle prior to loading zFile.
+    -- BV R01010Z
 */
 /*
     First create a backup
@@ -52,10 +53,10 @@ WHERE MAOSTP = ''   -- This prevents deleting hierarchies created during configu
 AND MAPA8 BETWEEN 72000 AND 98999;
 
 DELETE FROM CVDTA.F01161 -- alternate address
-WHERE WLAN8 > 72000; -- BETWEEN 72000 and 98999;
+WHERE WLAN8 BETWEEN 72000 and 98999; -- BETWEEN 72000 and 98999;
 
 DELETE FROM CVDTA.F0401 -- Vendor Master
-WHERE A6AN8 > 72000; -- BETWEEN 72000 and 98999;
+WHERE A6AN8 BETWEEN 72000 and 98999; -- BETWEEN 72000 and 98999;
 COMMIT;
 
 -- clear zFile

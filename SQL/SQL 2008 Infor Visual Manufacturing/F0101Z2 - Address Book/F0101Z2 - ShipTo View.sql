@@ -180,7 +180,7 @@ FROM
 		,'N'						SZAB3
 		,'N'						SZATE
 		,'' 						SZSBLI
-		,(DATEPART(year, GETDATE())-1900)*1000 + DATEPART(dayofyear, GETDATE()) 
+		,dbo.JDEJulian(GETDATE()) 
 									SZEFTB -- JDE julian today
 		,''							SZAN81
 		,'' 						SZAN82
@@ -324,7 +324,7 @@ FROM
 		,'TSAMPSON'					SZUSER
 		,'Import'					SZPID
 		,'' 						SZJOBN
-		,(DATEPART(year, GETDATE())-1900)*1000 + DATEPART(dayofyear, GETDATE())	SZUPMJ
+		,dbo.JDEJulian(GETDATE())	SZUPMJ
 		,'' 						SZTDAY
 		,'' 						SZUPMT
 		,'' 						SZPRGF
@@ -417,7 +417,7 @@ FROM
 		,'N'						SZAB3
 		,'N'						SZATE
 		,'' 						SZSBLI
-		,(DATEPART(year, GETDATE())-1900)*1000 + DATEPART(dayofyear, GETDATE()) 
+		,dbo.JDEJulian(GETDATE()) 
 									SZEFTB -- JDE julian today
 		,''							SZAN81 -- lookup billTo id
 		,'' 						SZAN82
@@ -557,7 +557,7 @@ FROM
 		,'TSAMPSON'					SZUSER
 		,'Import'					SZPID
 		,'' 						SZJOBN
-		,(DATEPART(year, GETDATE())-1900)*1000 + DATEPART(dayofyear, GETDATE())	
+		,dbo.JDEJulian(GETDATE())	
 									SZUPMJ
 		,'' 						SZTDAY
 		,'' 						SZUPMT

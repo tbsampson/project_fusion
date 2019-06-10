@@ -23,8 +23,8 @@ VER0010
 - corrected UOM 5/14/2019
 VER0011
 - added pref vendor
-
 */
+
 USE BALCO;	
 DECLARE @Pass INTEGER
 
@@ -32,7 +32,7 @@ SET @Pass = 1
 
 SELECT
 
-		 'JDE'			SZEDUS	 -- EDI - User ID	String	Generic Edit	10
+		'JDE'			SZEDUS	 -- EDI - User ID	String	Generic Edit	10
 -- ---------------------------------------- First run, SZEDBT is Q
 		,CASE 
 			WHEN @Pass = 1 THEN 'Q' -- Item Master
@@ -203,9 +203,9 @@ SELECT
 			WHEN PART.ABC_CODE = 'B' THEN 'QTR'
 			WHEN PART.ABC_CODE = 'C' THEN 'SEM'
 			ELSE ''
-		 END				SZCYCL	 -- Cycle Count Category	String	UDC (41 8)	3
+		 END			SZCYCL	 -- Cycle Count Category	String	UDC (41 8)	3
 		,CASE 
-			WHEN PART.ID = 'PLC105FC12' THEN 'M'
+			-- WHEN PART.ID = 'PLC105FC12' THEN 'M'
 			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'P' THEN 'BC10'
 			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'S' THEN 'BC50'
 			WHEN (
@@ -213,7 +213,7 @@ SELECT
 					OR	LEFT(_ITEM_MASTER_SIDE.SZDSC1,2) = 'FG'
 				  ) THEN 'BC30'
 			ELSE 'BC20'
-		 END				SZGLPT	 -- Category - G/L	String	UDC (41 9)	4
+		 END			SZGLPT	 -- Category - G/L	String	UDC (41 9)	4
 		,2				SZPLEV	 -- Level - Sales Base Price	Character	UDC (H40 PL)	1
 		,3				SZPPLV	 -- Level - Purchase Price	Character	UDC (H40 PP)	1
 		,2				SZCLEV	 -- Level - Inventory Cost	Character	UDC (H40 CL)	1
