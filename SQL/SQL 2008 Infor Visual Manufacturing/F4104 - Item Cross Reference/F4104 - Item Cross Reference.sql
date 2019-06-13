@@ -3,21 +3,53 @@
     IR 20190523 Tom Sampson
     Direct load
 */
+use BALCO;
 
 SELECT
 
- ''   IVAN8 -- Address Number [Generic Edit] Numeric (8)
+ '0'   IVAN8 -- Address Number [Generic Edit] Numeric (8)
 ,'MR'   IVXRT -- Type - Cross-Reference Type Code [UDC (41 DT)] String (2)
-,LEFT(LTRIM(RTRIM(PART.ID)),25)   IVITM -- Item Number - Short [Generic Edit] Numeric (8)
-,dbo.JDEJulian('2019/05/19')   IVEXDJ -- Date - Expired [Generic Edit] Date (6)
-,dbo.JDEJulian('2019/12/31')   IVEFTJ -- Date - Effective [Generic Edit] Date (6)
+,IM1.SZITM  IVITM -- Item Number - Short [Generic Edit] Numeric (8)
+,'140366'  IVEXDJ -- Date - Expired [Generic Edit] Date (6)
+,'119120'   IVEFTJ -- Date - Effective [Generic Edit] Date (6)
 ,''   IVMCU -- Business Unit [Generic Edit] String (12)
-,_ITEM_MASTER_1.MR_Number   IVCITM -- Item Number - Customer/Supplier [Generic Edit] String (25)
-,_ITEM_MASTER_1.MR_Description   IVDSC1 -- Description [Generic Edit] String (30)
-,_ITEM_MASTER_1.MR_Number   IVDSC2 -- Description - Line 2 [Generic Edit] String (30)
-,_ITEM_MASTER_1.MR_Number   IVALN -- Search Text - Compressed [Generic Edit] String (30)
-,_ITEM_MASTER_1.SZAITM   IVLITM -- 2nd Item Number [Generic Edit] String (25)
-,_ITEM_MASTER_1.MR_Item   IVAITM -- 3rd Item Number [Generic Edit] String (25)
+,CRS.ROUTING   IVCITM -- Item Number - Customer/Supplier [Generic Edit] String (25)
+,CRS."DESC"   IVDSC1 -- Description [Generic Edit] String (30)
+,''   IVDSC2 -- Description - Line 2 [Generic Edit] String (30)
+,LEFT(
+   REPLACE(
+	 REPLACE(
+	  REPLACE(
+	   REPLACE(
+		REPLACE(
+		  REPLACE(
+			REPLACE(
+			  REPLACE(
+				REPLACE(
+				  REPLACE(
+					REPLACE(
+					  REPLACE(
+						REPLACE(
+						  REPLACE(
+							CRS."DESC",
+						  ' ', ''),
+						',', ''),
+					  '-', ''),
+					'/', ''),
+				  '(', ''),
+				')', ''),
+			  '+', ''),
+			'.', ''),
+		  '#', ''),
+		'%', ''),
+	   '''', ''),
+	  '*', ''),
+	 '&', ''),
+	'"', '')
+  ,30)
+  IVALN -- Search Text - Compressed [Generic Edit] String (30)
+,IM1.SZLITM   IVLITM -- 2nd Item Number [Generic Edit] String (25)
+,CRS."3RD"   IVAITM -- 3rd Item Number [Generic Edit] String (25)
 ,''   IVURCD -- User Reserved Code [Generic Edit] String (2)
 ,''   IVURDT -- User Reserved Date [Generic Edit] Date (6)
 ,''   IVURAT -- User Reserved Amount [Generic Edit] Numeric (15)
@@ -32,41 +64,12 @@ SELECT
 ,''   IVAPSP -- Substitute Priority [Generic Edit] Numeric (15)
 ,''   IVIDEM -- Transfer Demand [Generic Edit] Character (1)
 ,'Y'   IVAPSS -- APS Substitute [Generic Edit] Character (1)
-,''   IVCIRV -- Item Revision Level - Customer/Supplier [Generic Edit] String (20)
+,'                    '   IVCIRV -- Item Revision Level - Customer/Supplier [Generic Edit] String (20)
 ,''   IVADIND -- Adjustment Indicator [UDC (42 IA)] Character (1)
 ,''   IVBPIND -- Base Price Indicator [UDC (42 IP)] Character (1)
 ,''   IVCARDNO -- Card Number [UDC (40R CD)] String (4)
 
-FROM PART PART
+FROM _CROSS_REF_SIDE CRS
 
-JOIN _ITEM_MASTER_SIDE _ITEM_MASTER_SIDE
-	ON LTRIM(RTRIM(_ITEM_MASTER_SIDE.PART_ID)) = LTRIM(RTRIM(PART.ID))
-		
-LEFT JOIN 
-	(
-		SELECT DISTINCT
-			 POL2.PART_ID
-			,POL2.PURCHASE_UM
-		FROM
-			(
-				SELECT
-					 PART_ID
-					,MAX(DESIRED_RECV_DATE) RC_DATE
-
-				FROM PURC_ORDER_LINE
-				GROUP BY PART_ID
-			) POL1
-
-		JOIN PURC_ORDER_LINE POL2
-			ON POL1.RC_DATE = POL2.DESIRED_RECV_DATE
-			AND POL1.PART_ID = POL2.PART_ID
-	) PO_LINE
-
-	ON PART.ID = PO_LINE.PART_ID
-
-
-WHERE PART.ABC_CODE <> 'Z'
-
--- AND LTRIM(RTRIM(_ITEM_MASTER_SIDE.PART_ID)) IS NOT NULL
-
-ORDER BY PART.ROWID
+JOIN _ITEM_MASTER_1_TABLE IM1
+	ON CRS."3RD" = IM1.SZAITM

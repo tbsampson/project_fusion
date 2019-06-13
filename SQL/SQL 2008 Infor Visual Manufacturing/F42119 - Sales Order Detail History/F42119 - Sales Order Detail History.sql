@@ -60,6 +60,7 @@ END   SDDGL -- Date - For G/L (and Voucher) [Generic Edit] Date (6)
 ,''   SDEXDP -- Days Before Expiration [Generic Edit] Numeric (5)
 ,ISNULL(LEFT(LTRIM(RTRIM(ITEM_MASTER_1.SZDSC1)),30),'')   SDDSC1 -- Description [Generic Edit] String (30)
 ,ISNULL(LEFT(LTRIM(RTRIM(ITEM_MASTER_1.SZDSC1)),30),'')   SDDSC2 -- Description - Line 2 [Generic Edit] String (30)
+/*
 ,CASE 
     WHEN LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3)  
                   IN (210,  217,  220,  230,  310,  320,  340,  350,  380,  
@@ -72,7 +73,9 @@ END   SDDGL -- Date - For G/L (and Voucher) [Generic Edit] Date (6)
    WHEN LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3)  IN ('KSR', 'OKR') Then 'S'
    WHEN LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3)  IN (904, 905) Then 'F'
    ELSE ''
- END SDLNTY -- Line Type [Generic Edit] String (2)
+ END
+ */
+,_ITEM_MASTER_SIDE.SZLNTY  SDLNTY -- Line Type [Generic Edit] String (2)
 ,'999'   SDNXTR -- Status Code - Next [UDC (40 AT)] String (3)
 ,'620'   SDLTTR -- Status Code - Last [UDC (40 AT)] String (3)
 ,'       20001'   SDEMCU -- Business Unit - Header [Generic Edit] String (12)

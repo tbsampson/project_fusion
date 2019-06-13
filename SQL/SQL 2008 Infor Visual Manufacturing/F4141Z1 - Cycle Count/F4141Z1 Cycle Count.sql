@@ -3,6 +3,8 @@
     IR 20190521 Tom Sampson
     BV R4141Z1I
 */
+
+
 SELECT
 
 'JDE'       SZEDUS -- EDI - User ID {Generic Edit}  [String] (10)
@@ -21,17 +23,18 @@ SELECT
 ,'02'       SZTNAC -- Transaction Action {UDC (00 TA)}  [String] (2)
 ,''         SZCYNO -- Cycle Count Number {Generic Edit}  [Numeric] (8)
 ,1          SZCCCD -- Cycle Count Code {UDC (H41 CC)}  [Character] (1)
-,ROW_NUMBER() OVER(ORDER BY	PART.ID) + 50000   
+,_ITEM_MASTER_1_TABLE.SZITM   
             SZITM  -- Item Number - Short {Generic Edit}  [Numeric] (8)
-,_ITEM_MASTER_SIDE.SZLITM   
+,_ITEM_MASTER_1_TABLE.SZLITM   
             SZLITM -- 2nd Item Number {Generic Edit}  [String] (25)
-,LEFT(LTRIM(RTRIM(PART.ID)),25)    SZAITM -- 3rd Item Number {Generic Edit}  [String] (25)
+,_ITEM_MASTER_1_TABLE.SZAITM
+            SZAITM -- 3rd Item Number {Generic Edit}  [String] (25)
 ,'       20001'   
             SZMCU  -- Business Unit {Generic Edit}  [String] (12)
 ,CASE
-    WHEN LEFT(PART.DESCRIPTION,6) = 'SYSTEM' AND _ITEM_MASTER_SIDE.SZSTKT = 'M' THEN 'SHIP01'
-    WHEN LEFT(PART.DESCRIPTION,2) = 'FG' AND _ITEM_MASTER_SIDE.SZSTKT = 'M' THEN 'SHIP01'
-    ELSE ''
+--    WHEN ((LEFT(PART.DESCRIPTION,6) = 'SYSTEM' OR LEFT(PART.DESCRIPTION,2) = 'FG') AND _ITEM_MASTER_SIDE.SZSTKT = 'M') THEN 'SHIP01'
+    WHEN _ITEM_MASTER_1_TABLE.SZLNTY = 'W' THEN 'SHIP01'
+    WHEN LEFT(PART_LOCATION.LOCATION_ID,1) IN ('W','R','S') THEN PART_LOCATION.LOCATION_ID
  END        SZLOCN -- Location {Generic Edit}  [String] (20)
 ,''         SZLOTN -- Lot/Serial Number {Generic Edit}  [String] (30)
 ,''         SZSTUN -- Storage Unit Number {Generic Edit}  [Numeric] (8)
@@ -45,26 +48,15 @@ SELECT
             SZSRP4 -- Sales Category Code 4 {UDC (41 S4)}  [String] (3)
 ,_ITEM_MASTER_SIDE.SZSRP5   
             SZSRP5 -- Sales Category Code 5 {UDC (41 S5)}  [String] (3)
-,CASE
-    WHEN _ITEM_MASTER_SIDE.SZSTKT = 'P' THEN 'BC10'   
-    WHEN _ITEM_MASTER_SIDE.SZSTKT = 'S' THEN 'BC50'   
-    WHEN _ITEM_MASTER_SIDE.SZSTKT = 'SYSTEM' THEN 'BC30'
-    ELSE 'BC20'
- END        SZGLPT -- Category - G/L {UDC (41 9)}  [String] (4)
+,_ITEM_MASTER_1_TABLE.SZGLPT
+            SZGLPT -- Category - G/L {UDC (41 9)}  [String] (4)
 ,''         SZTQOH -- Quantity - Total Primary on Hand {Generic Edit}  [Numeric] (15)
 ,''         SZTAOH -- Amount - Total Primary on Hand {Generic Edit}  [Numeric] (15)
-,CAST(PART.QTY_ON_HAND * 10000 AS BIGINT)
-            SZTQCT -- Quantity - Total Primary Counted {Generic Edit}  [Numeric] (15)
+,''         SZTQCT -- Quantity - Total Primary Counted {Generic Edit}  [Numeric] (15)
 ,''         SZTACT -- Amount - Total Primary Counted {Generic Edit}  [Numeric] (15)
-,''         SZTRQT -- Quantity Available {Generic Edit}  [Numeric] (15)
-,CASE
-    WHEN PART.STOCK_UM IS NULL THEN ''
-    WHEN PART.STOCK_UM = 'BG' THEN 'BC'
-    WHEN PART.STOCK_UM = 'GL' THEN 'GA'
-    WHEN PART.STOCK_UM = 'GRAMS' THEN 'GM'
-    WHEN PART.STOCK_UM = 'M' THEN 'MT'
-    ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
-END                
+,CAST(PART_LOCATION.QTY * 10000 AS BIGINT)
+            SZTRQT -- Quantity Available {Generic Edit}  [Numeric] (15)
+,_ITEM_MASTER_1_TABLE.SZUOM1                
             SZUOM  -- Unit of Measure as Input {UDC (00 UM)}  [String] (2)
 ,CAST(PART.UNIT_MATERIAL_COST * 1000000 AS BIGINT)
             SZUNCS -- Amount - Unit Cost {Generic Edit}  [Numeric] (15)
@@ -84,14 +76,20 @@ END
 ,''         SZLOT1 -- Memo Lot 1 {Generic Edit}  [String] (30)
 ,''         SZLOT2 -- Memo Lot 2 {Generic Edit}  [String] (30)
 ,''         SZLOT3 -- Memo Lot 3 {Generic Edit}  [String] (30)
-,CAST(PART.QTY_ON_HAND * 10000 AS BIGINT) 
+,CAST(PART_LOCATION.QTY * 10000 AS BIGINT) 
             SZSQOR -- Units - Secondary Quantity Ordered {Generic Edit}  [Numeric] (15)
 ,''         SZSQOH -- Quantity on Hand - in Secondary units {Generic Edit}  [Numeric] (15)
 
 FROM PART PART
 
+JOIN PART_LOCATION PART_LOCATION
+    ON PART_LOCATION.PART_ID = PART.ID
+
+JOIN LOCATION LOCATION
+	ON PART_LOCATION.LOCATION_ID = LOCATION.ID
+    
 JOIN _ITEM_MASTER_SIDE _ITEM_MASTER_SIDE
-	ON LTRIM(RTRIM(_ITEM_MASTER_SIDE.PART_ID)) = LTRIM(RTRIM(PART.ID))
+	ON LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZAITM)) = LTRIM(RTRIM(PART.ID))
 		
 LEFT JOIN 
 	(
@@ -115,9 +113,14 @@ LEFT JOIN
 
 	ON PART.ID = PO_LINE.PART_ID
 
+JOIN _ITEM_MASTER_1_TABLE _ITEM_MASTER_1_TABLE
+    ON PART.ID = _ITEM_MASTER_1_TABLE.SZAITM
 
 WHERE PART.ABC_CODE <> 'Z'
-
--- AND LTRIM(RTRIM(_ITEM_MASTER_SIDE.PART_ID)) IS NOT NULL
-
-ORDER BY PART.ROWID
+AND 
+    (
+        -- ((LEFT(PART.DESCRIPTION,6) = 'SYSTEM' OR LEFT(PART.DESCRIPTION,2) = 'FG') AND _ITEM_MASTER_SIDE.SZSTKT = 'M')
+        _ITEM_MASTER_1_TABLE.SZLNTY = 'W'
+        OR LEFT(PART_LOCATION.LOCATION_ID,1) IN ('W','R','S')
+    )
+AND PART_LOCATION.QTY <> 0
