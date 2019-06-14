@@ -1,6 +1,7 @@
 /*
     F03012Z1 Customer Master - backup and clear.sql
     Run this in oracle prior to loading zFile.
+    -- BV R03010Z
 */
 /*
     First create a backup

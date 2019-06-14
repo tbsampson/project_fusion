@@ -1,5 +1,5 @@
 /*
-	F03012Z1 Customer Master - File 1 of 1 VER0001
+	F03012Z1 Customer Master - File 1 of 1 VER0002
 	IR 5/15/2019 Tom Sampson
 
 */
@@ -48,12 +48,12 @@ SELECT
 ,'C'        VOSTTO   -- Send Statement to C/P Character UDC (H00 SV) (1)
 ,'C'        VORYIN   -- Payment Instrument Character UDC (00 PY) (1)
 ,CASE
-    WHEN CSB_REF.CSB = '1' OR (CSB_REF.CUSTOMER_ID IS NOT NULL AND CSB_REF.CSB <> '1') THEN 'Y'
+    WHEN BTST."TYPE" = 'BT' THEN 'Y'
     ELSE 'N'
  END        VOSTMT   -- Print Statement Y/N Character UDC (H03 ST) (1)
 ,''         VOARPY   -- Alternate Payor Numeric Generic Edit (8)
 ,CASE
-    WHEN CSB_REF.CSB = '1' OR (CSB_REF.CUSTOMER_ID IS NOT NULL AND CSB_REF.CSB <> '1') THEN 'Y'
+    WHEN BTST."TYPE" = 'BT' THEN 'Y'
     ELSE 'N'
  END        VOATCS   -- Auto Receipt (Y/N) Character Generic Edit (1)
 ,'C'        VOSITO   -- Send Invoice to C/P Character UDC (H00 SI) (1)
@@ -65,7 +65,7 @@ SELECT
 ,''         VOCKHC   -- Credit Check Handling Code Character Generic Edit (1)
 ,''         VODLC    -- Date - Last Credit Review Date Generic Edit (6)
 ,CASE
-    WHEN CSB_REF.CSB = '1' OR (CSB_REF.CUSTOMER_ID IS NOT NULL AND CSB_REF.CSB <> '1') THEN 'Y'
+    WHEN BTST."TYPE" = 'BT' THEN 'Y'
     ELSE 'N'
  END        VODNLT   -- Delinquency Notice (Y/N) Character Generic Edit (1)
 ,''         VOPLCR   -- Person Completing Last Credit Limit Rev String Generic Edit (10)
@@ -104,10 +104,10 @@ SELECT
 ,''         VOAFCP   -- Amount - Prior Year Finance Charges Numeric Generic Edit (15)
 ,''         VOAFCY   -- Amount - YTD Finance Charges Numeric Generic Edit (15)
 ,CASE
-    WHEN CSB_REF.CSB = '1' OR (CSB_REF.CUSTOMER_ID IS NOT NULL AND CSB_REF.CSB <> '1') 
+    WHEN BTST."TYPE" = 'BT'  
     THEN
         SUM(CASE
-            WHEN YEAR(RECEIVABLE.INVOICE_DATE) = 2019 THEN RECEIVABLE.TOTAL_AMOUNT
+            WHEN YEAR(RECEIVABLE.INVOICE_DATE) = 2019 THEN CAST(RECEIVABLE.TOTAL_AMOUNT * 100 AS BIGINT)
             ELSE 0
         END) 
     ELSE 0
@@ -129,7 +129,7 @@ SELECT
 ,7         VOAN8R   -- Related - Address Number Numeric Generic Edit (8)
 ,CASE
 	WHEN CSB_REF.CSB = '1' THEN 'X'
-	WHEN CSB_REF.CUSTOMER_ID IS NOT NULL AND CSB_REF.CSB <> '1'	THEN 'B'
+	WHEN BTST."TYPE" = 'BT' THEN 'B'
 	ELSE 'S'
  END        VOBADT   -- Billing Address Type Character UDC (H42 BA) (1)
 ,''         VOCPGP   -- Customer Price Group String UDC (40 PC) (8)
@@ -263,7 +263,7 @@ SELECT
 ,''	        VODTEE   -- Date - Entered JDE UTime Generic Edit (11)
 ,''         VOGOPASF -- GOP Arrival or Ship Flag Character UDC (34A AS) (1)
 
-FROM _BT_ST BTST
+FROM _BT_ST_TABLE BTST
 
 LEFT JOIN CUSTOMER CUSTOMER
 	ON BTST.BILLTO_REF = CUSTOMER.ID 
@@ -281,6 +281,7 @@ GROUP BY
 
 	 BTST.SZAN8
 	,CSB_REF.CSB
+	,BTST."TYPE"
 	,CSB_REF.CUSTOMER_ID
 	,CUSTOMER.ID
 	,CUSTOMER.TERMS_NET_DAYS

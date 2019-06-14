@@ -9,7 +9,7 @@ SELECT
  '00020'   SDKCOO -- Order Company (Order Number) [Generic Edit] String (5)
 ,CAST(LTRIM(RTRIM(ORDER_REF.NEW_ID)) AS BIGINT)   SDDOCO -- Document (Order No Invoice etc.) [Generic Edit] Numeric (8)
 ,'SO'   SDDCTO -- Order Type [UDC (00 DT)] String (2)
-,CAST(CUST_ORDER_LINE.LINE_NO AS BIGINT) * 1000   SDLNID -- Line Number [Generic Edit] Numeric (6)
+,CAST(RANK() OVER (order by ORDER_REF.NEW_ID,CUST_ORDER_LINE.LINE_NO)  1000 AS BIGINT)   SDLNID -- Line Number [Generic Edit] Numeric (6)
 ,'000'   SDSFXO -- Order Suffix [Generic Edit] String (3)
 ,'       20001'   SDMCU -- Business Unit [Generic Edit] String (12)
 ,'00020'   SDCO -- Company [Generic Edit] String (5)

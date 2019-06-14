@@ -153,14 +153,8 @@ SELECT
 			WHEN PART.STOCK_UM = 'M' THEN 'MT'
 			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
 		END             SZUOM2	 -- Unit of Measure - Secondary	String	UDC (00 UM)	2	
-		,CASE
-			WHEN PO_LINE.PURCHASE_UM IS NULL THEN '' -- ISNULL(LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2),'')
-			WHEN PO_LINE.PURCHASE_UM = 'BG' THEN 'BC'
-			WHEN PO_LINE.PURCHASE_UM = 'GL' THEN 'GA'
-			WHEN PO_LINE.PURCHASE_UM = 'GRAMS' THEN 'GM'
-			WHEN PO_LINE.PURCHASE_UM = 'M' THEN 'MT'
-			ELSE LEFT(LTRIM(RTRIM(PO_LINE.PURCHASE_UM)),2)
-		END             SZUOM3	 -- Unit of Measure - Purchasing	String	UDC (00 UM)	2		
+		,ISNULL(UOM.UOM,'EA')
+						 SZUOM3	 -- Unit of Measure - Purchasing	String	UDC (00 UM)	2		
 		,CASE
 			WHEN PART.STOCK_UM IS NULL THEN ''
 			WHEN PART.STOCK_UM = 'BG' THEN 'BC'
@@ -234,15 +228,10 @@ SELECT
 		,''				SZFRGD	 -- From Grade	String	UDC (40 LG)	3
 		,''				SZTHGD	 -- Thru Grade	String	UDC (40 LG)	3
 		,''				SZCOTY	 -- Component Type	Character	UDC (H40 CP)	1
-		,CASE WHEN PART.ID = 'PLC105FC12' THEN 'M'
-			ELSE LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSTKT)),1)
-		 END SZSTKT	 -- Stocking Type	Character	UDC (41 I)	1
-		,CASE
-		    WHEN LEFT(PART.PRODUCT_CODE,3) IN ('240', '390', '450', '460', '740', '755') THEN 'D'  
-            WHEN LEFT(PART.DESCRIPTION,6) = 'SYSTEM' AND LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSTKT)) = 'M' THEN 'W'
-            WHEN LEFT(PART.DESCRIPTION,2) = 'FG' AND LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSTKT)) = 'M' THEN 'W'
-            ELSE 'S'
-         END			SZLNTY	 -- Line Type	String	Generic Edit	2
+		,_ITEM_MASTER_SIDE.SZSTKT
+						SZSTKT	 -- Stocking Type	Character	UDC (41 I)	1
+		,_ITEM_MASTER_SIDE.SZLNTY			
+						SZLNTY	 -- Line Type	String	Generic Edit	2
 		,'N'			SZCONT	 -- Contract - Item	Character	Generic Edit	1
 		,'Y'			SZBACK	 -- Backorders Allowed (Y/N)	Character	Generic Edit	1
 		,''				SZIFLA	 -- Item Flash Message	String	UDC (40 FL)	2
@@ -364,16 +353,16 @@ SELECT
 		,''				SZSETL	 -- Setup Labor - Standard	Numeric	Generic Edit	15
 		,''				SZSRNK	 -- Shrink Factor	Numeric	Generic Edit	15
 		,'%'			SZSRKF	 -- Shrink Factor Method	Character	UDC (H40 SR)	1
-		,'U'			SZTIMB	 -- Time Basis Code	Character	UDC (30 TB)	1
+		,_ITEM_MASTER_SIDE.SZTIMB
+						SZTIMB	 -- Time Basis Code	Character	UDC (30 TB)	1
 		,''				SZBQTY	 -- Units - Batch Quantity	Numeric	Generic Edit	15
 		,''				SZMULT	 -- Quantity - Order Multiples (MRP)	Numeric	Generic Edit	15
 		,''				SZLFDJ	 -- Date - Future Use	Date	Generic Edit	6
 		,'Y'			SZMLOT	 -- Mix Dates / Lots (Y/N)	Character	Generic Edit	1
 		,CASE
-            WHEN LEFT(PART.DESCRIPTION,6) = 'SYSTEM' AND _ITEM_MASTER_SIDE.SZSTKT = 'M' THEN 'SHIP01'
-            WHEN LEFT(PART.DESCRIPTION,2) = 'FG' AND _ITEM_MASTER_SIDE.SZSTKT = 'M' THEN 'SHIP01'
-            ELSE ''
-         END			SZLOCN	 -- Location	String	Generic Edit	20
+    		WHEN _ITEM_MASTER_SIDE.SZLNTY = 'W' THEN 'SHIP01'
+     		ELSE NULL
+		 END 			SZLOCN	 -- Location	String	Generic Edit	20
 		,''				SZLOTN	 -- Lot/Serial Number	String	Generic Edit	30
 		,''				SZURCD	 -- User Reserved Code	String	Generic Edit	2
 		,''				SZURDT	 -- User Reserved Date	Date	Generic Edit	6
@@ -458,7 +447,10 @@ FROM _ITEM_MASTER_SIDE _ITEM_MASTER_SIDE
 
 LEFT JOIN PART PART
 	ON _ITEM_MASTER_SIDE.SZAITM = PART.ID
-		
+
+LEFT JOIN _UOM UOM
+	ON _ITEM_MASTER_SIDE.SZAITM = UOM.SZAITM
+	
 LEFT JOIN 
 	(
 		SELECT DISTINCT
