@@ -42,19 +42,27 @@ SELECT
 	,CASE
 		WHEN @Load = 1 THEN '08'
 		WHEN @Load = 2 THEN '07'
-		ELSE 'Error'
+		ELSE 'Error' -- forces load constraint failure
 		END		SZLEDG			 -- Cost Method String UDC (40 CM) (2)
-	,CAST(PART.UNIT_MATERIAL_COST*10000 AS BIGINT)	
+	
+	/*
+	,CASE 
+		WHEN IM1.SZSTKT = 'M' THEN IM1.CAST(PART.UNIT_MATERIAL_COST * 1.7 * 10000 AS BIGINT)	
+		ELSE IM1.CAST(PART.UNIT_MATERIAL_COST * 10000 AS BIGINT)
+	 END		SZUNCS			 -- Amount - Unit Cost Numeric Generic Edit (15)
+	 */
+	
+	,IM1.CAST(PART.UNIT_MATERIAL_COST * 10000 AS BIGINT)
 				SZUNCS			 -- Amount - Unit Cost Numeric Generic Edit (15)
 	,CASE
 		WHEN @Load = 1 THEN 'P'
 		WHEN @Load = 2 THEN ''
-		ELSE 'Error'
+		ELSE 'Error' -- forces load constraint failure
 		END		SZCSPO			 -- Costing Selection - Purchasing Character UDC (H40 CT) (1)
 	,CASE
 		WHEN @Load = 1 THEN ''
 		WHEN @Load = 2 THEN 'I'
-		ELSE 'Error'
+		ELSE 'Error' -- forces load constraint failure
 		END		SZCSIN			 -- Costing Selection - Inventory Character UDC (H40 CS) (1)
 	,''			SZURCD			 -- User Reserved Code String Generic Edit (2)
 	,''			SZURDT			 -- User Reserved Date Date Generic Edit (6)
