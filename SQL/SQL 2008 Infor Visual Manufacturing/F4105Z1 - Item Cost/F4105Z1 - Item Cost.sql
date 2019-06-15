@@ -2,8 +2,10 @@
 F4105Z1 Item Cost File 1 VER0001
 IR 4/17/2019
 Tom Sampson
-
+BV R4105Z1I
 */
+use BALCO;
+
 DECLARE @Load INTEGER
 -- Set 1 or 2 for 1st/2nd load
 SET @Load = 1
@@ -11,7 +13,9 @@ SET @Load = 1
 SELECT
 
 	'JDE'		SZEDUS			 -- EDI - User ID String Generic Edit (10)
-	,'BALIC'	SZEDBT			 -- EDI - Batch Number String Generic Edit (15)
+	,CASE WHEN @Load = 1 THEN 'BALIC1'
+		ELSE 'BALIC2'	
+				SZEDBT			 -- EDI - Batch Number String Generic Edit (15)
 	,ROW_NUMBER() OVER(ORDER BY	PART.ROWID)			
 				SZEDTN			 -- EDI - Transaction Number String Generic Edit (22)
 	,0			SZEDLN			 -- EDI - Line Number Numeric Generic Edit (7)
@@ -24,11 +28,11 @@ SELECT
 	,' '		SZEDSP			 -- EDI - Successfully Processed Character Generic Edit (1)
 	,''			SZPNID			 -- Trading Partner ID String Generic Edit (15)
 	,'A'		SZTNAC			 -- Transaction Action String UDC (00 TA) (2)
-	,CAST(CONV.NEW_ID AS INTEGER)			
+	,IM1.SZITM 			
 				SZITM			 -- Item Number - Short Numeric Generic Edit (8)
-	,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZLITM)),25)			
+	,IM1.SZLITM			
 				SZLITM			 -- 2nd Item Number String Generic Edit (25)
-	,LEFT(LTRIM(RTRIM(PART.ID)),25)	
+	,IM1.SZAITM	
                 SZAITM			 -- 3rd Item Number String Generic Edit (25)
 	,'       20001'	
                 SZMCU			 -- Business Unit String Generic Edit (12)
@@ -74,8 +78,8 @@ FROM PART PART
 JOIN _INFOR_JDE_PART_CONV CONV
 	ON CONV.OLD_ID = PART.ID
 
-JOIN _ITEM_MASTER_SIDE _ITEM_MASTER_SIDE
-	ON LTRIM(RTRIM(_ITEM_MASTER_SIDE.PART_ID)) = LTRIM(RTRIM(PART.ID))
+JOIN _ITEM_MASTER_1_TABLE IM1
+	ON PART.ID = IM1.SZAITM
 
 LEFT JOIN 
 	(
@@ -103,6 +107,8 @@ LEFT JOIN
 	) PO_LINE
 
 	ON PART.ID = PO_LINE.PART_ID
+
+
 
 WHERE PART.ABC_CODE <> 'Z'
 
