@@ -81,7 +81,7 @@ DELETE CVDTA.F4104
 WHERE IVITM BETWEEN 51000 AND 70000;
 
 -- ------------------------------------------ Item Cost ------------------------------------------ 
-DELETE CVDTA.F4105Z1 -- zFile
+DELETE CVDTA.F4105Z1; -- zFile
 
 DELETE CVDTA.F4105
 WHERE COITM BETWEEN 51000 AND 70000;
@@ -117,7 +117,7 @@ DELETE CVDTA.F4211; -- Sales Order Detail (Ron)
 DELETE CVDTA.F42199; -- Sales Order  Detail Ledger File (Ron)
 DELETE CVDTA.F4209; -- Held Orders (Ron)
 DELETE CVDTA.F49211; -- Sales Order Detail Tag File (Ron)
-DELETE CVDTA.F4299; -- Sales Summary History File (Ron)
+DELETE CVDTA.F4229; -- Sales Summary History File (Ron)
 
 -- The big red button
 COMMIT;

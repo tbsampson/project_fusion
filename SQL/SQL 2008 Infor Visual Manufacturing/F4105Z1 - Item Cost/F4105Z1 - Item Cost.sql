@@ -12,10 +12,12 @@ SET @Load = 1
 
 SELECT
 
-	'JDE'		SZEDUS			 -- EDI - User ID String Generic Edit (10)
-	,CASE WHEN @Load = 1 THEN 'BALIC1'
-		ELSE 'BALIC2'	
-				SZEDBT			 -- EDI - Batch Number String Generic Edit (15)
+	 'JDE'		SZEDUS			 -- EDI - User ID String Generic Edit (10)
+	,CASE 
+		WHEN @Load = 1 
+			THEN 'BALIC1'
+			ELSE 'BALIC2'
+	 END		SZEDBT			 -- EDI - Batch Number String Generic Edit (15)
 	,ROW_NUMBER() OVER(ORDER BY	PART.ROWID)			
 				SZEDTN			 -- EDI - Transaction Number String Generic Edit (22)
 	,0			SZEDLN			 -- EDI - Line Number Numeric Generic Edit (7)
@@ -52,7 +54,7 @@ SELECT
 	 END		SZUNCS			 -- Amount - Unit Cost Numeric Generic Edit (15)
 	 */
 	
-	,IM1.CAST(PART.UNIT_MATERIAL_COST * 10000 AS BIGINT)
+	,CAST(PART.UNIT_MATERIAL_COST * 10000 AS BIGINT)
 				SZUNCS			 -- Amount - Unit Cost Numeric Generic Edit (15)
 	,CASE
 		WHEN @Load = 1 THEN 'P'

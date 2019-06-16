@@ -1,6 +1,7 @@
 /*
  F3002Z1 - Bill of Materials
  IR 20190514 Tom Sampson
+ BV R3002Z1I
 */
 
 SELECT
