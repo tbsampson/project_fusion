@@ -1,0 +1,60 @@
+/*
+    F4141Z1 - Cycle Count
+    VER0001 -  Tom Sampson
+*/
+
+SELECT
+
+ '' SZEDUS -- EDI - User ID [Generic Edit] String (10)
+,'' SZEDBT -- EDI - Batch Number [Generic Edit] String (15)
+,'' SZEDTN -- EDI - Transaction Number [Generic Edit] String (22)
+,'' SZEDLN -- EDI - Line Number [Generic Edit] Numeric (7)
+,'' SZEDCT -- EDI - Document Type [Generic Edit] String (2)
+,'' SZTYTN -- Type - Transaction [UDC (00 TT)] String (8)
+,'' SZEDFT -- EDI - Translation Format [Generic Edit] String (10)
+,'' SZEDDT -- EDI - Transmission Date [Generic Edit] Date (6)
+,'' SZDRIN -- Direction Indicator [UDC (00 DN)] Character (1)
+,'' SZEDDL -- EDI - Detail Lines Processed [Generic Edit] Numeric (5)
+,'' SZEDSP -- EDI - Successfully Processed [Generic Edit] Character (1)
+,'' SZPNID -- Trading Partner ID [Generic Edit] String (15)
+,'' SZTNAC -- Transaction Action [UDC (00 TA)] String (2)
+,'' SZCYNO -- Cycle Count Number [Generic Edit] Numeric (8)
+,'' SZCCCD -- Cycle Count Code [UDC (H41 CC)] Character (1)
+,'' SZITM -- Item Number - Short [Generic Edit] Numeric (8)
+,'' SZLITM -- 2nd Item Number [Generic Edit] String (25)
+,'' SZAITM -- 3rd Item Number [Generic Edit] String (25)
+,'' SZMCU -- Business Unit [Generic Edit] String (12)
+,'' SZLOCN -- Location [Generic Edit] String (20)
+,'' SZLOTN -- Lot/Serial Number [Generic Edit] String (30)
+,'' SZSTUN -- Storage Unit Number [Generic Edit] Numeric (8)
+,'' SZSRP1 -- Sales Catalog Section [UDC (41 S1)] String (3)
+,'' SZSRP2 -- Sub Section [UDC (41 S2)] String (3)
+,'' SZSRP3 -- Sales Category Code 3 [UDC (41 S3)] String (3)
+,'' SZSRP4 -- Sales Category Code 4 [UDC (41 S4)] String (3)
+,'' SZSRP5 -- Sales Category Code 5 [UDC (41 S5)] String (3)
+,'' SZGLPT -- Category - G/L [UDC (41 9)] String (4)
+,'' SZTQOH -- Quantity - Total Primary on Hand [Generic Edit] Numeric (15)
+,'' SZTAOH -- Amount - Total Primary on Hand [Generic Edit] Numeric (15)
+,'' SZTQCT -- Quantity - Total Primary Counted [Generic Edit] Numeric (15)
+,'' SZTACT -- Amount - Total Primary Counted [Generic Edit] Numeric (15)
+,'' SZTRQT -- Quantity Available [Generic Edit] Numeric (15)
+,'' SZUOM -- Unit of Measure as Input [UDC (00 UM)] String (2)
+,'' SZUNCS -- Amount - Unit Cost [Generic Edit] Numeric (15)
+,'' SZCNTJ -- Date - Counted [Generic Edit] Date (6)
+,'' SZCNTB -- Counted By [Generic Edit] String (10)
+,'' SZAISL -- Aisle [Generic Edit] String (8)
+,'' SZBIN -- Bin [Generic Edit] String (8)
+,'' SZUSER -- User ID [Generic Edit] String (10)
+,'' SZPID -- Program ID [Generic Edit] String (10)
+,'' SZJOBN -- Work Station ID [Generic Edit] String (10)
+,'' SZUPMJ -- Date - Updated [Generic Edit] Date (6)
+,'' SZTDAY -- Time of Day [Generic Edit] Numeric (6)
+,'' SZLOT1 -- Memo Lot 1 [Generic Edit] String (30)
+,'' SZLOT2 -- Memo Lot 2 [Generic Edit] String (30)
+,'' SZLOT3 -- Memo Lot 3 [Generic Edit] String (30)
+,'' SZSQOR -- Units - Secondary Quantity Ordered [Generic Edit] Numeric (15)
+,'' SZSQOH -- Quantity on Hand - in Secondary units [Generic Edit] Numeric (15)
+
+FROM
+
+TBD
