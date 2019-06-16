@@ -1,7 +1,7 @@
 /*
 	F03012Z1 Customer Master - File 1 of 1 VER0002
 	IR 5/15/2019 Tom Sampson
-
+ 	-- BV R03010Z
 */
 
 SELECT
@@ -48,12 +48,12 @@ SELECT
 ,'C'        VOSTTO   -- Send Statement to C/P Character UDC (H00 SV) (1)
 ,'C'        VORYIN   -- Payment Instrument Character UDC (00 PY) (1)
 ,CASE
-    WHEN BTST."TYPE" = 'BT' THEN 'Y'
+    WHEN  AB.SZAT1 IN ('C','CB')  THEN 'Y'
     ELSE 'N'
  END        VOSTMT   -- Print Statement Y/N Character UDC (H03 ST) (1)
 ,''         VOARPY   -- Alternate Payor Numeric Generic Edit (8)
 ,CASE
-    WHEN BTST."TYPE" = 'BT' THEN 'Y'
+    WHEN  AB.SZAT1 IN ('C','CB')  THEN 'Y'
     ELSE 'N'
  END        VOATCS   -- Auto Receipt (Y/N) Character Generic Edit (1)
 ,'C'        VOSITO   -- Send Invoice to C/P Character UDC (H00 SI) (1)
@@ -65,7 +65,7 @@ SELECT
 ,''         VOCKHC   -- Credit Check Handling Code Character Generic Edit (1)
 ,''         VODLC    -- Date - Last Credit Review Date Generic Edit (6)
 ,CASE
-    WHEN BTST."TYPE" = 'BT' THEN 'Y'
+    WHEN  AB.SZAT1 IN ('C','CB')  THEN 'Y'
     ELSE 'N'
  END        VODNLT   -- Delinquency Notice (Y/N) Character Generic Edit (1)
 ,''         VOPLCR   -- Person Completing Last Credit Limit Rev String Generic Edit (10)
@@ -104,7 +104,7 @@ SELECT
 ,''         VOAFCP   -- Amount - Prior Year Finance Charges Numeric Generic Edit (15)
 ,''         VOAFCY   -- Amount - YTD Finance Charges Numeric Generic Edit (15)
 ,CASE
-    WHEN BTST."TYPE" = 'BT'  
+    WHEN AB.SZAT1 IN ('C','CB')  
     THEN
         SUM(CASE
             WHEN YEAR(RECEIVABLE.INVOICE_DATE) = 2019 THEN CAST(RECEIVABLE.TOTAL_AMOUNT * 100 AS BIGINT)
@@ -128,9 +128,10 @@ SELECT
             VODAOJ   -- Date - Account Opened Date Generic Edit (6)
 ,7         VOAN8R   -- Related - Address Number Numeric Generic Edit (8)
 ,CASE
-	WHEN CSB_REF.CSB = '1' THEN 'X'
-	WHEN BTST."TYPE" = 'BT' THEN 'B'
-	ELSE 'S'
+	WHEN AB.SZAT1 = 'C' THEN 'X'
+	WHEN AB.SZAT1 = 'CB' THEN 'B'
+	WHEN AB.SZAT1 = 'CS' THEN 'S'
+	ELSE 'ERROR!'
  END        VOBADT   -- Billing Address Type Character UDC (H42 BA) (1)
 ,''         VOCPGP   -- Customer Price Group String UDC (40 PC) (8)
 ,''         VOORTP   -- Order Template String UDC (40 OT) (8)
@@ -277,11 +278,15 @@ LEFT JOIN _CSB_REF$ CSB_REF
 LEFT JOIN RECEIVABLE RECEIVABLE
 	ON CUSTOMER.ID = RECEIVABLE.CUSTOMER_ID
 	
+JOIN _ADDRESS_BOOK_TABLE AB
+	ON BTST.SZAN8 = AB.SZAN8
+	
 GROUP BY
 
 	 BTST.SZAN8
 	,CSB_REF.CSB
 	,BTST."TYPE"
+	,AB.SZAT1
 	,CSB_REF.CUSTOMER_ID
 	,CUSTOMER.ID
 	,CUSTOMER.TERMS_NET_DAYS

@@ -358,7 +358,7 @@ SELECT
 		,'Y'			SZMLOT	 -- Mix Dates / Lots (Y/N)	Character	Generic Edit	1
 		,CASE
     		WHEN _ITEM_MASTER_SIDE.SZLNTY = 'W' THEN 'SHIP01'
-     		ELSE NULL
+     		ELSE ''
 		 END 			SZLOCN	 -- Location	String	Generic Edit	20
 		,''				SZLOTN	 -- Lot/Serial Number	String	Generic Edit	30
 		,''				SZURCD	 -- User Reserved Code	String	Generic Edit	2
