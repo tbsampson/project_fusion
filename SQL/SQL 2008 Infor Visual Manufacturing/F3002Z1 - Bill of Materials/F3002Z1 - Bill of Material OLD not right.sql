@@ -1,23 +1,24 @@
-
 /*
  F3002Z1 - Bill of Materials
  IR 20190514 Tom Sampson
  BV R3002Z1I
-
-tables to clear
-F3002
-
-
 */
-use BALCO;
 
 SELECT
+'JDE'   		SZEDUS -- EDI - User ID String Generic Edit(10)
+,'BALBOM'   	SZEDBT -- EDI - Batch Number String Generic Edit(15)
+,ROW_NUMBER() OVER(ORDER BY	A.SZITM) SZEDTN -- EDI - Transaction Number String Generic Edit(22)
+,A.*
 
-		 'JDE'   		SZEDUS -- EDI - User ID String Generic Edit(10)
-		,'BALBOM'   	SZEDBT -- EDI - Batch Number String Generic Edit(15)
-		,ROW_NUMBER() OVER(ORDER BY	REQUIREMENT.ROWID)   
-						SZEDTN -- EDI - Transaction Number String Generic Edit(22)
-		,1   			SZEDLN -- EDI - Line Number Numeric Generic Edit(7)
+FROM 
+	(
+		SELECT DISTINCT
+
+		-- 'JDE'   		SZEDUS -- EDI - User ID String Generic Edit(10)
+		-- ,'BALBOM'   	SZEDBT -- EDI - Batch Number String Generic Edit(15)
+		-- ,ROW_NUMBER() OVER(ORDER BY	REQUIREMENT.ROWID)   
+		--				SZEDTN -- EDI - Transaction Number String Generic Edit(22)
+		 1   			SZEDLN -- EDI - Line Number Numeric Generic Edit(7)
 		,''   			SZEDCT -- EDI - Document Type String Generic Edit(2)
 		,'JDEBOM'   	SZTYTN -- Type - Transaction String UDC (00 TT)(8)
 		,''   			SZEDFT -- EDI - Translation Format String Generic Edit(10)
@@ -46,6 +47,7 @@ SELECT
 						SZCPNT -- Component Line Number Numeric Generic Edit(4)
 		,0				SZSBNT -- Substitute Item Sequence Number Numeric Generic Edit(5)
 		,'Y'			SZPRTA -- Partials Allowed (Y/N) Character Generic Edit(1)
+
 		,CASE 
 			   WHEN REQUIREMENT.QTY_PER <> 0 
 	   			THEN CAST(CAST(REQUIREMENT.QTY_PER AS DECIMAL(12,6)) * 10000 AS BIGINT)
@@ -53,7 +55,14 @@ SELECT
 	   			THEN CAST(CAST(REQUIREMENT.FIXED_QTY AS DECIMAL(12,6)) * 10000 AS BIGINT)
 			   ELSE 10000
 		 END			SZQNTY -- Quantity - Standard Required Quantity Numeric Generic Edit(15)
-		,IM2.SZUOM1 	SZUM -- Unit of Measure String UDC (00 UM)(2)
+
+		,CASE
+			WHEN PART.STOCK_UM = 'BG' THEN 'BC'
+			WHEN PART.STOCK_UM = 'GL' THEN 'GA'
+			WHEN PART.STOCK_UM = 'GRAMS' THEN 'GM'
+			WHEN PART.STOCK_UM = 'M' THEN 'MT'
+			ELSE PART.STOCK_UM
+		 END 			SZUM -- Unit of Measure String UDC (00 UM)(2)
 		,0				SZBQTY -- Units - Batch Quantity Numeric Generic Edit(15)
 		,''				SZUOM -- Unit of Measure as Input String UDC (00 UM)(2)
 		,''				SZFVBT -- Fixed or Variable Batch Size Character Generic Edit(1)
@@ -61,7 +70,7 @@ SELECT
 		,140336			SZEFFT -- Effective - Thru Date Date Generic Edit(6)
 		,''				SZFSER -- Effective From Serial Number String Generic Edit(25)
 		,''				SZTSER -- Effective Thru Serial Number String Generic Edit(25)
-		,BOM_SIDE.SZITC			SZITC -- Issue Type Code Character UDC (41 IT)(1)
+		,_BOM_SIDE.SZITC			SZITC -- Issue Type Code Character UDC (41 IT)(1)
 		,'N'			SZFTRC -- Required Character Generic Edit(1)
 		,'S'			SZOPTK -- Optional Item (Kit) Character UDC (H40 OP)(1)
 		,'N'			SZFORV -- Default Component Character Generic Edit(1)
@@ -80,7 +89,7 @@ SELECT
 		,''				SZFRGD -- From Grade String UDC (40 LG)(3)
 		,ISNULL(REQUIREMENT.USER_1,'')   
 						SZTHGD -- Thru Grade String UDC (40 LG)(3)
-		,CAST(BOM_SIDE.SZOPSQ AS DECIMAL(8,3)) * 100   
+		,_BOM_SIDE.SZOPSQ * 100   
 						SZOPSQ -- Sequence Number - Operations Numeric Generic Edit(5)
 		,''				SZBSEQ -- Sequence - Bubble Sequence Numeric Generic Edit(5)
 		,10000			SZFTRP -- Feature Planned Percent Numeric Generic Edit(5)
@@ -95,7 +104,7 @@ SELECT
 		,''				SZECO -- ECO Number String Generic Edit(12)
 		,''				SZECTY -- Engineering Change Reason String UDC (40 CR)(2)
 		,''				SZECOD -- Date - Engineering Change Date Date Generic Edit(6)
-		,LEFT(IM2.SZDSC1,30)
+		,LEFT(PART.DESCRIPTION,30)
 						SZDSC1 -- Description String Generic Edit(30)
 		,'S'			SZLNTY -- Line Type String Generic Edit(2)
 		,''				SZPRIC -- Unit Price per Primary Numeric Generic Edit(15)
@@ -130,17 +139,32 @@ SELECT
 		,''				SZBCHAR -- Lean Superflush Flag Character Generic Edit(1)
 		,''				SZBOSTR -- Prep Code String UDC (F30L PC)(4)
 
-		FROM _BOM_SIDE BOM_SIDE
-		
-		JOIN _ITEM_MASTER_1_TABLE IM1
-			ON BOM_SIDE.SZKITA = IM1.SZAITM
-		
+		FROM REQUIREMENT REQUIREMENT
+
+		JOIN PART PART
+			ON PART.ID = REQUIREMENT.PART_ID
+
+		JOIN PART PDESC
+			ON PDESC.ID = REQUIREMENT.WORKORDER_BASE_ID
+			
 		JOIN _ITEM_MASTER_1_TABLE IM2
-			ON BOM_SIDE.SZAITM = IM2.SZAITM
-					
-		JOIN REQUIREMENT REQUIREMENT
-			ON BOM_SIDE.SZKITA = REQUIREMENT.WORKORDER_BASE_ID
-			AND BOM_SIDE.SZAITM = REQUIREMENT.PART_ID
+			ON PART.ID = IM2.SZAITM
 
+		JOIN _OP_SEQ_RANK OP_SEQ_RANK
+			ON OP_SEQ_RANK.OPERATION_SEQ_NO = REQUIREMENT.OPERATION_SEQ_NO
+			
+		JOIN _PC_RANK PC_RANK
+			ON PC_RANK.PIECE_NO = REQUIREMENT.PIECE_NO
+			
+		JOIN _ITEM_MASTER_1_TABLE IM1
+			ON IM1.SZAITM = REQUIREMENT.WORKORDER_BASE_ID
 
- 
+		JOIN _BOM_SIDE _BOM_SIDE
+			ON _BOM_SIDE.SZKITA = REQUIREMENT.WORKORDER_BASE_ID
+			AND _BOM_SIDE.SZAITM = REQUIREMENT.PART_ID
+		/*
+		ORDER BY 
+			 REQUIREMENT.WORKORDER_BASE_ID
+			,REQUIREMENT.PIECE_NO
+		*/
+		) A

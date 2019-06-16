@@ -1,0 +1,4 @@
+excel equation for building SQL line
+
+=",'' "&C3&" -- "&D3&" ["&F3&"] "&E3&" ("&G3&")"
+
