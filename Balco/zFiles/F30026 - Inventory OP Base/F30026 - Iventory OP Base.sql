@@ -19,7 +19,7 @@ SELECT
 ,'' IECSL -- Amount - Frozen Cost Rollup [Generic Edit] Numeric (15)
 ,'' IEXSCR -- Amount - Simulated Cost Rollup [Generic Edit] Numeric (15)
 ,'' IESCTC -- Factor Code - Frozen [Generic Edit] String (4)
-,'@A1' IEXSFC -- Factor Code - Simulated [Generic Edit] String (4)
+,'&A1' IEXSFC -- Factor Code - Simulated [Generic Edit] String (4)
 ,'' IESTFC -- Factor - Frozen [Generic Edit] Numeric (15)
 ,'' IEXSF -- Factor - Simulated [Generic Edit] Numeric (15)
 ,'' IERATS -- Rate Code - Frozen [Generic Edit] String (4)
@@ -44,7 +44,5 @@ FROM _ITEM_MASTER_1_TABLE IM1
 
 WHERE
     IM1.SZSTKT = 'P'
+    AND IM1.SZLNTY <> 'D'
     AND IM1.SZMCU = '       20001'
-    AND IM1.SZPRP6 <> '001'
-
-    AND IM1.SZITM = 51005
