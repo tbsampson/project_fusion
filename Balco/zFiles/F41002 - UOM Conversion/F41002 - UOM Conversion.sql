@@ -24,8 +24,8 @@ SELECT
     ELSE PART_UNITS_CONV.TO_UM
  END                                                            UMRUM --Related Unit of Measure String(2)
 ,''                                                             UMUSTR --Unit of Measure Structure Character(1)
-,CAST(PART_UNITS_CONV.CONVERSION_FACTOR * 100000000 AS BIGINT)   UMCONV --Conversion Factor Numeric(15)
-,'100000000'                                                             UMCNV1 --Conversion Factor - Secondary to Primary Numeric(15)
+,CAST(PART_UNITS_CONV.CONVERSION_FACTOR * 10000000 AS BIGINT)   UMCONV --Conversion Factor Numeric(15)
+,'10000000'                                                     UMCNV1 --Conversion Factor - Secondary to Primary Numeric(15)
 ,'TSAMPSON'                                                     UMUSER --User ID String(10)
 ,'F41002'                                                       UMPID --Program ID String(10)
 ,''                                                             UMJOBN --Work Station ID String(10)
