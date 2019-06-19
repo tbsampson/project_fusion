@@ -1,5 +1,6 @@
 /*
 	Custom Detail for Request to E1 integration
+	F55BAL11
 	IR 20190420
 	REWRITE 20190603
 	Tom Sampson
@@ -11,8 +12,8 @@ USE RequestsStaging;
 
 DECLARE @OrderID INTEGER, @SectionID INTEGER
 
-SET @OrderID = 60307
-SET @SectionID = 224801
+SET @OrderID = 60312
+SET @SectionID = 224817
 
 /*
 -- case 1
@@ -31,6 +32,9 @@ SET @SectionID = 224803
 SET @OrderID = 60310
 SET @SectionID = 224804
 
+-- case 5
+SET @OrderID = 60312
+SET @SectionID = 224817
 
 */
 
