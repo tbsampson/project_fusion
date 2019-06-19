@@ -6,7 +6,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 /*
 	_JDEorderHeader 
-	VER0001
+	VER0002
 	Tom Sampson
 	IR 20190618
 	usage 
@@ -17,7 +17,7 @@ GO
 	EXEC dbo._JDEorderHeader 60312
 	
 */
-CREATE PROCEDURE dbo._JDEorderHeader (@OrderID INTEGER)
+ALTER PROCEDURE dbo._JDEorderHeader (@OrderID INTEGER)
 
 AS
 
@@ -30,7 +30,7 @@ SELECT DISTINCT
 	,dbo.JDEJulian(Orders.OrderDate)
                                         "BHTRDJ"
 	,LEFT(LTRIM(RTRIM(Orders.CustomerPO)),25) 
-                                        "BHVR02"
+                                        "BHVR01"
 	,RepCompanies.RepNumber             "BHSLSM"
 	,CAST(CAST(ROUND(ISNULL(NULLIF(QuoteSectionCommissions.Commission,0)  / NULLIF(SubT.Amt - QuoteSections.Discount,0),0),5) AS DECIMAL(4,2)) * 100000 AS INTEGER)
                                         "BHSLCM"
@@ -67,10 +67,10 @@ SELECT DISTINCT
 		WHEN LEFT(LTRIM(RTRIM(Orders.Zipcode)),1) <= '9' THEN ISNULL(LTRIM(RTRIM(Orders.Zipcode)),'')
 		ELSE ''
 	 END 								"BHADDZ"
+    ,''                                 "BHSDATTN"
 	,''                                 "BHKCOO"
 	,''                                 "BHDOCO"
 	,''                                 "BHDCTO"
-	,''                                 "BHLIND"
 	,''                                 "BHUSER"
 	,''                                 "BHPID"
 	,''                                 "BHUPMJ"
