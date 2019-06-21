@@ -262,7 +262,8 @@ SELECT
 		,''				SZMMPC	 -- Margin Maintenance (%)	Numeric	Generic Edit	7
 		,''				SZPTSC	 -- Material Status	String	UDC (40 PS)	2
 		,''				SZSNS	 -- Round to Whole Number	Character	UDC (H41 SN)	1
-		,CAST(_ITEM_MASTER_SIDE.SZLTLV AS INTEGER)
+		-- ,CAST(_ITEM_MASTER_SIDE.SZLTLV AS INTEGER)
+		,CAST(PART.PLANNING_LEADTIME AS INTEGER)
 						SZLTLV	 -- Leadtime Level	Numeric	Generic Edit	5
 		,''				SZLTMF	 -- Leadtime MFG	Numeric	Generic Edit	5
 		,''				SZLTCM	 -- Leadtime Cumulative	Numeric	Generic Edit	5

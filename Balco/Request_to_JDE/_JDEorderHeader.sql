@@ -39,7 +39,7 @@ SELECT DISTINCT
 		WHEN Users.SecurityLevel = 16 THEN 2
 		ELSE 3
 	 END                                "BH55BOCODE"
-	,Orders.Name                        "BH55BJOB"
+	,Orders.ProjectName                  "BH55BJOB"
 	,CASE WHEN LTRIM(RTRIM(Orders.JobType)) IS NOT NULL
 		THEN LEFT(LTRIM(RTRIM(Orders.JobType)),10)
 		ELSE ''

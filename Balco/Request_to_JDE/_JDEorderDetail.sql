@@ -17,7 +17,7 @@ GO
 	EXEC dbo._JDEorderDetail 60312
 	
 */
-CREATE PROCEDURE dbo._JDEorderDetail (@OrderID INTEGER)
+ALTER PROCEDURE dbo._JDEorderDetail (@OrderID INTEGER)
 
 AS
 
@@ -43,7 +43,7 @@ SELECT
 	,''                                 "BDKCOO"
 	,''                                 "BDDOCO"
 	,''                                 "BDDCTO"
-	,''                                 "BDLIND"
+	,''                                 "BDLNID"
 	,''                                 "BDUSER"
 	,''                                 "BDPID"
 	,''                                 "BDUPMJ"
@@ -161,7 +161,7 @@ SELECT TOP 1
 	,''                                 "BDKCOO"
 	,''                                 "BDDOCO"
 	,''                                 "BDDCTO"
-	,''                                 "BDLIND"
+	,''                                 "BDLNID"
 	,''                                 "BDUSER"
 	,''                                 "BDPID"
 	,''                                 "BDUPMJ"
