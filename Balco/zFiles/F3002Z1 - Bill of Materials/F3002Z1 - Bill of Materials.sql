@@ -78,9 +78,14 @@ SELECT
 		,''				SZFRMP -- From Potency Numeric Generic Edit(7)
 		,''				SZTHRP -- Thru Potency Numeric Generic Edit(7)
 		,''				SZFRGD -- From Grade String UDC (40 LG)(3)
-		,ISNULL(REQUIREMENT.USER_1,'')   
-						SZTHGD -- Thru Grade String UDC (40 LG)(3)
-		,CAST(BOM_SIDE.SZOPSQ AS DECIMAL(8,3)) * 100   
+		,CASE
+			WHEN LTRIM(RTRIM(REQUIREMENT.USER_1)) <> 'Y' 
+				THEN '' 
+				ELSE 'Y'
+		 END			SZTHGD -- Thru Grade String UDC (40 LG)(3)
+		,CAST(	CASE	WHEN LTRIM(RTRIM(BOM_SIDE.SZOPSQ)) = '' THEN 0.00 -- confirmed Bill wants blanks to be zero
+					ELSE CAST(LTRIM(RTRIM(BOM_SIDE.SZOPSQ)) AS DECIMAL(4,2)) * 100
+				END AS INTEGER)
 						SZOPSQ -- Sequence Number - Operations Numeric Generic Edit(5)
 		,''				SZBSEQ -- Sequence - Bubble Sequence Numeric Generic Edit(5)
 		,10000			SZFTRP -- Feature Planned Percent Numeric Generic Edit(5)
@@ -142,6 +147,7 @@ SELECT
 			AND BOM_SIDE.SZAITM = REQUIREMENT.PART_ID
 
 		WHERE REQUIREMENT.WORKORDER_LOT_ID = '0'
+
 
 
  

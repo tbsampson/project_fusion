@@ -65,16 +65,7 @@ COMMIT;
 DELETE FROM CVDTA.F4102; -- Item Branch Plant
 COMMIT;
 
-DELETE FROM CVDTA.F4105; -- Item Cost
-COMMIT;
-
-DELETE FROM CVDTA.F4141; -- Cycle Counts
-COMMIT;
-
 DELETE FROM CVDTA.F41021; -- Item Location
-COMMIT;
-
-DELETE FROM CVDTA.F4111; -- Item Ledger
 COMMIT;
 
 DELETE FROM CVDTA.F4111; -- Item Ledger
@@ -112,6 +103,8 @@ COMMIT;
 
 DELETE FROM CVDTA.F4141; -- Iventory Management
 COMMIT;
+
+-- ------------------------------------------ Others (requested by) ------------------------------------------ 
 
 DELETE FROM CVDTA.F42019; -- S.O. History Header (Tim/Ron)4
 COMMIT;
@@ -182,6 +175,6 @@ COMMIT;
 DELETE FROM CVDTA.F3003; -- Inventory OP Base (Steve)
 COMMIT;
 
-DELETE FROM CVDTA.F30006; -- Product Data Management (Steve)
-COMMIT;
+-- DELETE FROM CVDTA.F30006; -- Product Data Management (Steve)
+-- COMMIT;
 -- //////////////////////////////////////// EOF ////////////////////////////////////////
