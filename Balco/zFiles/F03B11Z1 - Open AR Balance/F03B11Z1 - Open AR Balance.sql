@@ -40,7 +40,7 @@ SELECT
 ,dbo.JDEJulian(RECEIVABLE.INVOICE_DATE)
                 VJDIVJ -- Date - Invoice - Julian [Generic Edit] Date (6)
 ,'IB'           VJICUT -- Batch Type [UDC (98 IT)] String (2)
-,''             VJICU -- Batch Number [Generic Edit] Numeric (8)
+,968             VJICU -- Batch Number [Generic Edit] Numeric (8)
 ,''             VJDICJ -- Date - Batch (Julian) [Generic Edit] Date (6)
 ,''             VJFY -- Fiscal Year [Generic Edit] Numeric (2)
 ,''             VJCTRY -- Century [Generic Edit] Numeric (2)
@@ -57,7 +57,8 @@ SELECT
 ,'A'            VJPST -- Pay Status Code [UDC (00 PS)] Character (1)
 ,(RECEIVABLE.TOTAL_AMOUNT - RECEIVABLE.PAID_AMOUNT) * 100
                 VJAG -- Amount - Gross [Generic Edit] Numeric (15)
-,''             VJAAP -- Amount Open [Generic Edit] Numeric (15)
+,(RECEIVABLE.TOTAL_AMOUNT - RECEIVABLE.PAID_AMOUNT) * 100
+                VJAAP -- Amount Open [Generic Edit] Numeric (15)
 ,''             VJADSC -- Discount Available [Generic Edit] Numeric (15)
 ,''             VJADSA -- Discount Taken [Generic Edit] Numeric (15)
 ,''             VJATXA -- Amount - Taxable [Generic Edit] Numeric (15)
@@ -227,3 +228,4 @@ RECEIVABLE RECEIVABLE
 JOIN _ADDRESS_BOOK_TABLE AB
 	ON AB.SZALKY = 'BC_' + RECEIVABLE.CUSTOMER_ID
 	
+WHERE (RECEIVABLE.TOTAL_AMOUNT - RECEIVABLE.PAID_AMOUNT) <> 0
