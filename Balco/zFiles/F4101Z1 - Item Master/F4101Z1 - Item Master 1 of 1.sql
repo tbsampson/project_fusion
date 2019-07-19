@@ -262,8 +262,8 @@ SELECT
 		,''				SZMMPC	 -- Margin Maintenance (%)	Numeric	Generic Edit	7
 		,''				SZPTSC	 -- Material Status	String	UDC (40 PS)	2
 		,''				SZSNS	 -- Round to Whole Number	Character	UDC (H41 SN)	1
-		-- ,CAST(_ITEM_MASTER_SIDE.SZLTLV AS INTEGER)
-		,CAST(PART.PLANNING_LEADTIME AS INTEGER)
+		,CAST(_ITEM_MASTER_SIDE.SZLTLV AS INTEGER)
+		-- ,CAST(PART.PLANNING_LEADTIME AS INTEGER)
 						SZLTLV	 -- Leadtime Level	Numeric	Generic Edit	5
 		,''				SZLTMF	 -- Leadtime MFG	Numeric	Generic Edit	5
 		,''				SZLTCM	 -- Leadtime Cumulative	Numeric	Generic Edit	5
@@ -273,7 +273,8 @@ SELECT
 			LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZOPV)) = 'N/A' THEN ''
 			ELSE CAST(_ITEM_MASTER_SIDE.SZOPV AS INTEGER)		
 		 END			SZOPV	 -- Value - Order Policy	Numeric	Generic Edit	15
-		,100*10000		SZACQ	 -- Quantity - Accounting Cost	Numeric	Generic Edit	15
+		,CAST(_ITEM_MASTER_SIDE.SZACQ * 10000 AS INTEGER)		
+						SZACQ	 -- Quantity - Accounting Cost	Numeric	Generic Edit	15
 									-- changed to 100*10000 4/16
 		,''				SZMLQ	 -- Quantity - MFG Leadtime	Numeric	Generic Edit	15
 		,''				SZLTPU	 -- Leadtime Per Unit	Numeric	Generic Edit	5
