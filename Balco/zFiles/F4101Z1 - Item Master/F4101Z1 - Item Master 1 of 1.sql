@@ -153,7 +153,8 @@ SELECT
 			WHEN PART.STOCK_UM = 'M' THEN 'MT'
 			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
 		END             SZUOM2	 -- Unit of Measure - Secondary	String	UDC (00 UM)	2	
-		,ISNULL(UOM.UOM,'EA')
+	--	,ISNULL(UOM.UOM,'EA')
+		,_ITEM_MASTER_SIDE.SZUOM3
 						 SZUOM3	 -- Unit of Measure - Purchasing	String	UDC (00 UM)	2		
 		,CASE
 			WHEN PART.STOCK_UM IS NULL THEN ''
@@ -261,7 +262,10 @@ SELECT
 		,''				SZPCTM	 -- Percent Margin	Numeric	Generic Edit	7
 		,''				SZMMPC	 -- Margin Maintenance (%)	Numeric	Generic Edit	7
 		,''				SZPTSC	 -- Material Status	String	UDC (40 PS)	2
-		,''				SZSNS	 -- Round to Whole Number	Character	UDC (H41 SN)	1
+		,CASE
+       		WHEN PART.STOCK_UM = 'EA' THEN 'U' 
+       		ELSE NULL
+END		 END			SZSNS	 -- Round to Whole Number	Character	UDC (H41 SN)	1
 		,CAST(_ITEM_MASTER_SIDE.SZLTLV AS INTEGER)
 		-- ,CAST(PART.PLANNING_LEADTIME AS INTEGER)
 						SZLTLV	 -- Leadtime Level	Numeric	Generic Edit	5
