@@ -76,7 +76,7 @@ COMMIT;
 DELETE FROM CVDTA.F42150; -- SO commission
 COMMIT;
 
-DELETE FROM CVDTA.F42911; -- SO Tag
+DELETE FROM CVDTA.F42119; -- SO Tag
 COMMIT;
 
 DELETE FROM CVDTA.F49219; -- SO detail Tag
@@ -94,7 +94,7 @@ COMMIT;
 DELETE FROM CVDTA.FF00165; -- Media Object
 COMMIT;
 
-DELETE FROM CVDTA.FF00166; -- Media Object
+DELETE FROM CVDTA.F00166; -- Media Object
 COMMIT;
 
 -- ---------- Work order Tables 
@@ -147,9 +147,8 @@ DELETE FROM CVDTA.F3011; -- BOM Change File
 COMMIT;
 
 -- ---------- Compliance 
-DELETE FROM CVDTA.F5542tag; -- SO tracking
+DELETE FROM CVDTA.F5542TAG; -- SO tracking
 COMMIT;
 
-DELETE FROM CVDTA.F5541tag; -- Compliance labels
+DELETE FROM CVDTA.F5541TAG; -- Compliance labels
 COMMIT;
-
