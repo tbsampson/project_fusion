@@ -1,7 +1,7 @@
 /*
-F4101Z1 Item Master VER0012
+F4101Z1 Item Master VER0014
 Tom Sampson IR 4/10/2019
-CR 6/11/2019
+CR 8/6/2019
 BV R4101Z1I
 VER0002
 - Fixed constraint issue with SZUOM4 and others
@@ -27,8 +27,12 @@ VER0012
 - added D option for Line Type
 VER0013
 - updated UOM3 rules
+VER0014
+- swapped 2nd and 3rd item numbers
+- null DRAW
+-- UOM3 now from visual
 */
-
+USE BALCO;
 
 DECLARE @Pass INTEGER
 
@@ -71,7 +75,7 @@ SELECT
 		,_ITEM_MASTER_SIDE.SZITM
 						SZITM	 -- Item Number - Short	Numeric	Generic Edit	8
 		,''				SZKIT	 -- Parent (short) Item Number	Numeric	Generic Edit	8
-		,_ITEM_MASTER_SIDE.SZLITM
+		,PART.ID -- _ITEM_MASTER_SIDE.SZLITM
 						SZLITM	 -- 2nd Item Number	String	Generic Edit	25
 		,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZAITM)),25) -- LEFT(LTRIM(RTRIM(PART.ID)),25)
 						SZAITM	 -- 3rd Item Number	String	Generic Edit	25
@@ -128,7 +132,7 @@ SELECT
 		,''				SZORPR	 -- Order Reprice Category	String	UDC (40 PI)	8
 		,CAST(_ITEM_MASTER_SIDE.SZBUYR AS INTEGER)
 						SZBUYR	 -- Buyer Number	Numeric	Generic Edit	8
-		,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZDRAW)),20)
+		,'' -- LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZDRAW)),20)
 						SZDRAW	 -- Drawing Number	String	Generic Edit	20
 		,''				SZRVNO	 -- Last Revision No.	String	Generic Edit	2
 		,''				SZDSZE	 -- Drawing Size	Character	Generic Edit	1
@@ -154,7 +158,7 @@ SELECT
 			ELSE LEFT(LTRIM(RTRIM(PART.STOCK_UM)),2)
 		END             SZUOM2	 -- Unit of Measure - Secondary	String	UDC (00 UM)	2	
 	--	,ISNULL(UOM.UOM,'EA')
-		,_ITEM_MASTER_SIDE.SZUOM3
+		,_ITEM_MASTER_SIDE.SZOUM3
 						 SZUOM3	 -- Unit of Measure - Purchasing	String	UDC (00 UM)	2		
 		,CASE
 			WHEN PART.STOCK_UM IS NULL THEN ''
@@ -198,16 +202,16 @@ SELECT
 						SZSUTM	 -- Unit of Measure - Stocking	String	UDC (00 UM)	2
 		,'W'			SZUMVW	 -- Unit of Measure - Volume or Weight	Character	UDC (39 VW)	1
 		,CASE
-			WHEN PART.ABC_CODE = 'A' THEN 'MON'
-			WHEN PART.ABC_CODE = 'B' THEN 'QTR'
-			WHEN PART.ABC_CODE = 'C' THEN 'SEM'
+			WHEN PART.ABC_CODE = 'A' THEN 'A' -- 'MON'
+			WHEN PART.ABC_CODE = 'B' THEN 'B' -- 'QTR'
+			WHEN PART.ABC_CODE = 'C' THEN 'C' -- 'SEM'
 			ELSE ''
 		 END			SZCYCL	 -- Cycle Count Category	String	UDC (41 8)	3
 		,CASE 
-			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'P' AND LEFT(_ITEM_MASTER_SIDE.SZLITM,1) <> '8' THEN 'BC10'
-			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'P' AND LEFT(_ITEM_MASTER_SIDE.SZLITM,1) = '8' THEN 'BC50'
-			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'M' AND LEFT(_ITEM_MASTER_SIDE.SZLITM,1) <> '8' THEN 'BC20'
-			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'M' AND LEFT(_ITEM_MASTER_SIDE.SZLITM,1) = '8' THEN 'BC30'
+			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'P' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) <> '8' THEN 'BC10'
+			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'P' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) = '8' THEN 'BC50'
+			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'M' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) <> '8' THEN 'BC20'
+			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'M' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) = '8' THEN 'BC30'
 			ELSE ''
 		 END			SZGLPT	 -- Category - G/L	String	UDC (41 9)	4
 		,2				SZPLEV	 -- Level - Sales Base Price	Character	UDC (H40 PL)	1
@@ -264,8 +268,8 @@ SELECT
 		,''				SZPTSC	 -- Material Status	String	UDC (40 PS)	2
 		,CASE
        		WHEN PART.STOCK_UM = 'EA' THEN 'U' 
-       		ELSE NULL
-END		 END			SZSNS	 -- Round to Whole Number	Character	UDC (H41 SN)	1
+       		ELSE ''
+		 END			SZSNS	 -- Round to Whole Number	Character	UDC (H41 SN)	1
 		,CAST(_ITEM_MASTER_SIDE.SZLTLV AS INTEGER)
 		-- ,CAST(PART.PLANNING_LEADTIME AS INTEGER)
 						SZLTLV	 -- Leadtime Level	Numeric	Generic Edit	5
@@ -449,10 +453,10 @@ END		 END			SZSNS	 -- Round to Whole Number	Character	UDC (H41 SN)	1
 FROM _ITEM_MASTER_SIDE _ITEM_MASTER_SIDE
 
 LEFT JOIN PART PART
-	ON _ITEM_MASTER_SIDE.SZAITM = PART.ID
+	ON PART.ID = _ITEM_MASTER_SIDE.SZLITM
 
-LEFT JOIN _UOM UOM
-	ON _ITEM_MASTER_SIDE.SZAITM = UOM.SZAITM
+-- LEFT JOIN _UOM UOM
+--	ON _ITEM_MASTER_SIDE.SZAITM = UOM.SZAITM
 	
 LEFT JOIN 
 	(
@@ -484,6 +488,7 @@ LEFT JOIN VENDOR VENDOR
 LEFT JOIN _TEMP_VENDORS TV
 	ON TV.ID2 = 'BC_' + CAST(VENDOR.ID AS VARCHAR)
 
+WHERE (PART.ABC_CODE <> 'Z' OR PART.ABC_CODE IS NOT NULL)
 
 
 

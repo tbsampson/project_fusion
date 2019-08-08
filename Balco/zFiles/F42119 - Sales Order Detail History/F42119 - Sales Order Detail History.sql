@@ -56,8 +56,8 @@ END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
 ,ISNULL(LEFT(LTRIM(RTRIM(CUSTOMER_ORDER.CUSTOMER_PO_REF)),25),'')   SDVR01 -- Reference [Generic Edit] String (25)
 ,CAST(CUSTOMER_ORDER.ID AS VARCHAR) + '_' + CAST(CUST_ORDER_LINE.LINE_NO AS VARCHAR)   SDVR02 -- Reference 2 [Generic Edit] String (25)
 ,ISNULL(ITEM_MASTER_1.SZITM, 99998)   SDITM -- Item Number - Short [Generic Edit] Numeric (8)
-,ISNULL(LEFT(LTRIM(RTRIM(ITEM_MASTER_1.SZLITM)),25),'')   SDLITM -- 2nd Item Number [Generic Edit] String (25)
-,CUST_ORDER_LINE.PART_ID SDAITM -- 3rd Item Number [Generic Edit] String (25)
+,CUST_ORDER_LINE.PART_ID   SDLITM -- 2nd Item Number [Generic Edit] String (25)
+,ITEM_MASTER_1.SZAITM   SDAITM -- 3rd Item Number [Generic Edit] String (25)
 ,''   SDLOCN -- Location [Generic Edit] String (20)
 ,''   SDLOTN -- Lot/Serial Number [Generic Edit] String (30)
 ,''   SDFRGD -- From Grade [UDC (40 LG)] String (3)
@@ -382,7 +382,7 @@ JOIN RECEIVABLE RECEIVABLE
     ON RECEIVABLE.INVOICE_ID = RECEIVABLE_LINE.INVOICE_ID
     
 JOIN _ITEM_MASTER_1_TABLE ITEM_MASTER_1
-    ON CUST_ORDER_LINE.PART_ID = LTRIM(RTRIM(ITEM_MASTER_1.SZAITM))  
+    ON CUST_ORDER_LINE.PART_ID = LTRIM(RTRIM(ITEM_MASTER_1.SZLITM))  
 
 JOIN PART PART
     ON CUST_ORDER_LINE.PART_ID = PART.ID   

@@ -16,7 +16,10 @@ SELECT
 	,CASE 
 		WHEN @Load = 1 
 			THEN 'BALIC1'
-			ELSE 'BALIC2'
+		WHEN @Load = 2
+			THEN 'BALIC2'
+		WHEN @Load = 3
+			THEN 'BALIC3'
 	 END		SZEDBT			 -- EDI - Batch Number String Generic Edit (15)
 	,ROW_NUMBER() OVER(ORDER BY	PART.ROWID)			
 				SZEDTN			 -- EDI - Transaction Number String Generic Edit (22)
@@ -32,7 +35,7 @@ SELECT
 	,'A'		SZTNAC			 -- Transaction Action String UDC (00 TA) (2)
 	,IM1.SZITM 			
 				SZITM			 -- Item Number - Short Numeric Generic Edit (8)
-	,IM1.SZLITM			
+	,PART.ID -- IM1.SZLITM			
 				SZLITM			 -- 2nd Item Number String Generic Edit (25)
 	,IM1.SZAITM	
                 SZAITM			 -- 3rd Item Number String Generic Edit (25)
@@ -44,6 +47,7 @@ SELECT
 	,CASE
 		WHEN @Load = 1 THEN '08'
 		WHEN @Load = 2 THEN '07'
+		WHEN @Load = 3 THEN '99'
 		ELSE 'Error' -- forces load constraint failure
 		END		SZLEDG			 -- Cost Method String UDC (40 CM) (2)
 	
@@ -59,11 +63,13 @@ SELECT
 	,CASE
 		WHEN @Load = 1 THEN 'P'
 		WHEN @Load = 2 THEN ''
+		WHEN @Load = 3 THEN ''
 		ELSE 'Error' -- forces load constraint failure
 		END		SZCSPO			 -- Costing Selection - Purchasing Character UDC (H40 CT) (1)
 	,CASE
 		WHEN @Load = 1 THEN ''
 		WHEN @Load = 2 THEN 'I'
+		WHEN @Load = 3 THEN ''
 		ELSE 'Error' -- forces load constraint failure
 		END		SZCSIN			 -- Costing Selection - Inventory Character UDC (H40 CS) (1)
 	,''			SZURCD			 -- User Reserved Code String Generic Edit (2)
@@ -84,14 +90,15 @@ SELECT
 	,''			SZSTOC			 -- Stockout Cost Numeric Generic Edit (15)
 
 FROM PART PART
-
-JOIN _INFOR_JDE_PART_CONV CONV
-	ON CONV.OLD_ID = PART.ID
-
+/*
+JOIN _ITEM_MASTER_1_TABLE CONV
+	ON CONV.SZLITM = PART.ID
+*/
 JOIN _ITEM_MASTER_1_TABLE IM1
-	ON LEFT(PART.ID,25) = LEFT(IM1.SZAITM,25)
+	ON LEFT(PART.ID,25) = LEFT(IM1.SZLITM,25)
 
 
 WHERE PART.ABC_CODE <> 'Z'
+AND PART.ABC_CODE IS NOT NULL
 
 ORDER BY PART.ROWID

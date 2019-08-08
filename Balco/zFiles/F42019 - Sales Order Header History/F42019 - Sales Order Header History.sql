@@ -2,7 +2,7 @@
     F42019 - Sales Order Header History Definition
     IR 20190528 Tom Sampson
 
-	also purge F3560 - forecast prior to load
+	also purge F3460 - forecast prior to load
 */
 use BALCO;
 SELECT
@@ -205,7 +205,7 @@ JOIN
 				ON RECEIVABLE.INVOICE_ID = RECEIVABLE_LINE.INVOICE_ID
 				
 			JOIN _ITEM_MASTER_1_TABLE ITEM_MASTER_1
-				ON CUST_ORDER_LINE.PART_ID = LTRIM(RTRIM(ITEM_MASTER_1.SZAITM))  
+				ON CUST_ORDER_LINE.PART_ID = LTRIM(RTRIM(ITEM_MASTER_1.SZLITM))  
 
 			JOIN PART PART
 				ON CUST_ORDER_LINE.PART_ID = PART.ID   
