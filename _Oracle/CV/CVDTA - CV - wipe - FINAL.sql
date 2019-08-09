@@ -13,12 +13,8 @@ DELETE FROM CVDTA.F0101 -- address book
 WHERE ABAN8 BETWEEN 72000 and 98999;
 COMMIT;
 
-DELETE FROM CVDTA.F0111 -- contacts
-WHERE WWAN8 BETWEEN 72000 and 98999;
-COMMIT;
-
-DELETE FROM CVDTA.F01112 -- Related Person
-WHERE CPAN8 BETWEEN 72000 and 98999;
+DELETE FROM CVDTA.F0116 -- address
+WHERE ALAN8 BETWEEN 72000 and 98999;
 COMMIT;
 
 DELETE FROM CVDTA.F0115 -- phone number
@@ -29,8 +25,21 @@ DELETE FROM CVDTA.F01151 -- email addresses
 WHERE EAAN8 BETWEEN 72000 and 98999;
 COMMIT;
 
-DELETE FROM CVDTA.F0116 -- address
-WHERE ALAN8 BETWEEN 72000 and 98999;
+DELETE FROM CVDTA.F0111 -- contacts
+WHERE WWAN8 BETWEEN 72000 and 98999;
+COMMIT;
+
+-- ------------------------------------------ Customer Master ------------------------------------------ 
+DELETE FROM CVDTA.F03012Z1; -- zFile
+COMMIT;
+
+DELETE FROM CVDTA.F03012 -- Customer Master
+WHERE AIAN8 BETWEEN 72000 and 98999;
+COMMIT;
+
+/*
+DELETE FROM CVDTA.F01112 -- Related Person
+WHERE CPAN8 BETWEEN 72000 and 98999;
 COMMIT;
 
 DELETE FROM CVDTA.F0150  -- Address Organization Structure
@@ -45,14 +54,8 @@ COMMIT;
 DELETE FROM CVDTA.F0401 -- Vendor Master
 WHERE A6AN8 BETWEEN 72000 and 98999; -- BETWEEN 72000 and 98999;
 COMMIT;
+*/
 
--- ------------------------------------------ Customer Master ------------------------------------------ 
-DELETE FROM CVDTA.F03012Z1; -- zFile
-COMMIT;
-
-DELETE FROM CVDTA.F03012 -- Customer Master
-WHERE AIAN8 BETWEEN 72000 and 98999;
-COMMIT;
 
 -- //////////////////////////////////////// Unfiltered Purges //////////////////////////////////////// 
 -- ------------------------------------------ Item Master ------------------------------------------ 
