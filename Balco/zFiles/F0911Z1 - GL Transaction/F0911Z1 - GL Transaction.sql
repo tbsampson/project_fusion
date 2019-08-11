@@ -2,7 +2,7 @@
 /*
     F0911Z1 - GL Transaction
     VER0001 -  Tom Sampson
-    BV 
+    don't use this the AR will process both
 */
 
 SELECT
@@ -59,8 +59,8 @@ SELECT
 ,'' VNUM -- Unit of Measure [UDC (00 UM)] String (2)
 ,AR.VJGLC VNGLC -- G/L Offset [Generic Edit] String (4)
 ,'' VNRE -- Reverse or Void (R/V) [UDC (H09 RE)] Character (1)
-,'' VNEXA -- Name - Alpha Explanation [Generic Edit] String (30)
-,'' VNEXR -- Name - Remark Explanation [Generic Edit] String (30)
+,'INIT LOAD' VNEXA -- Name - Alpha Explanation [Generic Edit] String (30)
+,'INIT LOAD' VNEXR -- Name - Remark Explanation [Generic Edit] String (30)
 ,'' VNR1 -- Reference 1 - JE Voucher Invoice etc. [Generic Edit] String (8)
 ,'' VNR2 -- Reference 2 [Generic Edit] String (8)
 ,'' VNR3 -- Reference 3 - Account Reconciliation [Generic Edit] String (8)

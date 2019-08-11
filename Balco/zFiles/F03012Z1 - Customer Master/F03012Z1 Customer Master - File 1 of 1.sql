@@ -51,7 +51,7 @@ SELECT
     WHEN  AB.SZAT1 IN ('C','CB')  THEN 'Y'
     ELSE 'N'
  END        VOSTMT   -- Print Statement Y/N Character UDC (H03 ST) (1)
-,''         VOARPY   -- Alternate Payor Numeric Generic Edit (8)
+,BTST.SZAN8         VOARPY   -- Alternate Payor Numeric Generic Edit (8)
 ,CASE
     WHEN  AB.SZAT1 IN ('C','CB')  THEN 'Y'
     ELSE 'N'

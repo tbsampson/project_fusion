@@ -88,6 +88,9 @@ COMMIT;
 DELETE FROM CVDTA.F4141Z1; -- Cycle Count zFile
 COMMIT;
 
+DELETE FROM CVDTA.F4140; -- Cycle Count Header (Inventory Management)
+COMMIT;
+
 DELETE FROM CVDTA.F4141; -- Cycle Count (Inventory Management)
 COMMIT;
 

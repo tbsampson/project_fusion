@@ -1,5 +1,5 @@
 /*
-F4101Z1 Item Master VER0014
+F4101Z1 Item Master VER0015
 Tom Sampson IR 4/10/2019
 CR 8/6/2019
 BV R4101Z1I
@@ -31,6 +31,8 @@ VER0014
 - swapped 2nd and 3rd item numbers
 - null DRAW
 -- UOM3 now from visual
+VER0015
+- added some new rules for GL 8/18/2019
 */
 USE BALCO;
 
@@ -75,7 +77,7 @@ SELECT
 		,_ITEM_MASTER_SIDE.SZITM
 						SZITM	 -- Item Number - Short	Numeric	Generic Edit	8
 		,''				SZKIT	 -- Parent (short) Item Number	Numeric	Generic Edit	8
-		,PART.ID -- _ITEM_MASTER_SIDE.SZLITM
+		,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZLITM)),25) -- _ITEM_MASTER_SIDE.SZLITM
 						SZLITM	 -- 2nd Item Number	String	Generic Edit	25
 		,LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZAITM)),25) -- LEFT(LTRIM(RTRIM(PART.ID)),25)
 						SZAITM	 -- 3rd Item Number	String	Generic Edit	25
@@ -211,6 +213,12 @@ SELECT
 			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'P' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) = '8' THEN 'BC50'
 			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'M' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) <> '8' THEN 'BC20'
 			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'M' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) = '8' THEN 'BC30'
+			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'S' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) = '5' THEN 'BC20'
+			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'S' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) = '8' THEN 'BC30'
+			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'S' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) <> '5' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) <> '8' THEN 'BC10'			
+			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'O' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) = '5' THEN 'BC20'
+			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'O' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) = '8' THEN 'BC30'
+			WHEN _ITEM_MASTER_SIDE.SZSTKT = 'O' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) <> '5' AND LEFT(_ITEM_MASTER_SIDE.SZAITM,1) <> '8' THEN 'BC10'
 			ELSE ''
 		 END			SZGLPT	 -- Category - G/L	String	UDC (41 9)	4
 		,2				SZPLEV	 -- Level - Sales Base Price	Character	UDC (H40 PL)	1
@@ -338,7 +346,8 @@ SELECT
 		-- ,ISNULL(PART.ORDER_POINT*10000,0)		
 		,''				SZROQI	 -- Reorder Quantity - Input	Numeric	Generic Edit	15
 		,''				SZRQMX	 -- Reorder Quantity - Maximum	Numeric	Generic Edit	15
-		,''				SZRQMN	 -- Reorder Quantity - Minimum	Numeric	Generic Edit	15
+		,ISNULL(CAST(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZRQMN)) AS INTEGER) * 10000, 0)
+						SZRQMN	 -- Reorder Quantity - Minimum	Numeric	Generic Edit	15
 		,''				SZWOMO	 -- Quantity - Order Multiples (SO/PO)	Numeric	Generic Edit	7
 		,''				SZSERV	 -- Service Level	Numeric	Generic Edit	7
 		,ISNULL(PART.ORDER_POINT*10000,0)		
@@ -362,7 +371,8 @@ SELECT
 		,_ITEM_MASTER_SIDE.SZTIMB
 						SZTIMB	 -- Time Basis Code	Character	UDC (30 TB)	1
 		,''				SZBQTY	 -- Units - Batch Quantity	Numeric	Generic Edit	15
-		,''				SZMULT	 -- Quantity - Order Multiples (MRP)	Numeric	Generic Edit	15
+		,_ITEM_MASTER_SIDE.SZMULT
+						SZMULT	 -- Quantity - Order Multiples (MRP)	Numeric	Generic Edit	15
 		,''				SZLFDJ	 -- Date - Future Use	Date	Generic Edit	6
 		,'Y'			SZMLOT	 -- Mix Dates / Lots (Y/N)	Character	Generic Edit	1
 		,CASE
@@ -454,9 +464,6 @@ FROM _ITEM_MASTER_SIDE _ITEM_MASTER_SIDE
 LEFT JOIN PART PART
 	ON PART.ID = _ITEM_MASTER_SIDE.SZLITM
 
--- LEFT JOIN _UOM UOM
---	ON _ITEM_MASTER_SIDE.SZAITM = UOM.SZAITM
-	
 LEFT JOIN 
 	(
 		SELECT DISTINCT
