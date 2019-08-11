@@ -211,6 +211,9 @@ DELETE FROM CRPDTA.F5541TAG; -- Compliance labels
 COMMIT;
 
 -- ------------------------------------------ Open AR Balance ------------------------------------------ 
+DELETE FROM CRPDTA.F03B11Z1; -- AR/GL zFile
+COMMIT;
+
 DELETE FROM CRPDTA.F03B11 WHERE GLDCT = 'XI' OR GLDCT = 'XM'; -- Open AR Balance
 COMMIT;
 
