@@ -29,7 +29,7 @@ SELECT
 						SZKIT -- Parent (short) Item Number Numeric Generic Edit(8)
 		,IM1.SZLITM   
 						SZKITL -- Kit - 2nd Item Number String Generic Edit(25)
-		,IM1.SZAITM -- REQUIREMENT.WORKORDER_BASE_ID   
+		,IM1.SZLITM -- REQUIREMENT.WORKORDER_BASE_ID   
 						SZKITA -- 3rd Item Number - Kit String Generic Edit(25)
 		,'       20001' SZMMCU -- Branch String Generic Edit(12)
 		,IM2.SZITM  
@@ -137,11 +137,11 @@ SELECT
 			ON IM1.SZLITM = BOM_SIDE.SZKITA
 		
 		LEFT JOIN _ITEM_MASTER_1_TABLE IM2
-			ON IM2.SZLITM = BOM_SIDE.SZAITM
+			ON IM2.SZLITM = BOM_SIDE.SZLITM
 					
 		LEFT JOIN REQUIREMENT REQUIREMENT
 			ON REQUIREMENT.WORKORDER_BASE_ID = BOM_SIDE.SZKITA
-			AND REQUIREMENT.PART_ID = BOM_SIDE.SZAITM -- not the side file still had 3rd item name as 2nd
+			AND REQUIREMENT.PART_ID = BOM_SIDE.SZLITM -- not the side file still had 3rd item name as 2nd
 
 		WHERE REQUIREMENT.WORKORDER_LOT_ID = '0'
 		AND REQUIREMENT.WORKORDER_TYPE = 'M'
