@@ -1,5 +1,6 @@
-USE RequestsStaging;
-
+USE [RequestsStaging]
+GO
+/****** Object:  StoredProcedure [dbo].[_JDEorderHeader]    Script Date: 08/13/2019 12:27:11 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -14,117 +15,101 @@ GO
 	
 	example
 	USE RequestsStaging;
-	EXEC dbo._JDEorderHeader 60312
+	EXEC _JDEorderHeader 60341
+	
+	Imports to F55BAL01
 	
 */
-ALTER PROCEDURE dbo._JDEorderHeader (@OrderID INTEGER)
-
+ALTER PROCEDURE [dbo].[_JDEorderHeader]
+	@OrderID		int
 AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
 
-SELECT DISTINCT
-	 Orders.OrderID                     "BH55BORDER"
-	,QuoteSectionItems.SectionID        "BH55BSECID"
-	,'N'       							"BHEDSP" -- EDI Successfully Processed
-	,QuoteSections.SectionName			"BH55BSDEC"
-	,'BC_' + Customers.CustomerNumber   "BH55BBT"
-	,dbo.JDEJulian(Orders.OrderDate)
-                                        "BHTRDJ"
-	,LEFT(LTRIM(RTRIM(Orders.CustomerPO)),25) 
-                                        "BHVR01"
-	,RepCompanies.RepNumber             "BHSLSM"
-	,CAST(CAST(ROUND(ISNULL(NULLIF(QuoteSectionCommissions.Commission,0)  / NULLIF(SubT.Amt - QuoteSections.Discount,0),0),5) AS DECIMAL(4,2)) * 100000 AS INTEGER)
-                                        "BHSLCM"
-	,CASE
-		WHEN Users.SecurityLevel BETWEEN 1 AND 2 THEN 1
-		WHEN Users.SecurityLevel = 16 THEN 2
-		ELSE 3
-	 END                                "BH55BOCODE"
-	,Orders.ProjectName                  "BH55BJOB"
-	,CASE WHEN LTRIM(RTRIM(Orders.JobType)) IS NOT NULL
-		THEN LEFT(LTRIM(RTRIM(Orders.JobType)),10)
-		ELSE ''
-	 END                                "BH55BJTYPE"
-	,Orders.ShippingMethodID            "BH55BSMETH"
-	,Orders.Forward                     "BH55BFWD"
-	,CAST(SubT.Lbs * 10000 AS INTEGER)  "BHWTLB"
-	,ISNULL(CASE
-		WHEN LEN(LTRIM(RTRIM(Orders.State))) <> 2
-			OR LTRIM(RTRIM(Orders.State)) IS NULL
-			OR LTRIM(RTRIM(Orders.State)) = ''
-			OR LEFT(LTRIM(RTRIM(Orders.Zipcode)),1) > '9'
-			OR LTRIM(RTRIM(Orders.Zipcode)) IS NULL
-			OR LTRIM(RTRIM(Orders.Zipcode)) = ''
-			THEN LEFT(UPPER(LTRIM(RTRIM(Orders.City)) +','+ LTRIM(RTRIM(Orders.State)) + ' ' + LTRIM(RTRIM(Orders.Zipcode))),23)
+    SELECT
+		O.OrderID AS							[BH55BORDER],
+		O.SectionID AS							[BH55BSECID],
+		'N' AS									[BHEDSP],
+		QS.SectionName AS						[BH55BSDEC],
+		O.QuoteID AS							[55BQUOTE], -- Added 8/13/2019 by Tom for updated header
+		'BC_' + C.CustomerNumber AS				[BH55BBT],
+		dbo.JDEJulian(O.OrderDate) AS			[BHTRDJ],
+		LEFT(LTRIM(RTRIM(O.CustomerPO)),25) AS	[BHVR01],
+		CAST(R.RepNumber AS int) AS				[BHSLSM],
+		CAST(CAST(ROUND(ISNULL(QSC.Commission / NULLIF(SubTotals.Amt - QS.Discount,0),0),5) AS DECIMAL(4,2)) * 100000 AS INTEGER) AS
+												[BHSLCM],
+		CASE U.SecurityLevel
+			WHEN 1 THEN 1
+			WHEN 2 THEN 1
+			WHEN 16 THEN 2
+			ELSE 3
+		END AS									[BH55BOCODE],
+		O.ProjectName AS						[BH55BJOB],
+		ISNULL(LEFT(LTRIM(RTRIM(O.JobType)),10), '') AS
+												[BH55BJTYPE],
+		O.ShippingMethodID AS					[BH55BSMETH],
+		O.Forward AS							[BH55BFWD],
+		CAST(SubTotals.Lbs * 10000 AS int) AS	[BHWTLB],
+		CASE
+			WHEN O.City IS NOT NULL AND
+				 LEN(LTRIM(RTRIM(O.State))) = 2 AND
+				 LEN(LTRIM(RTRIM(O.Zipcode))) >= 5 AND
+				 LEFT(LTRIM(RTRIM(O.Zipcode)),1) <= '9'
+			THEN LEFT(UPPER(LTRIM(RTRIM(O.City)) + ',' + LTRIM(RTRIM(O.[State])) + ' ' + LTRIM(RTRIM(O.Zipcode))),23)
 			ELSE ''
-	 END, '') 							"BHADD1"	
-	,ISNULL(LEFT(UPPER(LTRIM(RTRIM(Orders.City))), 30),'') 
-										"BHCTY1"
-	,CASE 
-		WHEN LEN(LTRIM(RTRIM(Orders.State))) = 2 THEN UPPER(LTRIM(RTRIM(Orders.State)))
-		ELSE ''
-	 END 								"BHADDS"
-	,CASE
-		WHEN LEFT(LTRIM(RTRIM(Orders.Zipcode)),1) <= '9' THEN ISNULL(LTRIM(RTRIM(Orders.Zipcode)),'')
-		ELSE ''
-	 END 								"BHADDZ"
-    ,''                                 "BHSDATTN"
-	,''                                 "BHKCOO"
-	,''                                 "BHDOCO"
-	,''                                 "BHDCTO"
-	,''                                 "BHUSER"
-	,''                                 "BHPID"
-	,''                                 "BHUPMJ"
-	,''                                 "BHUPMT"
-	,''                                 "BHJOBN"	
+		END AS									[BHADD1],
+		ISNULL(LEFT(UPPER(LTRIM(RTRIM(O.City))), 30),'') AS
+												[BHCTY1],	
+		CASE 
+			WHEN LEN(LTRIM(RTRIM(O.State))) = 2 THEN UPPER(LTRIM(RTRIM(O.State)))
+			ELSE ''
+		END AS									[BHADDS],
+		CASE
+			WHEN LEFT(LTRIM(RTRIM(O.Zipcode)),1) <= '9' THEN LTRIM(RTRIM(O.Zipcode))
+			ELSE ''
+		END AS									[BHADDZ],
+		O.CustomerEmail AS						[BHSDATTN],
+							[BH55BMOF],
+		'' AS									[BHKCOO],
+		CAST(NULL AS smallmoney) AS				[BHDOCO],
+		'' AS									[BHDCTO],
+		'' AS									[BHUSER],
+		'' AS									[BHPID],
+		CAST(NULL AS int) AS					[BHUPMJ],
+		CAST(NULL AS smallmoney) AS				[BHUPMT],
+		'' AS									[BHJOBN]
+	FROM
+		dbo.Orders O
 
-FROM 
-	QuoteSectionItems QuoteSectionItems
+	INNER JOIN
+		dbo.QuoteSections QS ON O.SectionID = QS.SectionID
 
-JOIN QuoteSections QuoteSections
-	ON QuoteSectionItems.SectionID = QuoteSections.SectionID
+	INNER JOIN
+	(	
+		SELECT
+			OrderID,
+			SUM( Quantity * CAST(Price AS decimal(13,5)) ) AS Amt,
+			SUM( Quantity * CAST([Weight] AS decimal(13,5)) ) AS Lbs
+		FROM	
+			dbo.OrderDetails
+		GROUP BY
+			OrderID
+	) SubTotals ON O.OrderID = SubTotals.OrderID
 
-JOIN Orders Orders
-	ON Orders.QuoteID = QuoteSections.QuoteID
+	LEFT OUTER JOIN
+		dbo.Customers C	ON O.CustomerID = C.CustomerID
 
-JOIN ShippingCosts ShippingCosts
-	ON Orders.ShippingID = ShippingCosts.ShippingID
-	
-INNER JOIN
-	Systems Systems ON QuoteSectionItems.SystemID = Systems.SystemID
-	
-INNER JOIN
-	(	SELECT	SectionID
-				,SUM(CAST(Quantity AS DECIMAL(13,5)) * CAST(UnitPrice AS DECIMAL(13,5))) AS Amt
-				,SUM(CAST(Quantity AS DECIMAL(13,5)) * CAST(UnitWeight AS DECIMAL(13,5))) AS Lbs
-		FROM	QuoteSectionItems QIT
-		GROUP BY	SectionID) "SubT"
-	
-	ON (QuoteSectionItems.SectionID = "SubT".SectionID)
-	
-JOIN RepCompanies RepCompanies
-	ON 	Orders.RepID = RepCompanies.RepID
+	LEFT OUTER JOIN
+		dbo.RepCompanies R ON O.RepID = R.RepID
 
-JOIN
-	QuoteSectionCommissions QuoteSectionCommissions 
-			ON QuoteSectionItems.SectionID = QuoteSectionCommissions.SectionID
-			AND QuoteSectionCommissions.RepID = Orders.RepID
+	LEFT OUTER JOIN
+		dbo.QuoteSectionCommissions QSC ON O.SectionID = QSC.SectionID AND O.RepID = QSC.RepID
 
-JOIN Customers Customers
-	ON Orders.CustomerID = Customers.CustomerID
+	LEFT OUTER JOIN 
+		dbo.Users U	ON O.UserID = U.UserID
 
-JOIN CustomerAddresses CustomerAddresses
-	ON Customers.CustomerID = CustomerAddresses.CustomerID
-
-JOIN Quotes Quotes
-	ON Orders.QuoteID = Quotes.QuoteID
-
-LEFT JOIN Users Users
-	ON Quotes.UserID = Users.UserID
-
-LEFT JOIN Permissions Permissions
-	ON Users.SecurityLevel = Permissions.PermissionID	
-
-WHERE 
-	Orders.OrderID = @OrderID
-
-GO
+	WHERE
+		O.OrderID = @OrderID;
+END

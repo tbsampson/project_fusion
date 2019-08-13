@@ -15,6 +15,9 @@ GO
 	example
 	USE RequestsStaging;
 	EXEC dbo._JDEorderDetail 60312
+
+
+	F55BAL11
 	
 */
 ALTER PROCEDURE dbo._JDEorderDetail (@OrderID INTEGER)
