@@ -35,7 +35,7 @@ SELECT
 	,'A'		SZTNAC			 -- Transaction Action String UDC (00 TA) (2)
 	,IM1.SZITM 			
 				SZITM			 -- Item Number - Short Numeric Generic Edit (8)
-	,PART.ID -- IM1.SZLITM			
+	,IM1.SZLITM			
 				SZLITM			 -- 2nd Item Number String Generic Edit (25)
 	,IM1.SZAITM	
                 SZAITM			 -- 3rd Item Number String Generic Edit (25)
