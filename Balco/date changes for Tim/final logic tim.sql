@@ -1,0 +1,130 @@
+SELECT *
+FROM
+(
+SELECT
+
+ F41021.LIITM
+,F41021.LIMCU
+,F41021.LILOCN
+,F41021.LIPBIN
+,F4102.IBABCM
+,F41021.LINCDJ LINCDJ_BEFORE
+	,(to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
+				CAST(CEIL((
+							ROW_NUMBER() OVER (
+								ORDER BY F4102.IBITM
+								)
+							) / 8) AS INTEGER) * 7
+				), 'YYYY') - 1900
+		) * 1000 + to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
+			CAST(CEIL((
+						ROW_NUMBER() OVER (
+							ORDER BY F4102.IBITM
+							)
+						) / 8) AS INTEGER) * 7
+			), 'DDD') LINCDJ_AFTER
+,to_date(to_char(to_date(substr((to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') 
+        + (	CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 64) AS INTEGER) * 7), 'YYYY') - 1900) * 1000 
+        + to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY')
+        + (CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 64) AS INTEGER) * 7), 'DDD'),2,5),'YYDDD'),'MM/DD/YYYY'),'MM/DD/YYYY') LINCDJ_AFTER_GD
+
+FROM CRPDTA.F41021 F41021
+
+JOIN CRPDTA.F4102 F4102
+	ON F4102.IBITM = F41021.LIITM
+    AND F4102.IBMCU = F41021.LIMCU
+    AND F4102.IBGLPT = F41021.LIGLPT
+    
+WHERE (F4102.IBABCM = 'A'
+	AND F41021.LINCDJ <> 0)
+    OR (F4102.IBABCM = 'A' AND F41021.LIPBIN = 'P' AND F41021.LILOCN = 'SHIP01' AND F41021.LINCDJ = 0)
+    
+UNION
+
+SELECT
+
+ F41021.LIITM
+,F41021.LIMCU
+,F41021.LILOCN
+,F41021.LIPBIN
+,F4102.IBABCM
+,F41021.LINCDJ LINCDJ_BEFORE
+	,(to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
+				CAST(CEIL((
+							ROW_NUMBER() OVER (
+								ORDER BY F4102.IBITM
+								)
+							) / 8) AS INTEGER) * 7
+				), 'YYYY') - 1900
+		) * 1000 + to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
+			CAST(CEIL((
+						ROW_NUMBER() OVER (
+							ORDER BY F4102.IBITM
+							)
+						) / 8) AS INTEGER) * 7
+			), 'DDD') LINCDJ_AFTER
+,to_date(to_char(to_date(substr((to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') 
+        + (	CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 15) AS INTEGER) * 7), 'YYYY') - 1900) * 1000 
+        + to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY')
+        + (CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 15) AS INTEGER) * 7), 'DDD'),2,5),'YYDDD'),'MM/DD/YYYY'),'MM/DD/YYYY') LINCDJ_AFTER_GD
+
+FROM CRPDTA.F41021 F41021
+
+JOIN CRPDTA.F4102 F4102
+	ON F4102.IBITM = F41021.LIITM
+    AND F4102.IBMCU = F41021.LIMCU
+    AND F4102.IBGLPT = F41021.LIGLPT
+    
+WHERE (F4102.IBABCM = 'B'
+	AND F41021.LINCDJ <> 0)
+    OR (F4102.IBABCM = 'B' AND F41021.LIPBIN = 'P' AND F41021.LILOCN = 'SHIP01' AND F41021.LINCDJ = 0)
+
+UNION
+
+SELECT
+
+ F41021.LIITM
+,F41021.LIMCU
+,F41021.LILOCN
+,F41021.LIPBIN
+,F4102.IBABCM
+,F41021.LINCDJ LINCDJ_BEFORE
+	,(to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
+				CAST(CEIL((
+							ROW_NUMBER() OVER (
+								ORDER BY F4102.IBITM
+								)
+							) / 8) AS INTEGER) * 7
+				), 'YYYY') - 1900
+		) * 1000 + to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
+			CAST(CEIL((
+						ROW_NUMBER() OVER (
+							ORDER BY F4102.IBITM
+							)
+						) / 8) AS INTEGER) * 7
+			), 'DDD') LINCDJ_AFTER
+,to_date(to_char(to_date(substr((to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') 
+        + (	CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 8) AS INTEGER) * 7), 'YYYY') - 1900) * 1000 
+        + to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY')
+        + (CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 8) AS INTEGER) * 7), 'DDD'),2,5),'YYDDD'),'MM/DD/YYYY'),'MM/DD/YYYY') LINCDJ_AFTER_GD
+
+FROM CRPDTA.F41021 F41021
+
+JOIN CRPDTA.F4102 F4102
+	ON F4102.IBITM = F41021.LIITM
+    AND F4102.IBMCU = F41021.LIMCU
+    AND F4102.IBGLPT = F41021.LIGLPT
+    
+WHERE (F4102.IBABCM = 'C'
+	AND F41021.LINCDJ <> 0)
+    OR (F4102.IBABCM = 'C' AND F41021.LIPBIN = 'P' AND F41021.LILOCN = 'SHIP01' AND F41021.LINCDJ = 0)
+
+) ABC
+ORDER BY
+
+ ABC.IBABCM
+,ABC.LIITM
+,ABC.LIMCU
+,ABC.LILOCN
+,ABC.LIPBIN
+;

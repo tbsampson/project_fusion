@@ -1,0 +1,107 @@
+CREATE TABLE TSAMPSON.ABC_CONV
+
+AS
+
+SELECT
+
+ F41021.LIITM
+,F41021.LIMCU
+,F41021.LILOCN
+,F41021.LINCDJ
+	,(
+		to_char(to_date(to_char(to_date(substr(F41021.LINCDJ, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
+				CAST(CEIL((
+							ROW_NUMBER() OVER (
+								ORDER BY F4102.IBITM
+								)
+							) / 65) AS INTEGER) * 7
+				), 'YYYY') - 1900
+		) * 1000 + to_char(to_date(to_char(to_date(substr(F41021.LINCDJ, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
+			CAST(CEIL((
+						ROW_NUMBER() OVER (
+							ORDER BY F4102.IBITM
+							)
+						) / 65) AS INTEGER) * 7
+			), 'DDD') NEW_LINCDJ
+
+
+FROM CRPDTA.F41021 F41021
+
+JOIN CRPDTA.F4102 F4102
+	ON F4102.IBITM = F41021.LIITM
+    AND F4102.IBMCU = F41021.LIMCU
+    AND F4102.IBGLPT = F41021.LIGLPT
+    
+WHERE F4102.IBABCM = 'A'
+	AND F41021.LINCDJ <> 0
+
+UNION
+
+SELECT
+
+ F41021.LIITM
+,F41021.LIMCU
+,F41021.LILOCN
+,F41021.LINCDJ
+	,(
+		to_char(to_date(to_char(to_date(substr(F41021.LINCDJ, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
+				CAST(CEIL((
+							ROW_NUMBER() OVER (
+								ORDER BY F4102.IBITM
+								)
+							) / 16) AS INTEGER) * 7
+				), 'YYYY') - 1900
+		) * 1000 + to_char(to_date(to_char(to_date(substr(F41021.LINCDJ, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
+			CAST(CEIL((
+						ROW_NUMBER() OVER (
+							ORDER BY F4102.IBITM
+							)
+						) / 16) AS INTEGER) * 7
+			), 'DDD') NEW_LINCDJ
+
+
+FROM CRPDTA.F41021 F41021
+
+JOIN CRPDTA.F4102 F4102
+	ON F4102.IBITM = F41021.LIITM
+    AND F4102.IBMCU = F41021.LIMCU
+    AND F4102.IBGLPT = F41021.LIGLPT
+    
+WHERE F4102.IBABCM = 'B'
+	AND F41021.LINCDJ <> 0
+ 
+ UNION
+
+SELECT
+
+ F41021.LIITM
+,F41021.LIMCU
+,F41021.LILOCN
+,F41021.LINCDJ
+	,(
+		to_char(to_date(to_char(to_date(substr(F41021.LINCDJ, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
+				CAST(CEIL((
+							ROW_NUMBER() OVER (
+								ORDER BY F4102.IBITM
+								)
+							) / 8) AS INTEGER) * 7
+				), 'YYYY') - 1900
+		) * 1000 + to_char(to_date(to_char(to_date(substr(F41021.LINCDJ, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
+			CAST(CEIL((
+						ROW_NUMBER() OVER (
+							ORDER BY F4102.IBITM
+							)
+						) / 8) AS INTEGER) * 7
+			), 'DDD') NEW_LINCDJ
+
+
+FROM CRPDTA.F41021 F41021
+
+JOIN CRPDTA.F4102 F4102
+	ON F4102.IBITM = F41021.LIITM
+    AND F4102.IBMCU = F41021.LIMCU
+    AND F4102.IBGLPT = F41021.LIGLPT
+    
+WHERE F4102.IBABCM = 'C'
+	AND F41021.LINCDJ <> 0
+ ;
