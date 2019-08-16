@@ -1,7 +1,7 @@
 
 /*
     F03B11Z1 - Open AR Balance
-    VER0001 -  Tom Sampson
+    VER0002 -  Tom Sampson
     BV R03B11Z1A
 */
 
@@ -10,7 +10,7 @@ SELECT
  'JDE'          VJEDUS -- EDI - User ID [Generic Edit] String (10)
 ,''             VJEDTY -- Type Record [UDC (00 RD)] Character (1)
 ,''             VJEDSQ -- Record Sequence [Generic Edit] Numeric (2)
-,ROW_NUMBER() OVER(ORDER BY	RECEIVABLE.INVOICE_ID)
+,ROW_NUMBER() OVER(ORDER BY	AR.INVOICE_ID)
                 VJEDTN -- EDI - Transaction Number [Generic Edit] String (22)
 ,''             VJEDCT -- EDI - Document Type [Generic Edit] String (2)
 ,0              VJEDLN -- EDI - Line Number [Generic Edit] Numeric (7)
@@ -28,7 +28,7 @@ SELECT
 ,''             VJEDAN -- User Address Number [Generic Edit] Numeric (8)
 ,''             VJDOC -- Document (Voucher Invoice etc.) [Generic Edit] Numeric (8)
 ,CASE
-     WHEN (RECEIVABLE.TOTAL_AMOUNT - RECEIVABLE.PAID_AMOUNT) > 0 
+     WHEN (AR.NATIVE_AMOUNT) > 0 
      THEN 'XI'
      ELSE 'XM'
  END            VJDCT -- Document Type [UDC (00 DT)] String (2)
@@ -37,7 +37,7 @@ SELECT
 ,AB.SZAN8		VJAN8 -- Address Number [Generic Edit] Numeric (8)
 ,dbo.JDEJulian(GETDATE())
                 VJDGJ -- Date - For G/L (and Voucher) - Julian [Generic Edit] Date (6)
-,dbo.JDEJulian(RECEIVABLE.INVOICE_DATE)
+,dbo.JDEJulian(AR.INVOICE_DATE)
                 VJDIVJ -- Date - Invoice - Julian [Generic Edit] Date (6)
 ,'IB'           VJICUT -- Batch Type [UDC (98 IT)] String (2)
 ,968             VJICU -- Batch Number [Generic Edit] Numeric (8)
@@ -55,9 +55,9 @@ SELECT
 ,''             VJISTR -- A/R Post Status [Generic Edit] Character (1)
 ,''             VJBALJ -- Balanced - Journal Entries [UDC (H00 BB)] Character (1)
 ,'A'            VJPST -- Pay Status Code [UDC (00 PS)] Character (1)
-,CAST((RECEIVABLE.TOTAL_AMOUNT - RECEIVABLE.PAID_AMOUNT) * 100 AS INTEGER)
+,CAST((AR.NATIVE_AMOUNT) * 100 AS INTEGER)
                 VJAG -- Amount - Gross [Generic Edit] Numeric (15)
-,CAST((RECEIVABLE.TOTAL_AMOUNT - RECEIVABLE.PAID_AMOUNT) * 100 AS INTEGER)
+,CAST((AR.NATIVE_AMOUNT) * 100 AS INTEGER)
                 VJAAP -- Amount Open [Generic Edit] Numeric (15)
 ,''             VJADSC -- Discount Available [Generic Edit] Numeric (15)
 ,''             VJADSA -- Discount Taken [Generic Edit] Numeric (15)
@@ -117,11 +117,11 @@ SELECT
 ,''             VJSFXO -- Order Suffix [Generic Edit] String (3)
 ,''             VJVLDT -- Date - Cleared/Value [Generic Edit] Date (6)
 ,''             VJCMC1 -- Commission Code 1 [Generic Edit] Numeric (8)
-,SUBSTRING(RECEIVABLE.INVOICE_ID,3,6) 
+,AR.INVOICE_ID 
                 VJVR01 -- Reference [Generic Edit] String (25)
 ,''             VJUNIT -- Unit [Generic Edit] String (8)
 ,''             VJMCU2 -- Business Unit 2 [Generic Edit] String (12)
-,SUBSTRING(RECEIVABLE.INVOICE_ID,3,6) 
+,AR.INVOICE_ID 
 				 VJRMK -- Name - Remark [Generic Edit] String (30)
 ,''              VJALPH -- Name - Alpha [Generic Edit] String (40)
 ,''              VJRF -- Frequency - Recurring [UDC (H00 RF)] String (2)
@@ -223,9 +223,32 @@ SELECT
 
 FROM
 
-RECEIVABLE RECEIVABLE
+	(
+		SELECT
 
-RIGHT JOIN _ADDRESS_BOOK_TABLE AB
-	ON AB.SZALKY = 'BC_' + RECEIVABLE.CUSTOMER_ID
+			 AR1.CUSTOMER_ID
+			,AR1.INVOICE_ID
+			,AR1.NATIVE_AMOUNT
+			,AR1.INVOICE_DATE
+			
+		FROM
+
+			(
+				SELECT CUSTOMER_ID
+					  ,CUSTOMER_NAME
+					  ,CAST(NATIVE_AMOUNT AS DECIMAL(12,2)) NATIVE_AMOUNT
+					  ,CAST(CURRENT_AMOUNT AS DECIMAL(12,2)) CURRENT_AMOUNT
+					  ,CAST(PERIOD1_AMOUNT AS DECIMAL(12,2)) PERIOD1_AMOUNT
+					  ,CAST(PERIOD2_AMOUNT AS DECIMAL(12,2)) PERIOD2_AMOUNT
+					  ,CAST(PERIOD3_AMOUNT AS DECIMAL(12,2)) PERIOD3_AMOUNT
+					  ,CAST(PERIOD4_AMOUNT AS DECIMAL(12,2)) PERIOD4_AMOUNT
+					  ,CAST(REPLACE(INVOICE_ID,'IN','') AS INTEGER) INVOICE_ID
+					  ,CONVERT(VARCHAR, INVOICE_DATE, 101) INVOICE_DATE
+					  ,CONVERT(VARCHAR, DUE_DATE, 101) DUE_DATE
+				FROM _AR_XL
+			) AR1
+	) AR
+
+JOIN _ADDRESS_BOOK_TABLE AB
+	ON AB.SZALKY = 'BC_' + AR.CUSTOMER_ID
 	
-WHERE (RECEIVABLE.TOTAL_AMOUNT - RECEIVABLE.PAID_AMOUNT) <> 0
