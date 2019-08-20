@@ -11,7 +11,7 @@ CREATE TABLE TSAMPSON.CRPDTA_F4102	AS SELECT * FROM CRPDTA.F4102;
 
 UPDATE CRPDTA.F41021 F41021
    SET F41021.LINCDJ = (SELECT t2.LINCDJ_AFTER
-                         FROM TSAMPSON.ABC_2 t2
+                         FROM TSAMPSON.ABC_3 t2CREATE
                         	WHERE F41021.LIITM = t2.LIITM
 							AND F41021.LIMCU = t2.LIMCU
                             AND F41021.LILOCN = t2.LILOCN 
@@ -19,7 +19,7 @@ UPDATE CRPDTA.F41021 F41021
 						)
 
  WHERE EXISTS           (SELECT 1
-                          FROM TSAMPSON.ABC_2 t2
+                          FROM TSAMPSON.ABC_3 t2
                         	WHERE F41021.LIITM = t2.LIITM
 							AND F41021.LIMCU = t2.LIMCU
                             AND F41021.LILOCN = t2.LILOCN 
