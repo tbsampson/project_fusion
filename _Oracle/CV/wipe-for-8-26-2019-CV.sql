@@ -104,6 +104,9 @@ COMMIT;
 DELETE FROM CVDTA.F4111; -- Item Ledger
 COMMIT;
 
+DELETE FROM CVDTA.F43090; -- Suppliers for Tim
+COMMIT;
+
 -- ------------------------------------------ Sales Order ------------------------------------------ 
 DELETE FROM CVDTA.F4201; -- Sales Order Header (Ron)
 COMMIT;
@@ -121,9 +124,6 @@ DELETE FROM CVDTA.F42119; -- S.O. History Detail (Tim/Ron)
 COMMIT;
 
 DELETE FROM CVDTA.F42199; -- Sales Order  Detail Ledger File (Ron)
-COMMIT;
-
-DELETE FROM CVDTA.F3460; -- Forecast File (Tim) 
 COMMIT;
 
 DELETE FROM CVDTA.F42150; -- SO Commission (Ron) 
@@ -214,13 +214,14 @@ COMMIT;
 DELETE FROM CVDTA.F03B11Z1; -- AR/GL zFile
 COMMIT;
 
-DELETE FROM CVDTA.F03B11 WHERE GLDCT = 'XI' OR GLDCT = 'XM'; -- Open AR Balance
+DELETE FROM CVDTA.F03B11 WHERE RPDCT = 'XI' OR RPDCT = 'XM'; -- Open AR Balance
 COMMIT;
 
 DELETE FROM CVDTA.F0911 WHERE GLDCT = 'XI' OR GLDCT = 'XM';
 COMMIT;
 
-DELETE FROM CVDTA.F0902 WHERE RPDCT = 'XI' OR RPDCT = 'XM';
+DELETE FROM CVDTA.F0902 WHERE GBDCT = 'XI' OR GBDCT = 'XM';
 COMMIT;
 
+SELECT * FROM CVDTA.F03B11;
 -- //////////////////////////////////////// EOF ////////////////////////////////////////
