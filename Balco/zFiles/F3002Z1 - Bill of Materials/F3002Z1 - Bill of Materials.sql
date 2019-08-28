@@ -100,7 +100,7 @@ SELECT
 		,''				SZDSC1 -- Description String Generic Edit(30)
 		,'S'			SZLNTY -- Line Type String Generic Edit(2)
 		,''				SZPRIC -- Unit Price per Primary Numeric Generic Edit(15)
-		,''				SZUNCS -- Amount - Unit Cost Numeric Generic Edit(15)
+		,ISNULL(CAST(PART.UNIT_MATERIAL_COST * 1000 AS INTEGER),0)			SZUNCS -- Amount - Unit Cost Numeric Generic Edit(15)
 		,''				SZPCTK -- Percent Assembly Sales Price Numeric Generic Edit(7)
 		,''				SZSHNO -- Message Number String Generic Edit(10)
 		,''				SZOMCU -- Project Business Unit String Generic Edit(12)
@@ -138,6 +138,9 @@ SELECT
 		
 		LEFT JOIN _ITEM_MASTER_1_TABLE IM2
 			ON IM2.SZLITM = BOM_SIDE.SZLITM
+			
+			LEFT JOIN PART PART
+				ON BOM_SIDE.SZLITM = PART.ID
 					
 		LEFT JOIN REQUIREMENT REQUIREMENT
 			ON REQUIREMENT.WORKORDER_BASE_ID = BOM_SIDE.SZKITA

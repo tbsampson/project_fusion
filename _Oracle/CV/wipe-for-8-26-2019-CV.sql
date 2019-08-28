@@ -43,8 +43,8 @@ WHERE AIAN8 BETWEEN 72000 AND 98999 OR AIAN8 > 100000;
 COMMIT;
 
 -- ------------------------------------------ Location ------------------------------------------
-DELETE FROM CVDTA.F4100; -- Location
-COMMIT;
+-- DELETE FROM CVDTA.F4100; -- Location
+-- COMMIT;
 
 DELETE FROM CVDTA.F43091; -- Receipt routing
 COMMIT;
@@ -62,7 +62,7 @@ COMMIT;
 DELETE FROM CVDTA.F4104; -- Item Cross Reference
 COMMIT;
 
-DELETE CVDTA.F4105Z1; -- Item Cost zFile
+DELETE FROM CVDTA.F4105Z1; -- Item Cost zFile
 COMMIT;
 
 DELETE FROM CVDTA.F4105; -- Item Cost
