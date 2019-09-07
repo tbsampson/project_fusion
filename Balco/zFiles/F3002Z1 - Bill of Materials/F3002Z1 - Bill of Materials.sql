@@ -100,7 +100,7 @@ SELECT
 		,''				SZDSC1 -- Description String Generic Edit(30)
 		,'S'			SZLNTY -- Line Type String Generic Edit(2)
 		,''				SZPRIC -- Unit Price per Primary Numeric Generic Edit(15)
-		,ISNULL(CAST(PART.UNIT_MATERIAL_COST * 1000 AS INTEGER),0)			SZUNCS -- Amount - Unit Cost Numeric Generic Edit(15)
+		,ISNULL(CAST(PART.UNIT_MATERIAL_COST * 10000 AS INTEGER),0)			SZUNCS -- Amount - Unit Cost Numeric Generic Edit(15)
 		,''				SZPCTK -- Percent Assembly Sales Price Numeric Generic Edit(7)
 		,''				SZSHNO -- Message Number String Generic Edit(10)
 		,''				SZOMCU -- Project Business Unit String Generic Edit(12)

@@ -46,8 +46,8 @@ COMMIT;
 -- DELETE FROM CVDTA.F4100; -- Location
 -- COMMIT;
 
-DELETE FROM CVDTA.F43091; -- Receipt routing
-COMMIT;
+-- DELETE FROM CVDTA.F43091; -- Receipt routing
+-- COMMIT;
 
 -- ------------------------------------------ Item Master ------------------------------------------ 
 DELETE FROM CVDTA.F4101Z1; --zFile

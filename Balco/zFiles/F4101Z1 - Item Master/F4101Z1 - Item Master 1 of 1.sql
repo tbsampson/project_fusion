@@ -227,7 +227,10 @@ SELECT
 		,''				SZPRPO	 -- Grade/Potency Pricing	Character	UDC (40 LP)	1
 		,'Y'			SZCKAV	 -- Check Availability Y/N	Character	Generic Edit	1
 		,'P'			SZBPFG	 -- Bulk/Packed Flag	Character	UDC (41B BF)	1
-		,''				SZSRCE	 -- Layer Code - Source	Character	UDC (H41 SR)	1
+		,CASE WHEN _ITEM_MASTER_SIDE.SZLITM IN ('9901','66040','66645','66648','CERAMICFIBER','CERAMICFIBER01','CERAMICFIBER1/2','CERBLANKET101','CERBLANKET1012','DT1812','EBA32A','EBA32B','EC11A','EC11B','HTFABRICPLUS','INTSHEET','MASKTAPE','NRTAPERL','PC33','PLFA-100-H','PLFA-100-H-M','PLFA-100-OB','PRIMER2A','PRIMER2B','SCRIM','SKA1','SKP1','ST2','ST2D','TC12A','TC12B')
+			THEN '3'
+			ELSE ''
+		 END			SZSRCE	 -- Layer Code - Source	Character	UDC (H41 SR)	1
 		,'N'			SZOT1Y	 -- Potency Control	Character	Generic Edit	1
 		,'N'			SZOT2Y	 -- Grade Control	Character	Generic Edit	1
 		,''				SZSTDP	 -- Standard Potency	Numeric	Generic Edit	7
