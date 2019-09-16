@@ -227,10 +227,11 @@ SELECT
 		,''				SZPRPO	 -- Grade/Potency Pricing	Character	UDC (40 LP)	1
 		,'Y'			SZCKAV	 -- Check Availability Y/N	Character	Generic Edit	1
 		,'P'			SZBPFG	 -- Bulk/Packed Flag	Character	UDC (41B BF)	1
-		,CASE WHEN _ITEM_MASTER_SIDE.SZLITM IN ('9901','66040','66645','66648','CERAMICFIBER','CERAMICFIBER01','CERAMICFIBER1/2','CERBLANKET101','CERBLANKET1012','DT1812','EBA32A','EBA32B','EC11A','EC11B','HTFABRICPLUS','INTSHEET','MASKTAPE','NRTAPERL','PC33','PLFA-100-H','PLFA-100-H-M','PLFA-100-OB','PRIMER2A','PRIMER2B','SCRIM','SKA1','SKP1','ST2','ST2D','TC12A','TC12B')
+	/*	,CASE WHEN _ITEM_MASTER_SIDE.SZLITM IN ('9901','66040','66645','66648','CERAMICFIBER','CERAMICFIBER01','CERAMICFIBER1/2','CERBLANKET101','CERBLANKET1012','DT1812','EBA32A','EBA32B','EC11A','EC11B','HTFABRICPLUS','INTSHEET','MASKTAPE','NRTAPERL','PC33','PLFA-100-H','PLFA-100-H-M','PLFA-100-OB','PRIMER2A','PRIMER2B','SCRIM','SKA1','SKP1','ST2','ST2D','TC12A','TC12B')
 			THEN '3'
 			ELSE ''
-		 END			SZSRCE	 -- Layer Code - Source	Character	UDC (H41 SR)	1
+		 END */
+		,''				SZSRCE	 -- Layer Code - Source	Character	UDC (H41 SR)	1
 		,'N'			SZOT1Y	 -- Potency Control	Character	Generic Edit	1
 		,'N'			SZOT2Y	 -- Grade Control	Character	Generic Edit	1
 		,''				SZSTDP	 -- Standard Potency	Numeric	Generic Edit	7
@@ -353,7 +354,7 @@ SELECT
 						SZRQMN	 -- Reorder Quantity - Minimum	Numeric	Generic Edit	15
 		,''				SZWOMO	 -- Quantity - Order Multiples (SO/PO)	Numeric	Generic Edit	7
 		,''				SZSERV	 -- Service Level	Numeric	Generic Edit	7
-		,ISNULL(PART.ORDER_POINT*10000,0)		
+		,ISNULL(_ITEM_MASTER_SIDE.SZSAFE*10000,0)		
 						SZSAFE	 -- Safety Stock	Numeric	Generic Edit	15
 											--  was CAST(REPLACE(_ITEM_MASTER_SIDE.SZSAFE,',','') AS INTEGER)
 		,''				SZFUF1	 -- AIA Document Flag	Character	UDC (H40 FU)	1
@@ -374,7 +375,7 @@ SELECT
 		,_ITEM_MASTER_SIDE.SZTIMB
 						SZTIMB	 -- Time Basis Code	Character	UDC (30 TB)	1
 		,''				SZBQTY	 -- Units - Batch Quantity	Numeric	Generic Edit	15
-		,_ITEM_MASTER_SIDE.SZMULT
+		,_ITEM_MASTER_SIDE.SZMULT * 10000
 						SZMULT	 -- Quantity - Order Multiples (MRP)	Numeric	Generic Edit	15
 		,''				SZLFDJ	 -- Date - Future Use	Date	Generic Edit	6
 		,'Y'			SZMLOT	 -- Mix Dates / Lots (Y/N)	Character	Generic Edit	1
@@ -499,5 +500,19 @@ LEFT JOIN _TEMP_VENDORS TV
 
 WHERE PART.ABC_CODE <> 'Z' AND PART.ABC_CODE IS NOT NULL
 
+
+/*
+SELECT
+	 ABAN8 "ID1"
+	,ABALKY "ID2"
+	,ABALPH "DESC"
+
+FROM CRPDTA.F0101
+
+WHERE ABAT1 = 'V' AND SUBSTR(ABALKY,1,3) = 'BC_';
+
+
+
+*/
 
 
