@@ -19,7 +19,7 @@ use BALCO;
 
 SELECT
 
- PV.SZAN8   IVAN8 -- Address Number [Generic Edit] Numeric (8)
+ PV.ABAN8   IVAN8 -- Address Number [Generic Edit] Numeric (8)
 ,'VN'   IVXRT -- Type - Cross-Reference Type Code [UDC (41 DT)] String (2)
 ,IM1.SZITM  IVITM -- Item Number - Short [Generic Edit] Numeric (8)
 ,'140365'  IVEXDJ -- Date - Expired [Generic Edit] Date (6)
@@ -87,7 +87,7 @@ JOIN PART PART
 	ON PART.ID = IM1.SZLITM
 
 JOIN _PREF_VENDORS PV
-	ON 'BC_' + PART.PREF_VENDOR_ID = PV.SZALKY
+	ON 'BC_' + PART.PREF_VENDOR_ID = PV.ABALKY
 
 	WHERE PART.MFG_PART_ID IS NOT NULL
 	
