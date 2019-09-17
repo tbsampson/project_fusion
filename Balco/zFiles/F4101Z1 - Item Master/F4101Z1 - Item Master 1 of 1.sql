@@ -350,8 +350,14 @@ SELECT
 		-- ,ISNULL(PART.ORDER_POINT*10000,0)		
 		,''				SZROQI	 -- Reorder Quantity - Input	Numeric	Generic Edit	15
 		,''				SZRQMX	 -- Reorder Quantity - Maximum	Numeric	Generic Edit	15
-		,ISNULL(CAST(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZRQMN)) AS INTEGER) * 10000, 0)
-						SZRQMN	 -- Reorder Quantity - Minimum	Numeric	Generic Edit	15
+
+
+						
+		,CASE WHEN _ITEM_MASTER_SIDE.SZRQMN <> ''
+			THEN CAST(CAST(_ITEM_MASTER_SIDE.SZRQMN AS DECIMAL(12,4)) * 10000 AS INTEGER)
+			ELSE ''
+		END		SZRQMN	 -- Reorder Quantity - Minimum	Numeric	Generic Edit	15
+
 		,''				SZWOMO	 -- Quantity - Order Multiples (SO/PO)	Numeric	Generic Edit	7
 		,''				SZSERV	 -- Service Level	Numeric	Generic Edit	7
 		,ISNULL(_ITEM_MASTER_SIDE.SZSAFE*10000,0)		
@@ -375,8 +381,10 @@ SELECT
 		,_ITEM_MASTER_SIDE.SZTIMB
 						SZTIMB	 -- Time Basis Code	Character	UDC (30 TB)	1
 		,''				SZBQTY	 -- Units - Batch Quantity	Numeric	Generic Edit	15
-		,_ITEM_MASTER_SIDE.SZMULT * 10000
-						SZMULT	 -- Quantity - Order Multiples (MRP)	Numeric	Generic Edit	15
+		,CASE WHEN _ITEM_MASTER_SIDE.SZMULT <> ''
+			THEN CAST(CAST(_ITEM_MASTER_SIDE.SZMULT AS DECIMAL(12,4)) * 10000 AS INTEGER)
+			ELSE ''
+		 END	SZMULT	 -- Quantity - Order Multiples (MRP)	Numeric	Generic Edit	15
 		,''				SZLFDJ	 -- Date - Future Use	Date	Generic Edit	6
 		,'Y'			SZMLOT	 -- Mix Dates / Lots (Y/N)	Character	Generic Edit	1
 		,CASE
@@ -502,6 +510,9 @@ WHERE PART.ABC_CODE <> 'Z' AND PART.ABC_CODE IS NOT NULL
 
 
 /*
+
+-- _TEMP_VENDORS
+
 SELECT
 	 ABAN8 "ID1"
 	,ABALKY "ID2"
