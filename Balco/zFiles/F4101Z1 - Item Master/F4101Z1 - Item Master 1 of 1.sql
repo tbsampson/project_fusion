@@ -132,7 +132,9 @@ SELECT
 		,''				SZPRGR	 -- Item Price Group	String	UDC (40 PI)	8
 		,''				SZRPRC	 -- Reprice (Basket Price) Category	String	UDC (40 PI)	8
 		,''				SZORPR	 -- Order Reprice Category	String	UDC (40 PI)	8
-		,CAST(_ITEM_MASTER_SIDE.SZBUYR AS INTEGER)
+		,CASE WHEN CAST(_ITEM_MASTER_SIDE.SZBUYR AS INTEGER) = 0 THEN ''
+		 ELSE CAST(_ITEM_MASTER_SIDE.SZBUYR AS INTEGER)
+		 END
 						SZBUYR	 -- Buyer Number	Numeric	Generic Edit	8
 		,'' -- LEFT(LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZDRAW)),20)
 						SZDRAW	 -- Drawing Number	String	Generic Edit	20
@@ -241,7 +243,7 @@ SELECT
 		,''				SZFRGD	 -- From Grade	String	UDC (40 LG)	3
 		,''				SZTHGD	 -- Thru Grade	String	UDC (40 LG)	3
 		,''				SZCOTY	 -- Component Type	Character	UDC (H40 CP)	1
-		,_ITEM_MASTER_SIDE.SZSTKT
+		,LTRIM(RTRIM(_ITEM_MASTER_SIDE.SZSTKT))
 						SZSTKT	 -- Stocking Type	Character	UDC (41 I)	1
 		,_ITEM_MASTER_SIDE.SZLNTY			
 						SZLNTY	 -- Line Type	String	Generic Edit	2
