@@ -1,4 +1,4 @@
-use BALCO;
+
 
 /*
 
@@ -8,7 +8,7 @@ use BALCO;
     IR 20190523 Tom Sampson
     Direct load
 
-First, update the _VENDOR table with fresh data from JDE
+First, update the _VENDORS table with fresh data from JDE
 
 SELECT ABAN8, ABALKY, ABALPH FROM CVDTA.F0101
 WHERE ABAT1 = 'V';
