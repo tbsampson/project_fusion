@@ -6,10 +6,10 @@ SELECT
 ,'SO'   SHDCTO -- Order Type (String) UDC (00 DT) [2]
 ,'00020'   SHKCOO -- Order Company (Order Number) (String) Generic Edit [5]
 ,ROW_NUMBER() OVER(ORDER BY	COR.CUST_ORDER_ID,COR.LINE_NO, COR.SALESREP_ID)   SHCMLN -- Commission LineNumber (Numeric) Generic Edit [15]
-,'BC_' + COR.SALESREP_ID   SHSLSM -- Salesperson 01 (Numeric) Generic Edit [8]
+,ABT.ABAN8   SHSLSM -- Salesperson 01 (Numeric) Generic Edit [8]
 ,CAST(SUM(COR.Expr2) * 1000 AS INTEGER)   SHSLCM -- Salesperson Commission 001 (Numeric) Generic Edit [7]
-,''   SHFCA -- Flat Commission Amount (Numeric) Generic Edit [15]
-,''   SHAPUN -- Amount - Per Unit (Numeric) Generic Edit [15]
+,'0'   SHFCA -- Flat Commission Amount (Numeric) Generic Edit [15]
+,'0'   SHAPUN -- Amount - Per Unit (Numeric) Generic Edit [15]
 ,'I'   SHCCTY -- Commission Code Type (Character) UDC (H42 CC) [1]
 
 FROM Customer_Orders_Rep COR
@@ -23,11 +23,17 @@ AND COR.LINE_NO = COL.LINE_NO
 JOIN _ORDER_REF OREF
 	ON COR.CUST_ORDER_ID = OREF.OLD_ID
 	
+LEFT JOIN _AB_TEMP ABT
+	ON 'BC_' + COR.SALESREP_ID = ABT.ABALKY
+	
 WHERE COL.COMMISSION_PCT > 0
+AND ABT.ABAN8 IS NOT NULL
+
 
 GROUP BY
 
 	 COR.CUST_ORDER_ID
+	 ,ABT.ABAN8 
 	,OREF.NEW_ID
 	,COR.SALESREP_ID
 	,COR.LINE_NO

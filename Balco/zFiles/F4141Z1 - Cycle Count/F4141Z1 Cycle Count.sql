@@ -33,7 +33,7 @@ SELECT
             SZMCU  -- Business Unit {Generic Edit}  [String] (12)
 ,CASE
     WHEN _ITEM_MASTER_1_TABLE.SZLNTY = 'W' THEN 'SHIP01'
-    WHEN LEFT(PART_LOCATION.LOCATION_ID,1) IN ('W','R','S') THEN PART_LOCATION.LOCATION_ID
+    WHEN LEFT(UPPER(PART_LOCATION.LOCATION_ID),1) IN ('W','R','S') THEN UPPER(PART_LOCATION.LOCATION_ID)
  END        SZLOCN -- Location {Generic Edit}  [String] (20)
 ,''         SZLOTN -- Lot/Serial Number {Generic Edit}  [String] (30)
 ,''         SZSTUN -- Storage Unit Number {Generic Edit}  [Numeric] (8)
@@ -121,6 +121,6 @@ AND
     (
         -- ((LEFT(PART.DESCRIPTION,6) = 'SYSTEM' OR LEFT(PART.DESCRIPTION,2) = 'FG') AND _ITEM_MASTER_SIDE.SZSTKT = 'M')
         _ITEM_MASTER_1_TABLE.SZLNTY = 'W'
-        OR LEFT(PART_LOCATION.LOCATION_ID,1) IN ('W','R','S')
+        OR LEFT(UPPER(PART_LOCATION.LOCATION_ID),1) IN ('W','R','S')
     )
 AND PART_LOCATION.QTY <> 0
