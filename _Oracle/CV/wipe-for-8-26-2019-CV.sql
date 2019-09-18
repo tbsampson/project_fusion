@@ -211,7 +211,10 @@ DELETE FROM CVDTA.F5541TAG; -- Compliance labels
 COMMIT;
 
 -- ------------------------------------------ Open AR Balance ------------------------------------------ 
-DELETE FROM CVDTA.F03B11Z1; -- AR/GL zFile
+DELETE FROM CVDTA.F03B11Z1; -- AR zFile
+COMMIT;
+
+DELETE FROM CVDTA.F0911Z1; -- AR zFile
 COMMIT;
 
 DELETE FROM CVDTA.F03B11 WHERE RPDCT = 'XI' OR RPDCT = 'XM'; -- Open AR Balance
@@ -223,5 +226,8 @@ COMMIT;
 DELETE FROM CVDTA.F0902 WHERE GBDCT = 'XI' OR GBDCT = 'XM';
 COMMIT;
 
-SELECT * FROM CVDTA.F03B11;
+-- ------------------------------------------ Forecasting ------------------------------------------ 
+DELETE FROM CVDTA.F3460; -- AR zFile
+COMMIT;
+
 -- //////////////////////////////////////// EOF ////////////////////////////////////////
