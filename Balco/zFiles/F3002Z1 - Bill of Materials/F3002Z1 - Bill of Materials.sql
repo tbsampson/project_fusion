@@ -171,7 +171,7 @@ FROM
 				,140336			SZEFFT -- Effective - Thru Date Date Generic Edit(6)
 				,''				SZFSER -- Effective From Serial Number String Generic Edit(25)
 				,''				SZTSER -- Effective Thru Serial Number String Generic Edit(25)
-				,BOM_SIDE.SZITC			SZITC -- Issue Type Code Character UDC (41 IT)(1)
+				,ISNULL(BOM_SIDE.SZITC,'I')			SZITC -- Issue Type Code Character UDC (41 IT)(1) -- not on side 'I'
 				,'N'			SZFTRC -- Required Character Generic Edit(1)
 				,'S'			SZOPTK -- Optional Item (Kit) Character UDC (H40 OP)(1)
 				,'N'			SZFORV -- Default Component Character Generic Edit(1)
@@ -193,8 +193,8 @@ FROM
 						THEN '' 
 						ELSE 'Y'
 				 END			SZTHGD -- Thru Grade String UDC (40 LG)(3)
-				,CAST(	CASE	WHEN LTRIM(RTRIM(BOM_SIDE.SZOPSQ)) = '' THEN 0.00 -- confirmed Bill wants blanks to be zero
-							ELSE CAST(LTRIM(RTRIM(BOM_SIDE.SZOPSQ)) AS DECIMAL(4,2)) * 100
+				,CAST(	CASE	WHEN BOM_SIDE.SZOPSQ IS NULL OR LTRIM(RTRIM(BOM_SIDE.SZOPSQ)) = '' THEN 0.00 -- confirmed Bill wants blanks to be zero
+								ELSE CAST(LTRIM(RTRIM(BOM_SIDE.SZOPSQ)) AS DECIMAL(4,2)) * 100
 						END AS INTEGER)
 								SZOPSQ -- Sequence Number - Operations Numeric Generic Edit(5)
 				,''				SZBSEQ -- Sequence - Bubble Sequence Numeric Generic Edit(5)
@@ -246,23 +246,23 @@ FROM
 
 				FROM _BOM_SIDE BOM_SIDE
 				
-				JOIN _ITEM_MASTER_1_TABLE IM1
-					ON IM1.SZLITM = BOM_SIDE.SZKITA
+				LEFT JOIN _ITEM_MASTER_1_TABLE IM1
+					ON IM1.SZLITM = LTRIM(RTRIM(BOM_SIDE.SZKITA))
 				
-				JOIN _ITEM_MASTER_1_TABLE IM2
-					ON IM2.SZLITM = BOM_SIDE.SZLITM
+				LEFT JOIN _ITEM_MASTER_1_TABLE IM2
+					ON IM2.SZLITM = LTRIM(RTRIM(BOM_SIDE.SZLITM))
 					
-					JOIN PART PART
-						ON BOM_SIDE.SZLITM = PART.ID
+				LEFT JOIN PART PART
+					ON PART.ID = LTRIM(RTRIM(BOM_SIDE.SZLITM))
 							
-				JOIN REQUIREMENT REQUIREMENT
-					ON REQUIREMENT.WORKORDER_BASE_ID = BOM_SIDE.SZKITA
-					AND REQUIREMENT.PART_ID = BOM_SIDE.SZLITM -- not the side file still had 3rd item name as 2nd
+				LEFT JOIN REQUIREMENT REQUIREMENT
+					ON REQUIREMENT.WORKORDER_BASE_ID = LTRIM(RTRIM(BOM_SIDE.SZKITA))
+					AND REQUIREMENT.PART_ID = LTRIM(RTRIM(BOM_SIDE.SZLITM)) -- not the side file still had 3rd item name as 2nd
 
 				WHERE REQUIREMENT.WORKORDER_LOT_ID = '0'
-				AND REQUIREMENT.WORKORDER_TYPE = 'M'
-				AND REQUIREMENT.SUBORD_WO_SUB_ID IS NULL
-				AND IM1.SZSTKT = 'M' -- per Bill 8/7/2019
+				AND REQUIREMENT.WORKORDER_TYPE IN ('M','S')  -- M per Bill 8/7/2019, S per Bill 9/19/2019
+				AND (REQUIREMENT.SUBORD_WO_SUB_ID IS NULL OR REQUIREMENT.SUBORD_WO_SUB_ID = 0)
+				AND IM1.SZSTKT IN ('M','S') -- M per Bill 8/7/2019, S per Bill 9/19/2019
 				AND REQUIREMENT.PART_ID <> 'INTSHEET'
 				AND REQUIREMENT.PART_ID <> 'ABRASIVEBK'
 				AND REQUIREMENT.PART_ID <> 'GALVANIZE-0'
