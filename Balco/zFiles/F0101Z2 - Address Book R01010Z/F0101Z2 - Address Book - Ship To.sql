@@ -1,3 +1,5 @@
+
+
 /*
     F0101Z2 - Address Book - Ship To
     VER0001 -  Tom Sampson
@@ -12,8 +14,7 @@ SELECT
     ROW_NUMBER() OVER (
         ORDER BY CUST_ADDRESS.ROWID
         )
- ) + 75000
-			SZEDTN -- EDI - Transaction Number [Generic Edit] String (22)
+ ) + 75000	SZEDTN -- EDI - Transaction Number [Generic Edit] String (22)
 ,0			SZEDLN -- EDI - Line Number [Generic Edit] Numeric (7)
 ,''			SZEDCT -- EDI - Document Type [Generic Edit] String (2)
 ,'JDEAB'	SZTYTN -- Type - Transaction [UDC (00 TT)] String (8)
@@ -28,9 +29,7 @@ SELECT
     ROW_NUMBER() OVER (
         ORDER BY CUST_ADDRESS.ROWID
         )
- ) + 75000
-			
-			SZAN8 -- Address Number [Generic Edit] Numeric (8)
+ ) + 75000  SZAN8 -- Address Number [Generic Edit] Numeric (8)
 ,'BC_' + LTRIM(RTRIM(CUST_ADDRESS.CUSTOMER_ID)) + '_' + LTRIM(RTRIM(CAST(CUST_ADDRESS.ADDR_NO AS CHAR))) 
 			SZALKY -- Long Address Number [Generic Edit] String (20)
 ,''			SZTAX -- Tax ID [Generic Edit] String (20)
@@ -212,6 +211,7 @@ SELECT
 ,''			SZAEMPGP -- Employee Group Approvals [UDC (43E AA)] String (5)
 ,''			SZACTIN -- Future Use Indicator [Generic Edit] Character (1)
 ,''			SZREVRNG -- Revenue range [UDC (01 RR)] String (5)
+-- ,CUST_ADDRESS.ROWID SORT
 
 
 FROM CUST_ADDRESS CUST_ADDRESS
@@ -219,7 +219,16 @@ FROM CUST_ADDRESS CUST_ADDRESS
 JOIN _BILLTO BT
     ON BT.SZALKY = 'BC_' + CUST_ADDRESS.CUSTOMER_ID
 
-JOIN CUSTOMER_ORDER ORDERS -- only include an address if something was actually shipped there
+JOIN 
+	(
+		SELECT DISTINCT
+
+			 ORDERS.CUSTOMER_ID
+			,ORDERS.SHIP_TO_ADDR_NO
+
+		FROM 
+		CUSTOMER_ORDER ORDERS	
+	) ORDERS -- only include an address if something was actually shipped there
 	ON CUST_ADDRESS.CUSTOMER_ID = ORDERS.CUSTOMER_ID
 	AND CUST_ADDRESS.ADDR_NO = ORDERS.SHIP_TO_ADDR_NO
  

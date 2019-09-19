@@ -47,7 +47,7 @@ SELECT
 ,''			SZSIC -- Industry Classification Code [UDC (01 SC)] String (10)
 ,''			SZLNGP -- Language [UDC (01 LP)] String (2)
 ,CASE
-    WHEN CSB_REF.CSB = '1'
+    WHEN CSB_REF.CSB = '1' AND BT.MAX_ST_ADDR > 1
         THEN 'C'
         ELSE 'CB'
  END		SZAT1 -- Search Type [UDC (01 ST)] String (3)

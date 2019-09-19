@@ -2,6 +2,11 @@
     F4104 - Item Cross Reference
     IR 20190523 Tom Sampson
     Direct load
+
+get the side file first and rename A,B,D as ROUTING,DESC,3RD
+
+
+
 */
 use BALCO;
 

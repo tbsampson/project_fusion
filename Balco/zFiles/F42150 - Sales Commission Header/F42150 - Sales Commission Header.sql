@@ -1,3 +1,19 @@
+
+/*
+
+create _REPS table
+
+SELECT 
+     ABAN8
+    ,ABALKY
+    
+FROM CVDTA.F0101
+WHERE SUBSTR(ABALKY,1,3) = 'BC_'
+AND ABAT1 = 'RE'
+
+
+*/
+
 use BALCO;
 
 SELECT
