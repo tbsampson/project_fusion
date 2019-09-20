@@ -7,17 +7,6 @@
 tables to clear
 F3002
 */
-use balco;
-
-
-/*
- F3002Z1 - Bill of Materials
- IR 20190514 Tom Sampson
- BV R3002Z1I
-
-tables to clear
-F3002
-*/
 use BALCO;
 
 SELECT
@@ -142,7 +131,7 @@ FROM
 								SZKIT -- Parent (short) Item Number Numeric Generic Edit(8)
 				,IM1.SZLITM   
 								SZKITL -- Kit - 2nd Item Number String Generic Edit(25)
-				,IM1.SZLITM -- REQUIREMENT.WORKORDER_BASE_ID   
+				,IM1.SZAITM -- REQUIREMENT.WORKORDER_BASE_ID   -- SZLITM old 3rd
 								SZKITA -- 3rd Item Number - Kit String Generic Edit(25)
 				,'       20001' SZMMCU -- Branch String Generic Edit(12)
 				,IM2.SZITM  
