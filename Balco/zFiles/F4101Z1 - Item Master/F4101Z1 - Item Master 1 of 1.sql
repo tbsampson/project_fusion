@@ -3,36 +3,18 @@ F4101Z1 Item Master VER0015
 Tom Sampson IR 4/10/2019
 CR 8/6/2019
 BV R4101Z1I
-VER0002
-- Fixed constraint issue with SZUOM4 and others
-VER0003
-- Added descriptions in comments from jdetables.com
-VER0004
-- Added same logic for SZABCM and SZABCI as SZABCS
-VER0005
-- Changes per Steve from 4/15 applied
-VER0006
-- Modified for SQL 2008
- VER007
- - added multi-pass feature
-VER0008
- - updates from Bill in
-VER0009
-- updates in from Steve 5/7/2019
-VER0010
-- corrected UOM 5/14/2019
-VER0011
-- added pref vendor
-VER0012
-- added D option for Line Type
-VER0013
-- updated UOM3 rules
-VER0014
-- swapped 2nd and 3rd item numbers
-- null DRAW
--- UOM3 now from visual
-VER0015
-- added some new rules for GL 8/18/2019
+
+-- _TEMP_VENDORS
+
+SELECT
+	 ABAN8 "ID1"
+	,ABALKY "ID2"
+	,ABALPH "DESC"
+
+FROM CRPDTA.F0101
+
+WHERE ABAT1 = 'V' AND SUBSTR(ABALKY,1,3) = 'BC_';
+
 */
 USE BALCO;
 
@@ -511,21 +493,6 @@ LEFT JOIN _TEMP_VENDORS TV
 WHERE PART.ABC_CODE <> 'Z' AND PART.ABC_CODE IS NOT NULL
 
 
-/*
 
--- _TEMP_VENDORS
-
-SELECT
-	 ABAN8 "ID1"
-	,ABALKY "ID2"
-	,ABALPH "DESC"
-
-FROM CRPDTA.F0101
-
-WHERE ABAT1 = 'V' AND SUBSTR(ABALKY,1,3) = 'BC_';
-
-
-
-*/
 
 

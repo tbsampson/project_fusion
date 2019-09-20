@@ -1,0 +1,65 @@
+CREATE VIEW _COMMISSIONS AS
+
+/*
+VIEW _COMMISSIONS
+
+Tom Sampson
+20190920
+*/
+
+SELECT 
+  	 ORDER_REF.NEW_ID		SHDOCO -- Document (Order No Invoice etc.) (Numeric) Generic Edit [8]
+  	,'SO'					SHDCTO -- Order Type (String) UDC (00 DT) [2]
+    ,'00020'				SHKCOO -- Order Company (Order Number) (String) Generic Edit [5]
+    --,ROW_NUMBER() OVER(ORDER BY	 ORDER_REF.NEW_ID,LINE.LINE_NO)   
+	--						SHCMLN -- Commission LineNumber (Numeric) Generic Edit [15]
+  	,REPS1.ABAN8			SHSLSM -- Salesperson 01 (Numeric) Generic Edit [8]
+  	,CASE
+  		WHEN REPS2.ABAN8 IS NULL
+  		THEN CAST(ISNULL(LINE.COMMISSION_PCT,0) * 1000 AS INTEGER)
+  		ELSE CAST(ISNULL(LINE.COMMISSION_PCT * (1 - SHARE.SHARE_PERCENT),0) * 1000 AS INTEGER)
+  	 END						SHSLCM -- Salesperson Commission 001 (Numeric) Generic Edit [7]
+	,'0'						SHFCA -- Flat Commission Amount (Numeric) Generic Edit [15]
+	,'0'						SHAPUN -- Amount - Per Unit (Numeric) Generic Edit [15]
+	,'I'						SHCCTY -- Commission Code Type (Character) UDC (H42 CC) [1]
+  	,SHARE.SHARE_PERCENT		COM_SHARE
+	,CO.SALESREP_ID				REP1_OLD_ID
+	,REPS1.ABAN8				REP1_NEW_ID
+	,SHARE.SHARE_SALESREP_ID	REP2_OLD_ID
+  	,REPS2.ABAN8				REP2_NEW_ID
+    ,LINE.COMMISSION_PCT        LINE_COM
+    ,SHARE.SHARE_PERCENT        SHARE_COM
+   	--,LINE.LINE_NO
+  	--,LINE.LINE_STATUS
+  	
+FROM CUSTOMER_ORDER CO
+
+LEFT JOIN _REPS REPS1
+	ON 'BC_' + CO.SALESREP_ID = REPS1.ABALKY
+
+LEFT JOIN CUST_ORDER_LINE LINE
+	ON LINE.CUST_ORDER_ID = CO.ID
+
+JOIN
+	(
+		SELECT DISTINCT
+			 NEW_ID
+			,OLD_ID
+		FROM _ORDER_REF	
+	) ORDER_REF
+
+ON LINE.CUST_ORDER_ID = ORDER_REF.OLD_ID
+	
+LEFT JOIN CUST_ORDER_SHARE SHARE
+ON SHARE.CUST_ORDER_ID = LINE.CUST_ORDER_ID
+
+LEFT JOIN _REPS REPS2
+	ON 'BC_' + SHARE.SHARE_SALESREP_ID = REPS2.ABALKY
+
+WHERE LINE.COMMISSION_PCT <> 0
+
+/*
+ORDER BY 
+	 ORDER_REF.NEW_ID
+	,LINE.LINE_NO
+*/
