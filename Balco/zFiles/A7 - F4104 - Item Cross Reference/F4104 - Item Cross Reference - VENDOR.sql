@@ -8,7 +8,9 @@
     IR 20190523 Tom Sampson
     Direct load
 
-First, update the _PREF_VENDORS table with fresh data from JDE
+MAKE SURE YOU LOADED _ITEM_MASTER_1_TABLE!
+
+then, update the _PREF_VENDORS table with fresh data from JDE
 
 SELECT 
      ABAN8
@@ -19,6 +21,9 @@ FROM CVDTA.F0101
 WHERE ABAT1 = 'V'
 AND SUBSTR(ABALKY, 1, 3) = 'BC_'
 ORDER BY ABAN8
+
+
+
 
 
 */

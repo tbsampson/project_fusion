@@ -5,7 +5,7 @@
 
 get the side file first and rename A,B,D as ROUTING,DESC,3RD
 
-
+MAKE SURE YOU LOADED _ITEM_MASTER_1_TABLE!
 
 */
 use BALCO;
