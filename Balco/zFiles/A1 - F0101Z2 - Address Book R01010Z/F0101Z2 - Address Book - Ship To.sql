@@ -101,7 +101,7 @@ SELECT
 ,0			SZURDT -- User Reserved Date [Generic Edit] Date (6)
 ,0			SZURAT -- User Reserved Amount [Generic Edit] Numeric (15)
 ,0			SZURAB -- User Reserved Number [Generic Edit] Numeric (8)
-,CUST_ADDRESS.SHIPTO_ID
+,LEFT(LTRIM(RTRIM(CUST_ADDRESS.SHIPTO_ID)),15)
 			SZURRF -- User Reserved Reference [Generic Edit] String (15)
 ,''			SZMLNM -- Name - Mailing [Generic Edit] String (40)
 ,''			SZMLN1 -- Secondary Mailing Name [Generic Edit] String (40)
