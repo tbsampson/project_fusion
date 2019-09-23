@@ -32,7 +32,7 @@ SELECT
 ,'BC_' + LTRIM(RTRIM(CUSTOMER.ID))
 			SZALKY -- Long Address Number [Generic Edit] String (20)
 ,''			SZTAX -- Tax ID [Generic Edit] String (20)
-,LEFT(
+,ISNULL(LEFT(
     LTRIM(RTRIM(
         REPLACE(
             REPLACE(
@@ -40,7 +40,7 @@ SELECT
             ,'.','')
         ,',','')
     ))
-    ,40)	SZALPH -- Name - Alpha [Generic Edit] String (40)
+    ,40),'<missing>')	SZALPH -- Name - Alpha [Generic Edit] String (40)
 ,''			SZDC -- Description - Compressed [Generic Edit] String (40)
 ,'          20'			
             SZMCU -- Business Unit [Generic Edit] String (12)

@@ -218,6 +218,8 @@ JOIN _BILLTO BT
 
 WHERE BT.SZAT1 = 'CB'
 
+AND LEFT(LTRIM(RTRIM(REPLACE(REPLACE(CUST_ADDRESS.NAME, '.', ''), ',', ''))), 40) IS NOT NULL
+
 /* Removed for scope change 9/18 - now will include all ShipTo for any BillTo in scope
 JOIN 
 	(

@@ -132,12 +132,14 @@ FROM (
 		,0 SZSBNT /* Substitute Item Sequence Number Numeric Generic Edit(5)*/
 		,'Y' SZPRTA /* Partials Allowed (Y/N) Character Generic Edit(1)*/
 		,CASE 
-			WHEN REQUIREMENT.CALC_QTY <> 0
-				THEN CAST(CAST(REQUIREMENT.CALC_QTY AS DECIMAL(12, 6)) * 10000 AS BIGINT)
-			WHEN REQUIREMENT.FIXED_QTY <> 0
+			WHEN REQUIREMENT.FIXED_QTY <> 0 -- Use fixed qty if there is one
 				THEN CAST(CAST(REQUIREMENT.FIXED_QTY AS DECIMAL(12, 6)) * 10000 AS BIGINT)
-			ELSE 10000
-			END SZQNTY /* Quantity - Standard Required Quantity Numeric Generic Edit(15)*/
+			WHEN REQUIREMENT.FIXED_QTY = 0 AND IM2.SZUOM1 = 'EA' AND REQUIREMENT.QTY_PER <> 0  -- If UOM for the component is EA, use qty per
+				THEN CAST(CAST(REQUIREMENT.QTY_PER AS DECIMAL(12, 6)) * 10000 AS BIGINT)
+			WHEN REQUIREMENT.FIXED_QTY = 0 AND IM2.SZUOM1 <> 'EA' AND REQUIREMENT.CALC_QTY <> 0 -- otherwise use calc qty
+				THEN CAST(CAST(REQUIREMENT.CALC_QTY AS DECIMAL(12, 6)) * 10000 AS BIGINT)
+			ELSE 10000 -- if they are all zero, use 1
+		 END SZQNTY /* Quantity - Standard Required Quantity Numeric Generic Edit(15)*/
 		,IM2.SZUOM1 SZUM /* Unit of Measure String UDC (00 UM)(2)*/
 		,0 SZBQTY /* Units - Batch Quantity Numeric Generic Edit(15)*/
 		,'' SZUOM /* Unit of Measure as Input String UDC (00 UM)(2)*/
