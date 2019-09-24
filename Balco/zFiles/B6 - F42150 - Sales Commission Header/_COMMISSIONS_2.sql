@@ -21,15 +21,15 @@ FROM
 			,CB1.SHDCTO -- Order Type (String) UDC (00 DT) [2]
 			,CB1.SHKCOO -- Order Company (Order Number) (String) Generic Edit [5]
 			,CB1.REP1_NEW_ID SHSLSM -- Salesperson 01 (Numeric) Generic Edit [8]
-			,CASE WHEN SUM(CB1.TOTAL_AMT_SHIPPED) > 0 -- AND SUM(CB1.LINE_COM) > 0
-				THEN CAST(CAST(SUM(CB1.LINE_COM) / SUM(CB1.TOTAL_AMT_SHIPPED) AS DECIMAL(9,5)) * 100000 AS INTEGER)
+			,CASE WHEN SUM(CB1.LINE_COM_MULT) > 0 -- AND SUM(CB1.LINE_COM) > 0
+				THEN CAST(CAST(SUM(CB1.LINE_COM) / SUM(CB1.LINE_COM_MULT) AS DECIMAL(9,5)) * 100000 AS INTEGER)
 				ELSE 0
 			 END	SHSLCM -- Salesperson Commission 001 (Numeric) Generic Edit [7]
 			,CB1.SHFCA -- Flat Commission Amount (Numeric) Generic Edit [15]
 			,CB1.SHAPUN -- Amount - Per Unit (Numeric) Generic Edit [15]
 			,CB1.SHCCTY -- Commission Code Type (Character) UDC (H42 CC) [1]
 
-		FROM _COM_BASE CB1
+		FROM _COM_BASE_2 CB1
 
 		GROUP BY
 
@@ -49,15 +49,15 @@ FROM
 			,CB2.SHDCTO -- Order Type (String) UDC (00 DT) [2]
 			,CB2.SHKCOO -- Order Company (Order Number) (String) Generic Edit [5]
 			,CB2.REP2_NEW_ID SHSLSM -- Salesperson 01 (Numeric) Generic Edit [8]
-			,CASE WHEN SUM(CB2.TOTAL_AMT_SHIPPED) > 0 -- AND SUM(CB2.LINE_SHARE) > 0
-				THEN CAST(CAST(SUM(CB2.LINE_SHARE) / SUM(CB2.TOTAL_AMT_SHIPPED) AS DECIMAL(9,5)) * 100000 AS INTEGER)
+			,CASE WHEN SUM(CB2.LINE_COM_MULT) > 0 -- AND SUM(CB2.LINE_SHARE) > 0
+				THEN CAST(CAST(SUM(CB2.LINE_SHARE) / SUM(CB2.LINE_COM_MULT) AS DECIMAL(9,5)) * 100000 AS INTEGER)
 				ELSE 0
 			 END	SHSLCM -- Salesperson Commission 001 (Numeric) Generic Edit [7]
 			,CB2.SHFCA -- Flat Commission Amount (Numeric) Generic Edit [15]
 			,CB2.SHAPUN -- Amount - Per Unit (Numeric) Generic Edit [15]
 			,CB2.SHCCTY -- Commission Code Type (Character) UDC (H42 CC) [1]
 
-		FROM _COM_BASE CB2
+		FROM _COM_BASE_2 CB2
 
 		WHERE CB2.REP2_OLD_ID IS NOT NULL
 
