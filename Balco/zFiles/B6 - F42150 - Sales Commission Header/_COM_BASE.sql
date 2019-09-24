@@ -1,17 +1,17 @@
 CREATE VIEW _COM_BASE AS
 
-SELECT ORDER_REF.NEW_ID AS SHDOCO
-	,'SO' AS SHDCTO
-	,'00020' AS SHKCOO
-	,REPS1.ABAN8 AS SHSLSM
+SELECT ORDER_REF.NEW_ID AS SHDOCO -- Document (Order No Invoice etc.) (Numeric) Generic Edit [8]
+	,'SO' AS SHDCTO  -- Order Type (String) UDC (00 DT) [2]
+	,'00020' AS SHKCOO -- Order Company (Order Number) (String) Generic Edit [5]
+	,REPS1.ABAN8 AS SHSLSM -- Salesperson 01 (Numeric) Generic Edit [8]
 	,CASE 
 		WHEN REPS2.ABAN8 IS NULL
 			THEN CAST(ISNULL(LINE.COMMISSION_PCT, 0) * 1000 AS INTEGER)
 		ELSE CAST(ISNULL(LINE.COMMISSION_PCT * (1 - SHARE.SHARE_PERCENT), 0) * 1000 AS INTEGER)
-		END AS SHSLCM
-	,'0' AS SHFCA
-	,'0' AS SHAPUN
-	,'I' AS SHCCTY
+		END AS SHSLCM -- Salesperson Commission 001 (Numeric) Generic Edit [7]
+	,'0' AS SHFCA -- Flat Commission Amount (Numeric) Generic Edit [15]
+	,'0' AS SHAPUN -- Amount - Per Unit (Numeric) Generic Edit [15]
+	,'I' AS SHCCTY -- Commission Code Type (Character) UDC (H42 CC) [1]
 	,ISNULL(SHARE.SHARE_PERCENT, 0) AS COM_SHARE
 	,CO.SALESREP_ID AS REP1_OLD_ID
 	,REPS1.ABAN8 AS REP1_NEW_ID
