@@ -10,8 +10,8 @@ BEGIN
 
 -- a_group_count = Total A / 13 - quarterly
 SELECT COUNT(*)/13 INTO a_group_count
-        FROM CVDTA.F41021 F41021
-        JOIN CVDTA.F4102 F4102
+        FROM PRODDTA.F41021 F41021
+        JOIN PRODDTA.F4102 F4102
             ON F4102.IBITM = F41021.LIITM
             AND F4102.IBMCU = F41021.LIMCU
             AND F4102.IBGLPT = F41021.LIGLPT
@@ -20,8 +20,8 @@ SELECT COUNT(*)/13 INTO a_group_count
 
 --  b_group_count = Total B / 26 - biannualy   
 SELECT COUNT(*)/26 INTO b_group_count
-        FROM CVDTA.F41021 F41021
-        JOIN CVDTA.F4102 F4102
+        FROM PRODDTA.F41021 F41021
+        JOIN PRODDTA.F4102 F4102
             ON F4102.IBITM = F41021.LIITM
             AND F4102.IBMCU = F41021.LIMCU
             AND F4102.IBGLPT = F41021.LIGLPT
@@ -30,8 +30,8 @@ SELECT COUNT(*)/26 INTO b_group_count
             
 --  c_group_count = Total C / 52 - annualy
 SELECT COUNT(*)/52 INTO c_group_count
-        FROM CVDTA.F41021 F41021
-        JOIN CVDTA.F4102 F4102
+        FROM PRODDTA.F41021 F41021
+        JOIN PRODDTA.F4102 F4102
             ON F4102.IBITM = F41021.LIITM
             AND F4102.IBMCU = F41021.LIMCU
             AND F4102.IBGLPT = F41021.LIGLPT

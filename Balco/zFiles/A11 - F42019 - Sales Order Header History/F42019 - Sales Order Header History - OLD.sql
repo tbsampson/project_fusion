@@ -8,7 +8,7 @@ use BALCO;
 SELECT
 
  '00020'   SHKCOO -- Order Company (Order Number) [Generic Edit] String (5)
-,CUSTOMER_ORDER.ROWID - 54391   SHDOCO -- Document (Order No Invoice etc.) [Generic Edit] Numeric (8)
+,ORDER_REF.NEW_ID   SHDOCO -- Document (Order No Invoice etc.) [Generic Edit] Numeric (8)
 ,'SO'   SHDCTO -- Order Type [UDC (00 DT)] String (2)
 ,'000'   SHSFXO -- Order Suffix [Generic Edit] String (3)
 ,'       20001'   SHMCU -- Business Unit [Generic Edit] String (12)
@@ -19,18 +19,18 @@ SELECT
 ,''   SHRKCO -- Company - Key (Related Order) [Generic Edit] String (5)
 ,''   SHRORN -- Related PO/SO/WO Number [Generic Edit] String (8)
 ,''   SHRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
-,ST.SZAN8   SHAN8 -- Address Number [Generic Edit] Numeric (8)
-,ISNULL(CUSTOMER_ORDER.SHIP_TO_ADDR_NO,1)   SHSHAN -- Address Number - Ship To [Generic Edit] Numeric (8)
-,ST.SZPA8   SHPA8 -- Address Number - Parent [Generic Edit] Numeric (8)
-,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.ORDER_DATE),'')    SHDRQJ -- Date - Requested [Generic Edit] Date (6)
-,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.CREATE_DATE),'')    SHTRDJ -- Date - Order/Transaction [Generic Edit] Date (6)
-,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.PRINTED_DATE),'')   SHPDDJ -- Date - Scheduled Pick [Generic Edit] Date (6)
-,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.PROMISE_DATE),'')   SHOPDJ -- Date - Original Promised Delivery [Generic Edit] Date (6)
+,ORDER_REF.BILLTO_ID   SHAN8 -- Address Number [Generic Edit] Numeric (8)
+,ORDER_REF.SHIPTO_ID   SHSHAN -- Address Number - Ship To [Generic Edit] Numeric (8)
+,ADDRESS_BOOK.SZPA8   SHPA8 -- Address Number - Parent [Generic Edit] Numeric (8)
+,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.DESIRED_SHIP_DATE),'')    SHDRQJ -- Date - Requested [Generic Edit] Date (6)
+,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.ORDER_DATE),'')    SHTRDJ -- Date - Order/Transaction [Generic Edit] Date (6)
+,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.PROMISE_DATE),'')   SHPDDJ -- Date - Scheduled Pick [Generic Edit] Date (6)
+,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.DESIRED_SHIP_DATE),'')   SHOPDJ -- Date - Original Promised Delivery [Generic Edit] Date (6)
 ,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.PROMISE_DEL_DATE),'')   SHADDJ -- Date - Actual Ship Date [Generic Edit] Date (6)
 ,''   SHCNDJ -- Date - Cancel [Generic Edit] Date (6)
-,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.STATUS_EFF_DATE),'')   SHPEFJ -- Date - Price Effective Date [Generic Edit] Date (6)
-,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.PROMISE_DEL_DATE),'')   SHPPDJ -- Date - Promised Shipment [Generic Edit] Date (6)
-,ISNULL(LEFT(LTRIM(RTRIM(CUSTOMER_ORDER.CUSTOMER_PO_REF)),25),'')   SHVR01 -- Reference [Generic Edit] String (25)
+,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.ORDER_DATE),'')   SHPEFJ -- Date - Price Effective Date [Generic Edit] Date (6)
+,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.DESIRED_SHIP_DATE),'')   SHPPDJ -- Date - Promised Shipment [Generic Edit] Date (6)
+,LEFT(LTRIM(RTRIM(CUSTOMER_ORDER.CUSTOMER_PO_REF)),25)   SHVR01 -- Reference [Generic Edit] String (25)
 ,''   SHVR02 -- Reference 2 [Generic Edit] String (25)
 ,''   SHDEL1 -- Delivery Instructions Line 1 [Generic Edit] String (30)
 ,''   SHDEL2 -- Delivery Instructions Line 2 [Generic Edit] String (30)
@@ -79,12 +79,12 @@ SELECT
 ,''   SHRCD -- Reason Code [UDC (42 RC)] String (3)
 ,'N'   SHFUF2 -- Post Quantities [Generic Edit] Character (1)
 ,''   SHOTOT -- Amount - Order Gross [Generic Edit] Numeric (15)
-,ISNULL(TOTALS.SDECST,0)   SHTOTC -- Amount - Total Cost [Generic Edit] Numeric (15)
+,TOTALS.SDECST   SHTOTC -- Amount - Total Cost [Generic Edit] Numeric (15)
 ,''   SHWUMD -- Unit of Measure - Weight Display [UDC (00 UM)] String (2)
 ,''   SHVUMD -- Unit of Measure - Volume Display [UDC (00 UM)] String (2)
 ,''   SHAUTN -- Authorization Number - Credit Approval [Generic Edit] String (10)
 ,''   SHCACT -- Account Number - Credit/Bank [Generic Edit] String (25)
-,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.EXPIRE_DATE),'')   SHCEXP -- Date - Expired (Julian) [Generic Edit] Date (6)
+,''   SHCEXP -- Date - Expired (Julian) [Generic Edit] Date (6)
 ,''   SHSBLI -- Subledger Inactive Code [UDC (00 SI)] Character (1)
 ,''   SHCRMD -- Send Method [UDC (00 SM)] Character (1)
 ,'D'   SHCRRM -- Currency Mode-Foreign or Domestic Entry [UDC (H00 CY)] Character (1)
@@ -146,78 +146,76 @@ SELECT
 ,'0'   SHPRAN8 -- Partner Address Number [Generic Edit] Numeric (8)
 ,'0'   SHOPPID -- Opportunity Number [Generic Edit] Numeric (15)
 ,''   SHSDATTN -- Sold To Attention [Generic Edit] String (50)
-,ISNULL(LEFT(CUSTOMER_ORDER.FREE_ON_BOARD,50),'')   SHSPATTN -- Ship To Attention [Generic Edit] String (50)
+,CUSTOMER_ORDER.FREE_ON_BOARD   SHSPATTN -- Ship To Attention [Generic Edit] String (50)
 ,''   SHOTIND -- Order Type Indicator [Generic Edit] Character (1)
 ,'0'   SHPRCIDLN -- Partner Contact Line Number ID [Generic Edit] Numeric (5)
 ,'0'   SHCCIDLN -- Customer Contact Line Number ID [Generic Edit] Numeric (5)
 ,'0'   SHSHCCIDLN -- Ship To Cust Contact Line Num ID [Generic Edit] Numeric (5)
 
-FROM CUSTOMER_ORDER CUSTOMER_ORDER
+FROM _ORDER_REF ORDER_REF
 
+JOIN _ADDRESS_BOOK_TABLE ADDRESS_BOOK
+    ON ORDER_REF.SHIPTO_ID = ADDRESS_BOOK.SZAN8
 
-
-JOIN _ADDRESS_BOOK_MERGED_TABLE ST
-	ON 'BC_' + CUSTOMER_ORDER.CUSTOMER_ID + '_' + CAST(ISNULL(CUSTOMER_ORDER.SHIP_TO_ADDR_NO,1) AS VARCHAR) = ST.SZALKY	
+JOIN CUSTOMER_ORDER CUSTOMER_ORDER
+    ON CUSTOMER_ORDER.ID = ORDER_REF.OLD_ID
 
 JOIN
+
 	(
-	 SELECT
-	 
-	 CUSTOMER_ORDER.ROWID    SDDOCO -- Document (Order No Invoice etc.) [Generic Edit] Numeric (8)
-	 -- ,RECEIVABLE.INVOICE_DATE
-	 
-	,SUM(
-		CASE
+		SELECT
+
+		ORDER_REF.NEW_ID   SHDOCO -- Document (Order No Invoice etc.) [Generic Edit] Numeric (8)
+
+		,SUM(CASE
 			WHEN WORK_ORDER.ACT_MATERIAL_COST = 0
-					OR WORK_ORDER.DESIRED_QTY = 0 
-				THEN 0
-			WHEN ITEM_MASTER_1.SZSTKT = 'S'
-				THEN CAST((WORK_ORDER.ACT_MATERIAL_COST) * 100 AS BIGINT)
+				OR WORK_ORDER.DESIRED_QTY = 0 
+			THEN 0
+			WHEN ITEM_MASTER_1.SZSTKT = 'S' THEN CAST((WORK_ORDER.ACT_MATERIAL_COST) * 100 AS BIGINT)
 			ELSE CAST(((WORK_ORDER.ACT_MATERIAL_COST) * 1.7) * 100 AS BIGINT)
-		 END
-		 )   SDECST -- Amount - Extended Cost [Generic Edit] Numeric (15)
+			END)   SDECST -- Amount - Extended Cost [Generic Edit] Numeric (15)
 
+			FROM   DEMAND_SUPPLY_LINK DEMAND_SUPPLY_LINK
 
-	FROM  CUST_ORDER_LINE CUST_ORDER_LINE
+			JOIN WORK_ORDER WORK_ORDER 
+				ON DEMAND_SUPPLY_LINK.SUPPLY_BASE_ID = WORK_ORDER.BASE_ID 
+				AND DEMAND_SUPPLY_LINK.SUPPLY_LOT_ID = WORK_ORDER.LOT_ID 
+				AND DEMAND_SUPPLY_LINK.SUPPLY_SPLIT_ID = WORK_ORDER.SPLIT_ID 
+				AND DEMAND_SUPPLY_LINK.SUPPLY_SUB_ID = WORK_ORDER.SUB_ID 
 
-	LEFT JOIN DEMAND_SUPPLY_LINK DEMAND_SUPPLY_LINK
-		ON CUST_ORDER_LINE.CUST_ORDER_ID = DEMAND_SUPPLY_LINK.DEMAND_BASE_ID
-		AND CUST_ORDER_LINE.LINE_NO = DEMAND_SUPPLY_LINK.DEMAND_SEQ_NO
+			LEFT JOIN _ORDER_REF ORDER_REF
+				ON ORDER_REF.OLD_ID = DEMAND_SUPPLY_LINK.DEMAND_BASE_ID
+			--   AND DEMAND_SUPPLY_LINK.SUPPLY_BASE_ID = WORK_ORDER.BASE_ID
 
-	LEFT JOIN WORK_ORDER WORK_ORDER 
-		ON DEMAND_SUPPLY_LINK.SUPPLY_BASE_ID = WORK_ORDER.BASE_ID 
-		AND DEMAND_SUPPLY_LINK.SUPPLY_LOT_ID = WORK_ORDER.LOT_ID 
-		AND DEMAND_SUPPLY_LINK.SUPPLY_SPLIT_ID = WORK_ORDER.SPLIT_ID 
-		AND DEMAND_SUPPLY_LINK.SUPPLY_SUB_ID = WORK_ORDER.SUB_ID 
+			JOIN CUST_ORDER_LINE CUST_ORDER_LINE
+				ON CUST_ORDER_LINE.CUST_ORDER_ID = ORDER_REF.OLD_ID
+				AND CUST_ORDER_LINE.LINE_NO = DEMAND_SUPPLY_LINK.DEMAND_SEQ_NO
 
-	LEFT JOIN CUSTOMER_ORDER CUSTOMER_ORDER
-		ON CUSTOMER_ORDER.ID = CUST_ORDER_LINE.CUST_ORDER_ID
-		
-	LEFT JOIN _ADDRESS_BOOK_MERGED_TABLE BT
-		ON 'BC_' + CUSTOMER_ORDER.CUSTOMER_ID = BT.SZALKY
+			JOIN _ADDRESS_BOOK_TABLE ADDRESS_BOOK
+				ON CAST(ORDER_REF.SHIPTO_ID AS BIGINT) = CAST(ADDRESS_BOOK.SZAN8 AS BIGINT)	
 
-	LEFT JOIN _ADDRESS_BOOK_MERGED_TABLE ST
-		ON 'BC_' + CUSTOMER_ORDER.CUSTOMER_ID + '_' + CAST(ISNULL(CUSTOMER_ORDER.SHIP_TO_ADDR_NO,1) AS VARCHAR) = ST.SZALKY	
+			JOIN CUSTOMER_ORDER CUSTOMER_ORDER
+				ON CUSTOMER_ORDER.ID = LTRIM(RTRIM(ORDER_REF.OLD_ID))
 
-	LEFT JOIN RECEIVABLE_LINE RECEIVABLE_LINE
-		ON CUST_ORDER_LINE.CUST_ORDER_ID = RECEIVABLE_LINE.CUST_ORDER_ID
-		AND CUST_ORDER_LINE.LINE_NO = RECEIVABLE_LINE.CUST_ORDER_LINE_NO
+			JOIN RECEIVABLE_LINE RECEIVABLE_LINE
+				ON RECEIVABLE_LINE.CUST_ORDER_ID = CUST_ORDER_LINE.CUST_ORDER_ID
+				AND RECEIVABLE_LINE.CUST_ORDER_LINE_NO = CUST_ORDER_LINE.LINE_NO
 
-	LEFT JOIN RECEIVABLE RECEIVABLE
-		ON RECEIVABLE.INVOICE_ID = RECEIVABLE_LINE.INVOICE_ID
+			JOIN RECEIVABLE RECEIVABLE
+				ON RECEIVABLE.INVOICE_ID = RECEIVABLE_LINE.INVOICE_ID
+				
+			JOIN _ITEM_MASTER_1_TABLE ITEM_MASTER_1
+				ON CUST_ORDER_LINE.PART_ID = LTRIM(RTRIM(ITEM_MASTER_1.SZLITM))  
 
-	LEFT JOIN _ITEM_MASTER_1_TABLE ITEM_MASTER_1
-		ON CUST_ORDER_LINE.PART_ID = LTRIM(RTRIM(ITEM_MASTER_1.SZLITM))  
+			JOIN PART PART
+				ON CUST_ORDER_LINE.PART_ID = PART.ID   
+				
+			LEFT JOIN _PREF_VENDORS _PREF_VENDORS
+				ON 'BC_' + CAST(PART.PREF_VENDOR_ID AS VARCHAR) = _PREF_VENDORS.ABALKY
 
-	LEFT JOIN PART PART
-		ON CUST_ORDER_LINE.PART_ID = PART.ID   
-
-	LEFT JOIN _PREF_VENDORS _PREF_VENDORS
-		ON 'BC_' + CAST(PART.PREF_VENDOR_ID AS VARCHAR) = _PREF_VENDORS.ABALKY
-
-	GROUP BY CUSTOMER_ORDER.ROWID
-		 -- ,RECEIVABLE.INVOICE_DATE
+			WHERE ORDER_REF.STATUS = 'C'
+		GROUP BY ORDER_REF.NEW_ID
 	) TOTALS
-	ON CUSTOMER_ORDER.ROWID = TOTALS.SDDOCO
+ON ORDER_REF.NEW_ID  = TOTALS.SHDOCO
 
-ORDER BY CUSTOMER_ORDER.ROWID
+WHERE ORDER_REF.STATUS = 'C'

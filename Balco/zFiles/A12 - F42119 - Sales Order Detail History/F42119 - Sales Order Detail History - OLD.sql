@@ -1,4 +1,3 @@
-
 /*
     F42119 - Sales Order Detail History
     IR 20190528 Tom Sampson
@@ -6,10 +5,17 @@
 use BALCO;
 SELECT
 
+/*
+ CUSTOMER_ORDER.ID
+,CUST_ORDER_LINE.LINE_NO
+,WORK_ORDER.BASE_ID
+,WORK_ORDER.SUB_ID
+*/
+
  '00020'   SDKCOO -- Order Company (Order Number) [Generic Edit] String (5)
-,CUSTOMER_ORDER.ROWID - 54391   SDDOCO -- Document (Order No Invoice etc.) [Generic Edit] Numeric (8)
+,CAST(LTRIM(RTRIM(ORDER_REF.NEW_ID)) AS BIGINT)   SDDOCO -- Document (Order No Invoice etc.) [Generic Edit] Numeric (8)
 ,'SO'   SDDCTO -- Order Type [UDC (00 DT)] String (2)
-,CAST(ROW_NUMBER() OVER (partition by CUSTOMER_ORDER.ROWID order by  CUSTOMER_ORDER.ID ,CAST(CUST_ORDER_LINE.LINE_NO AS INTEGER)	,WORK_ORDER.BASE_ID	,CAST(WORK_ORDER.SUB_ID AS INTEGER)) + 1000 AS BIGINT)
+,CAST(ROW_NUMBER() OVER (partition by CAST(LTRIM(RTRIM(ORDER_REF.NEW_ID)) AS BIGINT) order by  CUSTOMER_ORDER.ID ,CAST(CUST_ORDER_LINE.LINE_NO AS INTEGER)	,WORK_ORDER.BASE_ID	,CAST(WORK_ORDER.SUB_ID AS INTEGER)) + 1000 AS BIGINT)
 	 SDLNID -- Line Number [Generic Edit] Numeric (6)
 ,'000'   SDSFXO -- Order Suffix [Generic Edit] String (3)
 ,'       20001'   SDMCU -- Business Unit [Generic Edit] String (12)
@@ -19,7 +25,7 @@ SELECT
 ,''   SDOCTO -- Original Order Type [UDC (00 DT)] String (2)
 ,''   SDOGNO -- Original Line Number [Generic Edit] Numeric (7)
 ,''   SDRKCO -- Company - Key (Related Order) [Generic Edit] String (5)
-,ISNULL(WORK_ORDER.BASE_ID,'') SDRORN -- Related PO/SO/WO Number [Generic Edit] String (8)
+,WORK_ORDER.BASE_ID SDRORN -- Related PO/SO/WO Number [Generic Edit] String (8)
 ,CASE
      WHEN LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3)  
                   IN (210,  217,  220,  230,  310,  320,  340,  350,  380,  
@@ -31,13 +37,13 @@ END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
 ,''   SDRLLN -- Related PO/SO Line Number [Generic Edit] Numeric (7)
 ,''   SDDMCT -- Agreement Number - Distribution [Generic Edit] String (12)
 ,''   SDDMCS -- Agreement Supplement - Distribution [Generic Edit] Numeric (3)
-,BT.SZAN8   SDAN8 -- Address Number [Generic Edit] Numeric (8)
-,ISNULL(ST.SZAN8 ,BT.SZAN8)  SDSHAN -- Address Number - Ship To [Generic Edit] Numeric (8)
-,BT.SZPA8   SDPA8 -- Address Number - Parent [Generic Edit] Numeric (8)
-,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.ORDER_DATE),'')   SDDRQJ -- Date - Requested [Generic Edit] Date (6)
-,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.CREATE_DATE),'')   SDTRDJ -- Date - Order/Transaction [Generic Edit] Date (6)
-,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.PRINTED_DATE),'')   SDPDDJ -- Date - Scheduled Pick [Generic Edit] Date (6)
-,ISNULL(dbo.JDEJulian(ISNULL(CUST_ORDER_LINE.PROMISE_DEL_DATE,CUSTOMER_ORDER.PROMISE_DEL_DATE)),'')   SDADDJ -- Date - Actual Ship Date [Generic Edit] Date (6)
+,ORDER_REF.BILLTO_ID   SDAN8 -- Address Number [Generic Edit] Numeric (8)
+,ORDER_REF.SHIPTO_ID   SDSHAN -- Address Number - Ship To [Generic Edit] Numeric (8)
+,ADDRESS_BOOK.SZPA8   SDPA8 -- Address Number - Parent [Generic Edit] Numeric (8)
+,ISNULL(dbo.JDEJulian(CUST_ORDER_LINE.DESIRED_SHIP_DATE),'')   SDDRQJ -- Date - Requested [Generic Edit] Date (6)
+,ISNULL(dbo.JDEJulian(CUSTOMER_ORDER.ORDER_DATE),'')   SDTRDJ -- Date - Order/Transaction [Generic Edit] Date (6)
+,ISNULL(dbo.JDEJulian(CUST_ORDER_LINE.PROMISE_DATE),'')   SDPDDJ -- Date - Scheduled Pick [Generic Edit] Date (6)
+,ISNULL(dbo.JDEJulian(CUST_ORDER_LINE.PROMISE_DEL_DATE),'')   SDADDJ -- Date - Actual Ship Date [Generic Edit] Date (6)
 ,ISNULL(dbo.JDEJulian(RECEIVABLE.INVOICE_DATE),'')   SDIVD -- Date - Invoice [Generic Edit] Date (6)
 ,''   SDCNDJ -- Date - Cancel [Generic Edit] Date (6)
 ,CASE
@@ -49,25 +55,9 @@ END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
 ,ISNULL(dbo.JDEJulian(CUST_ORDER_LINE.DESIRED_SHIP_DATE),'')    SDPPDJ -- Date - Promised Shipment [Generic Edit] Date (6)
 ,ISNULL(LEFT(LTRIM(RTRIM(CUSTOMER_ORDER.CUSTOMER_PO_REF)),25),'')   SDVR01 -- Reference [Generic Edit] String (25)
 ,CAST(CUSTOMER_ORDER.ID AS VARCHAR) + '_' + CAST(CUST_ORDER_LINE.LINE_NO AS VARCHAR)   SDVR02 -- Reference 2 [Generic Edit] String (25)
-,CASE
-    WHEN CUST_ORDER_LINE.PRODUCT_CODE IN ('801 - OKC EXP','904 - ICT FRT','905 - OKC FRT','914 - ICT CRAT','925 - DIST FEE')
-        THEN 74381 -- 'FRIEGHT' ******* NOTE: THIS IS NOT THE SAME IN PD! ************
-        WHEN CUST_ORDER_LINE.PART_ID IS NULL AND CUST_ORDER_LINE.PRODUCT_CODE NOT IN ('801 - OKC EXP','904 - ICT FRT','905 - OKC FRT','914 - ICT CRAT','925 - DIST FEE')
-        THEN 50521
-        WHEN CUST_ORDER_LINE.PART_ID IS NOT NULL AND CUST_ORDER_LINE.PRODUCT_CODE NOT IN ('801 - OKC EXP','904 - ICT FRT','905 - OKC FRT','914 - ICT CRAT','925 - DIST FEE')
-        THEN ISNULL(ITEM_MASTER_1.SZITM,'50521')
-        ELSE 50521
- END  SDITM -- Item Number - Short [Generic Edit] Numeric (8)
-,CASE
-    WHEN CUST_ORDER_LINE.PRODUCT_CODE IN ('801 - OKC EXP','904 - ICT FRT','905 - OKC FRT','914 - ICT CRAT','925 - DIST FEE')
-        THEN 'FREIGHT'
-        WHEN CUST_ORDER_LINE.PART_ID IS NULL AND CUST_ORDER_LINE.PRODUCT_CODE NOT IN ('801 - OKC EXP','904 - ICT FRT','905 - OKC FRT','914 - ICT CRAT','925 - DIST FEE')
-        THEN 'OTHER EXPENSES'
-        WHEN CUST_ORDER_LINE.PART_ID IS NOT NULL AND CUST_ORDER_LINE.PRODUCT_CODE NOT IN ('801 - OKC EXP','904 - ICT FRT','905 - OKC FRT','914 - ICT CRAT','925 - DIST FEE')
-        THEN ISNULL(ITEM_MASTER_1.SZLITM,'OTHER EXPENSES')
-        ELSE 'OTHER EXPENSES'
- END  SDLITM -- 2nd Item Number [Generic Edit] String (25)
-,ISNULL(ITEM_MASTER_1.SZAITM,'')   SDAITM -- 3rd Item Number [Generic Edit] String (25)
+,ISNULL(ITEM_MASTER_1.SZITM, 99998)   SDITM -- Item Number - Short [Generic Edit] Numeric (8)
+,CUST_ORDER_LINE.PART_ID   SDLITM -- 2nd Item Number [Generic Edit] String (25)
+,ITEM_MASTER_1.SZAITM   SDAITM -- 3rd Item Number [Generic Edit] String (25)
 ,''   SDLOCN -- Location [Generic Edit] String (20)
 ,''   SDLOTN -- Lot/Serial Number [Generic Edit] String (30)
 ,''   SDFRGD -- From Grade [UDC (40 LG)] String (3)
@@ -75,13 +65,24 @@ END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
 ,''   SDFRMP -- From Potency [Generic Edit] Numeric (7)
 ,''   SDTHRP -- Thru Potency [Generic Edit] Numeric (7)
 ,''   SDEXDP -- Days Before Expiration [Generic Edit] Numeric (5)
+,ISNULL(LEFT(LTRIM(RTRIM(ITEM_MASTER_1.SZDSC1)),30),'')   SDDSC1 -- Description [Generic Edit] String (30)
+,ISNULL(LEFT(LTRIM(RTRIM(ITEM_MASTER_1.SZDSC1)),30),'')   SDDSC2 -- Description - Line 2 [Generic Edit] String (30)
+/*
 ,CASE 
-    WHEN CUST_ORDER_LINE.PART_ID IS NULL
-    THEN ISNULL(LEFT(LTRIM(RTRIM(CUST_ORDER_LINE.CUSTOMER_PART_ID)),30),'')
-    ELSE ISNULL(LEFT(LTRIM(RTRIM(ITEM_MASTER_1.SZDSC1)),30),'')
- END  SDDSC1 -- Description [Generic Edit] String (30)
-,ISNULL(LEFT(LTRIM(RTRIM(CUST_ORDER_LINE.PRODUCT_CODE)),30),'')   SDDSC2 -- Description - Line 2 [Generic Edit] String (30)
-,ISNULL(ITEM_MASTER_1.SZLNTY,'')  SDLNTY -- Line Type [Generic Edit] String (2)
+    WHEN LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3)  
+                  IN (210,  217,  220,  230,  310,  320,  340,  350,  380,  
+                        410,  420,  470,  500,  610,  710,  720,  730,  745,  750,  780) Then 'W'  
+    WHEN LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3)  
+                  IN (240, 390, 450, 460, 740, 755) Then 'D'
+    WHEN LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3)  
+                  IN (735,  800,  801,  900,  901,  902,  903,  914,  915,  
+                        925,  950,  951,  975,  998,  999) Then 'S'
+   WHEN LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3)  IN ('KSR', 'OKR') Then 'S'
+   WHEN LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3)  IN (904, 905) Then 'F'
+   ELSE ''
+ END
+ */
+,ITEM_MASTER_1.SZLNTY  SDLNTY -- Line Type [Generic Edit] String (2)
 ,'999'   SDNXTR -- Status Code - Next [UDC (40 AT)] String (3)
 ,'620'   SDLTTR -- Status Code - Last [UDC (40 AT)] String (3)
 ,'       20001'   SDEMCU -- Business Unit - Header [Generic Edit] String (12)
@@ -118,20 +119,20 @@ END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
 ,''   SDTPC -- Temporary Price (Y/N) [Generic Edit] Character (1)
 ,ISNULL(ITEM_MASTER_1.SZUOM1,'')   SDAPUM -- Unit of Measure - Entered for Unit Price [UDC (00 UM)] String (2)
 ,CAST((CUST_ORDER_LINE.UNIT_PRICE * 10000) AS BIGINT)   SDLPRC -- Amount - List Price [Generic Edit] Numeric (15)
-,ISNULL(CASE
+,CASE
 	WHEN WORK_ORDER.ACT_MATERIAL_COST = 0
 		OR WORK_ORDER.DESIRED_QTY = 0 
 	THEN 0
 	WHEN ITEM_MASTER_1.SZSTKT = 'M' THEN CAST(((WORK_ORDER.ACT_MATERIAL_COST/WORK_ORDER.DESIRED_QTY) * 1.7) * 10000 AS BIGINT)
 	ELSE CAST((WORK_ORDER.ACT_MATERIAL_COST/WORK_ORDER.DESIRED_QTY) * 10000 AS BIGINT)
- END,'')    SDUNCS -- Amount - Unit Cost [Generic Edit] Numeric (15)
-,ISNULL(CASE
+ END    SDUNCS -- Amount - Unit Cost [Generic Edit] Numeric (15)
+,CASE
 	WHEN WORK_ORDER.ACT_MATERIAL_COST = 0
 		OR WORK_ORDER.DESIRED_QTY = 0 
 	THEN 0
     WHEN ITEM_MASTER_1.SZSTKT = 'M' THEN CAST(((WORK_ORDER.ACT_MATERIAL_COST) * 1.7) * 100 AS BIGINT)
 	ELSE CAST((WORK_ORDER.ACT_MATERIAL_COST) * 100 AS BIGINT)
- END,'')   SDECST -- Amount - Extended Cost [Generic Edit] Numeric (15)
+ END   SDECST -- Amount - Extended Cost [Generic Edit] Numeric (15)
 ,'0'   SDCSTO -- Cost Override Code [Generic Edit] Character (1)
 ,''   SDTCST -- Extended Cost - Transfer [Generic Edit] Numeric (15)
 ,''   SDINMG -- Print Message [UDC (40 PM)] String (10)
@@ -156,7 +157,7 @@ END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
 ,''   SDCLVL -- Pricing Category Level [Generic Edit] String (3)
 ,''   SDCADC -- Discount % - Cash [Generic Edit] Numeric (7)
 ,'00020'   SDKCO -- Document Company [Generic Edit] String (5)
-,ISNULL(REPLACE(RECEIVABLE_LINE.INVOICE_ID,'IN',''),'')   SDDOC -- Document (Voucher Invoice etc.) [Generic Edit] Numeric (8)
+,REPLACE(RECEIVABLE_LINE.INVOICE_ID,'IN','')   SDDOC -- Document (Voucher Invoice etc.) [Generic Edit] Numeric (8)
 ,''   SDDCT -- Document Type [UDC (00 DT)] String (2)
 ,''   SDODOC -- Document - Original [Generic Edit] Numeric (8)
 ,''   SDODCT -- Document Type - Original [UDC (00 DT)] String (2)
@@ -176,7 +177,14 @@ END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
 ,''   SDEUSE -- End Use [UDC (40 EU)] String (3)
 ,''   SDDTYS -- Duty Status [UDC (40 DS)] String (2)
 ,''   SDNTR -- Nature of Transaction [UDC (00 NT)] String (2)
+
 ,ISNULL(_PREF_VENDORS.ABAN8,'') SDVEND -- Primary / Last Supplier Number [Generic Edit] Numeric (8)
+/*
+"IF LEFT(CUST_ORDER_LINE.PRODUCT_CODE,3) IN (240, 390, 420, 460, 740, 755) 
+Then SELECT ABAN8 FROM CVDTA.F0101 WHERE ABALKY = 'BC_'||(SELECT PREF_VENDOR_ID
+FROM PART WHERE ID=CUST_ORDER_LINE.CUSTOMER_PART_ID  "
+*/
+
 ,''   SDCARS -- Carrier Number [Generic Edit] Numeric (8)
 ,''   SDMOT -- Mode of Transport [UDC (00 TM)] String (3)
 ,''   SDROUT -- Route Code [UDC (42 RT)] String (3)
@@ -187,11 +195,11 @@ END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
 ,''   SDSHCM -- Shipping Commodity Class [UDC (41 E)] String (3)
 ,''   SDSHCN -- Shipping Conditions Code [UDC (41 C)] String (3)
 ,''   SDSERN -- Serial Number - Lot [Generic Edit] String (30)
-,ISNULL(ITEM_MASTER_1.SZUOM1,'')   SDUOM1 -- Unit of Measure - Primary [UDC (00 UM)] String (2)
+,ITEM_MASTER_1.SZUOM1   SDUOM1 -- Unit of Measure - Primary [UDC (00 UM)] String (2)
 ,CAST((CUST_ORDER_LINE.ORDER_QTY * 10000) AS BIGINT)  SDPQOR -- Units - Primary Quantity Ordered [Generic Edit] Numeric (15)
-,ISNULL(ITEM_MASTER_1.SZUOM1,'')   SDUOM2 -- Unit of Measure - Secondary [UDC (00 UM)] String (2)
+,ITEM_MASTER_1.SZUOM1   SDUOM2 -- Unit of Measure - Secondary [UDC (00 UM)] String (2)
 ,CAST((CUST_ORDER_LINE.ORDER_QTY * 10000) AS BIGINT)  SDSQOR -- Units - Secondary Quantity Ordered [Generic Edit] Numeric (15)
-,ISNULL(ITEM_MASTER_1.SZUOM1,'')   SDUOM4 -- Unit of Measure - Pricing [UDC (00 UM)] String (2)
+,ITEM_MASTER_1.SZUOM1   SDUOM4 -- Unit of Measure - Pricing [UDC (00 UM)] String (2)
 ,CASE
     WHEN PART.WEIGHT IS NULL THEN ''
     ELSE CAST(CAST((PART.WEIGHT * 10000) AS BIGINT) AS VARCHAR)
@@ -203,7 +211,7 @@ END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
 ,''   SDORPR -- Order Reprice Category [UDC (40 PI)] String (8)
 ,''   SDORP -- Order Repriced Indicator [Generic Edit] Character (1)
 ,'07'   SDCMGP -- Costing Method - Inventory [Generic Edit] String (2)
-,ISNULL(ITEM_MASTER_1.SZGLPT,'')   SDGLC -- G/L Offset [Generic Edit] String (4)
+,ITEM_MASTER_1.SZGLPT   SDGLC -- G/L Offset [Generic Edit] String (4)
 ,1+(YEAR(CUSTOMER_ORDER.ORDER_DATE) - 1) / 100   SDCTRY -- Century [Generic Edit] Numeric (2)
 ,''   SDFY -- Fiscal Year [Generic Edit] Numeric (2)
 ,''   SDSO01 -- Inter Branch Sales [Generic Edit] Character (1)
@@ -276,7 +284,7 @@ END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
 ,''   SDIR04 -- Integration Reference 04 [Generic Edit] String (30)
 ,''   SDIR05 -- Integration Reference 05 [Generic Edit] String (30)
 ,'0'   SDSOOR -- Source of Order [Generic Edit] Integer (11)
-,ISNULL(CAST(WORK_ORDER.BASE_ID AS VARCHAR) + '_' + CAST(WORK_ORDER.SUB_ID AS VARCHAR),'')   SDVR03 -- Reference [Generic Edit] String (25)
+,CAST(WORK_ORDER.BASE_ID AS VARCHAR) + '_' + CAST(WORK_ORDER.SUB_ID AS VARCHAR)   SDVR03 -- Reference [Generic Edit] String (25)
 ,'0'   SDDEID -- Demand Unique Key ID [Generic Edit] Numeric (15)
 ,''   SDPSIG -- Pull Signal [Generic Edit] String (30)
 ,''   SDRLNU -- Release Number [Generic Edit] String (10)
@@ -344,39 +352,46 @@ END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
 ,''   SDPMPN -- Production Number [Generic Edit] String (30)
 ,''   SDPNS -- Production Number Short [Generic Edit] Numeric (10)
 
-FROM  CUST_ORDER_LINE CUST_ORDER_LINE
+FROM   DEMAND_SUPPLY_LINK DEMAND_SUPPLY_LINK
 
-LEFT JOIN DEMAND_SUPPLY_LINK DEMAND_SUPPLY_LINK
-	ON CUST_ORDER_LINE.CUST_ORDER_ID = DEMAND_SUPPLY_LINK.DEMAND_BASE_ID
-	AND CUST_ORDER_LINE.LINE_NO = DEMAND_SUPPLY_LINK.DEMAND_SEQ_NO
-
-LEFT JOIN WORK_ORDER WORK_ORDER 
+JOIN WORK_ORDER WORK_ORDER 
 	ON DEMAND_SUPPLY_LINK.SUPPLY_BASE_ID = WORK_ORDER.BASE_ID 
 	AND DEMAND_SUPPLY_LINK.SUPPLY_LOT_ID = WORK_ORDER.LOT_ID 
 	AND DEMAND_SUPPLY_LINK.SUPPLY_SPLIT_ID = WORK_ORDER.SPLIT_ID 
 	AND DEMAND_SUPPLY_LINK.SUPPLY_SUB_ID = WORK_ORDER.SUB_ID 
 
+JOIN _ORDER_REF ORDER_REF
+	ON ORDER_REF.OLD_ID = DEMAND_SUPPLY_LINK.DEMAND_BASE_ID
+  --   AND DEMAND_SUPPLY_LINK.SUPPLY_BASE_ID = WORK_ORDER.BASE_ID
+
+JOIN CUST_ORDER_LINE CUST_ORDER_LINE
+	ON CUST_ORDER_LINE.CUST_ORDER_ID = ORDER_REF.OLD_ID
+	AND CUST_ORDER_LINE.LINE_NO = DEMAND_SUPPLY_LINK.DEMAND_SEQ_NO
+
+JOIN _ADDRESS_BOOK_TABLE ADDRESS_BOOK
+    ON CAST(ORDER_REF.SHIPTO_ID AS BIGINT) = CAST(ADDRESS_BOOK.SZAN8 AS BIGINT)	
+
 JOIN CUSTOMER_ORDER CUSTOMER_ORDER
-	ON CUSTOMER_ORDER.ID = CUST_ORDER_LINE.CUST_ORDER_ID
-	
-JOIN _ADDRESS_BOOK_MERGED BT
-	ON 'BC_' + CUSTOMER_ORDER.CUSTOMER_ID = BT.SZALKY
+	ON CUSTOMER_ORDER.ID = LTRIM(RTRIM(ORDER_REF.OLD_ID))
 
-LEFT JOIN _ADDRESS_BOOK_MERGED ST
-	ON 'BC_' + CUSTOMER_ORDER.CUSTOMER_ID + '_' + CAST(ISNULL(CUSTOMER_ORDER.SHIP_TO_ADDR_NO,1) AS VARCHAR) = ST.SZALKY	
+JOIN RECEIVABLE_LINE RECEIVABLE_LINE
+    ON RECEIVABLE_LINE.CUST_ORDER_ID = CUST_ORDER_LINE.CUST_ORDER_ID
+    AND RECEIVABLE_LINE.CUST_ORDER_LINE_NO = CUST_ORDER_LINE.LINE_NO
 
-LEFT JOIN RECEIVABLE_LINE RECEIVABLE_LINE
-    ON CUST_ORDER_LINE.CUST_ORDER_ID = RECEIVABLE_LINE.CUST_ORDER_ID
-    AND CUST_ORDER_LINE.LINE_NO = RECEIVABLE_LINE.CUST_ORDER_LINE_NO
-
-LEFT JOIN RECEIVABLE RECEIVABLE
+JOIN RECEIVABLE RECEIVABLE
     ON RECEIVABLE.INVOICE_ID = RECEIVABLE_LINE.INVOICE_ID
-
-LEFT JOIN _ITEM_MASTER_1_TABLE ITEM_MASTER_1
+    
+JOIN _ITEM_MASTER_1_TABLE ITEM_MASTER_1
     ON CUST_ORDER_LINE.PART_ID = LTRIM(RTRIM(ITEM_MASTER_1.SZLITM))  
 
-LEFT JOIN PART PART
+JOIN PART PART
     ON CUST_ORDER_LINE.PART_ID = PART.ID   
-
+    
 LEFT JOIN _PREF_VENDORS _PREF_VENDORS
 	ON 'BC_' + CAST(PART.PREF_VENDOR_ID AS VARCHAR) = _PREF_VENDORS.ABALKY
+
+WHERE ORDER_REF.STATUS = 'C'
+
+ORDER BY 
+	 CAST(LTRIM(RTRIM(ORDER_REF.NEW_ID)) AS BIGINT)
+	,CAST(DENSE_RANK() OVER (partition by CAST(LTRIM(RTRIM(ORDER_REF.NEW_ID)) AS BIGINT) order by  CUSTOMER_ORDER.ID ,CAST(CUST_ORDER_LINE.LINE_NO AS INTEGER)	,WORK_ORDER.BASE_ID	,CAST(WORK_ORDER.SUB_ID AS INTEGER)) * 1000 AS BIGINT)

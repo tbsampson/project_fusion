@@ -2,7 +2,7 @@
     F0101Z2 - Address Book - Ship To
     VER0001 -  Tom Sampson
 */
--- ALTER VIEW _SHIPTO AS
+-- CREATE VIEW _SHIPTO_NEW AS
 
 SELECT
 
@@ -12,7 +12,7 @@ SELECT
     ROW_NUMBER() OVER (
         ORDER BY CUST_ADDRESS.ROWID
         )
- ) + 75000	SZEDTN -- EDI - Transaction Number [Generic Edit] String (22)
+ ) + 74600	SZEDTN -- EDI - Transaction Number [Generic Edit] String (22)
 ,0			SZEDLN -- EDI - Line Number [Generic Edit] Numeric (7)
 ,''			SZEDCT -- EDI - Document Type [Generic Edit] String (2)
 ,'JDEAB'	SZTYTN -- Type - Transaction [UDC (00 TT)] String (8)
@@ -27,7 +27,7 @@ SELECT
     ROW_NUMBER() OVER (
         ORDER BY CUST_ADDRESS.ROWID
         )
- ) + 75000  SZAN8 -- Address Number [Generic Edit] Numeric (8)
+ ) + 74600  SZAN8 -- Address Number [Generic Edit] Numeric (8)
 ,'BC_' + LTRIM(RTRIM(CUST_ADDRESS.CUSTOMER_ID)) + '_' + LTRIM(RTRIM(CAST(CUST_ADDRESS.ADDR_NO AS CHAR))) 
 			SZALKY -- Long Address Number [Generic Edit] String (20)
 ,''			SZTAX -- Tax ID [Generic Edit] String (20)
@@ -169,7 +169,7 @@ SELECT
 			SZCTY1 -- City [Generic Edit] String (25)
 ,CASE 
 	WHEN BT.SZAT1 = 'C' THEN BT.SZCTR
-	WHEN BT.SZAT1 <> 'C' AND LEFT(CUST_ADDRESS.ZIPCODE,5) BETWEEN '11111' AND '99999' THEN 'US' 
+	WHEN BT.SZAT1 <> 'C' AND LEFT(CUST_ADDRESS.ZIPCODE,5) BETWEEN '00000' AND '99999' THEN 'US' 
 	ELSE 'CA' 
  END		SZCTR -- Country [UDC (00 CN)] String (3)
 ,CASE
@@ -229,26 +229,12 @@ SELECT
 
 FROM CUST_ADDRESS CUST_ADDRESS
 
-JOIN _BILLTO BT
+JOIN _BILLTO_NEW BT
     ON BT.SZALKY = 'BC_' + CUST_ADDRESS.CUSTOMER_ID
 
-
-
-AND LEFT(LTRIM(RTRIM(REPLACE(REPLACE(CUST_ADDRESS.NAME, '.', ''), ',', ''))), 40) IS NOT NULL
-
-
-JOIN 
-	(
-		SELECT DISTINCT
-
-			 ORDERS.CUSTOMER_ID
-			,ORDERS.SHIP_TO_ADDR_NO
-
-		FROM 
-		CUSTOMER_ORDER ORDERS	
-	) ORDERS -- only include an address if something was actually shipped there
-	ON CUST_ADDRESS.CUSTOMER_ID = ORDERS.CUSTOMER_ID
-	AND CUST_ADDRESS.ADDR_NO = ORDERS.SHIP_TO_ADDR_NO
+JOIN _NEW_CUSTOMERS NC
+	ON BT.SZALKY = 'BC_' + NEW_CUSTOMERS
+	AND CUST_ADDRESS.ADDR_NO = NC.ADDR_NO
 
 WHERE BT.SZAT1 = 'CB'
 
