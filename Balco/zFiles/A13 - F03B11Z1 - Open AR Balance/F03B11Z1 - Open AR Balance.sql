@@ -35,7 +35,7 @@ SELECT
 ,'00020'        VJKCO -- Document Company [Generic Edit] String (5)
 ,''             VJSFX -- Document Pay Item [Generic Edit] String (3)
 ,AB.SZAN8		VJAN8 -- Address Number [Generic Edit] Numeric (8)
-,dbo.JDEJulian(GETDATE())
+,119274  -- dbo.JDEJulian(GETDATE())
                 VJDGJ -- Date - For G/L (and Voucher) - Julian [Generic Edit] Date (6)
 ,dbo.JDEJulian(AR.INVOICE_DATE)
                 VJDIVJ -- Date - Invoice - Julian [Generic Edit] Date (6)

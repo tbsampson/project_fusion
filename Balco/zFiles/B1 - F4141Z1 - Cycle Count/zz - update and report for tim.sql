@@ -20,19 +20,19 @@ SELECT
 							ROW_NUMBER() OVER (
 								ORDER BY F4102.IBITM
 								)
-							) / 71) AS INTEGER) * 7 -- CHANGE "A" DIV HERE
+							) / 18) AS INTEGER) * 7 -- CHANGE "A" DIV HERE
 				), 'YYYY') - 1900
 		) * 1000 + to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
 			CAST(CEIL((
 						ROW_NUMBER() OVER (
 							ORDER BY F4102.IBITM
 							)
-						) / 71) AS INTEGER) * 7 -- CHANGE "A" DIV HERE
+						) / 18) AS INTEGER) * 7 -- CHANGE "A" DIV HERE
 			), 'DDD') LINCDJ_AFTER
 ,to_date(to_char(to_date(substr((to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') 
-        + (	CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 71) AS INTEGER) * 7), 'YYYY') - 1900) * 1000  -- CHANGE "A" DIV HERE
+        + (	CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 18) AS INTEGER) * 7), 'YYYY') - 1900) * 1000  -- CHANGE "A" DIV HERE
         + to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY')
-        + (CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 71) AS INTEGER) * 7), 'DDD'),2,5),'YYDDD'),'MM/DD/YYYY'),'MM/DD/YYYY') LINCDJ_AFTER_GD -- CHANGE "A" DIV HERE
+        + (CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 18) AS INTEGER) * 7), 'DDD'),2,5),'YYDDD'),'MM/DD/YYYY'),'MM/DD/YYYY') LINCDJ_AFTER_GD -- CHANGE "A" DIV HERE
 
 FROM PRODDTA.F41021 F41021
 
@@ -63,19 +63,19 @@ SELECT
 							ROW_NUMBER() OVER (
 								ORDER BY F4102.IBITM
 								)
-							) / 11) AS INTEGER) * 7 -- CHANGE "B" DIV HERE
+							) / 10) AS INTEGER) * 7 -- CHANGE "B" DIV HERE
 				), 'YYYY') - 1900
 		) * 1000 + to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
 			CAST(CEIL((
 						ROW_NUMBER() OVER (
 							ORDER BY F4102.IBITM
 							)
-						) / 11) AS INTEGER) * 7 -- CHANGE "B" DIV HERE
+						) / 10) AS INTEGER) * 7 -- CHANGE "B" DIV HERE
 			), 'DDD') LINCDJ_AFTER
 ,to_date(to_char(to_date(substr((to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') 
-        + (	CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 11) AS INTEGER) * 7), 'YYYY') - 1900) * 1000  -- CHANGE "B" DIV HERE
+        + (	CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 10) AS INTEGER) * 7), 'YYYY') - 1900) * 1000  -- CHANGE "B" DIV HERE
         + to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY')
-        + (CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 11) AS INTEGER) * 7), 'DDD'),2,5),'YYDDD'),'MM/DD/YYYY'),'MM/DD/YYYY') LINCDJ_AFTER_GD -- CHANGE "B" DIV HERE
+        + (CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 10) AS INTEGER) * 7), 'DDD'),2,5),'YYDDD'),'MM/DD/YYYY'),'MM/DD/YYYY') LINCDJ_AFTER_GD -- CHANGE "B" DIV HERE
 
 FROM PRODDTA.F41021 F41021
 
@@ -106,19 +106,19 @@ SELECT
 							ROW_NUMBER() OVER (
 								ORDER BY F4102.IBITM
 								)
-							) / 3) AS INTEGER) * 7 -- CHANGE "C" DIV HERE
+							) / 17) AS INTEGER) * 7 -- CHANGE "C" DIV HERE
 				), 'YYYY') - 1900
 		) * 1000 + to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') + (
 			CAST(CEIL((
 						ROW_NUMBER() OVER (
 							ORDER BY F4102.IBITM
 							)
-						) / 3) AS INTEGER) * 7 -- CHANGE "C" DIV HERE
+						) / 17) AS INTEGER) * 7 -- CHANGE "C" DIV HERE
 			), 'DDD') LINCDJ_AFTER
 ,to_date(to_char(to_date(substr((to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY') 
-        + (	CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 3) AS INTEGER) * 7), 'YYYY') - 1900) * 1000  -- CHANGE "C" DIV HERE
+        + (	CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 17) AS INTEGER) * 7), 'YYYY') - 1900) * 1000  -- CHANGE "C" DIV HERE
         + to_char(to_date(to_char(to_date(substr(119278, 2, 5), 'YYDDD'), 'MM/DD/YYYY'), 'MM/DD/YYYY')
-        + (CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 3) AS INTEGER) * 7), 'DDD'),2,5),'YYDDD'),'MM/DD/YYYY'),'MM/DD/YYYY') LINCDJ_AFTER_GD  -- CHANGE "C" DIV HERE
+        + (CAST(CEIL((ROW_NUMBER() OVER (ORDER BY F4102.IBITM)) / 17) AS INTEGER) * 7), 'DDD'),2,5),'YYDDD'),'MM/DD/YYYY'),'MM/DD/YYYY') LINCDJ_AFTER_GD  -- CHANGE "C" DIV HERE
 
 FROM PRODDTA.F41021 F41021
 

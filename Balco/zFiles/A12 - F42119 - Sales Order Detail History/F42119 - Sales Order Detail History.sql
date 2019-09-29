@@ -81,7 +81,7 @@ END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
     ELSE ISNULL(LEFT(LTRIM(RTRIM(ITEM_MASTER_1.SZDSC1)),30),'')
  END  SDDSC1 -- Description [Generic Edit] String (30)
 ,ISNULL(LEFT(LTRIM(RTRIM(CUST_ORDER_LINE.PRODUCT_CODE)),30),'')   SDDSC2 -- Description - Line 2 [Generic Edit] String (30)
-,ISNULL(ITEM_MASTER_1.SZLNTY,'')  SDLNTY -- Line Type [Generic Edit] String (2)
+,ISNULL(ITEM_MASTER_1.SZLNTY,'N')  SDLNTY -- Line Type [Generic Edit] String (2)
 ,'999'   SDNXTR -- Status Code - Next [UDC (40 AT)] String (3)
 ,'620'   SDLTTR -- Status Code - Last [UDC (40 AT)] String (3)
 ,'       20001'   SDEMCU -- Business Unit - Header [Generic Edit] String (12)
@@ -100,7 +100,7 @@ END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
 ,''   SDPRP3 -- Supplier Rebate Code [UDC (41 P3)] String (3)
 ,''   SDPRP4 -- Master Planning Family [UDC (41 P4)] String (3)
 ,''   SDPRP5 -- Purchasing Category Code 5 [UDC (41 P5)] String (3)
-,ISNULL(ITEM_MASTER_1.SZUOM1,'')  SDUOM -- Unit of Measure as Input [UDC (00 UM)] String (2)
+,ISNULL(ITEM_MASTER_1.SZUOM1,'EA')  SDUOM -- Unit of Measure as Input [UDC (00 UM)] String (2)
 ,CAST((CUST_ORDER_LINE.ORDER_QTY * 10000) AS BIGINT)  SDUORG -- Units - Order/Transaction Quantity [Generic Edit] Numeric (15)
 ,CAST((CUST_ORDER_LINE.TOTAL_SHIPPED_QTY * 10000) AS BIGINT)  SDSOQS -- Quantity Shipped [Generic Edit] Numeric (15)
 ,''   SDSOBK -- Units - Qty Backordered/Held [Generic Edit] Numeric (15)
@@ -187,11 +187,11 @@ END   SDRCTO -- Related PO/SO/WO Order Type [UDC (00 DT)] String (2)
 ,''   SDSHCM -- Shipping Commodity Class [UDC (41 E)] String (3)
 ,''   SDSHCN -- Shipping Conditions Code [UDC (41 C)] String (3)
 ,''   SDSERN -- Serial Number - Lot [Generic Edit] String (30)
-,ISNULL(ITEM_MASTER_1.SZUOM1,'')   SDUOM1 -- Unit of Measure - Primary [UDC (00 UM)] String (2)
+,ISNULL(ITEM_MASTER_1.SZUOM1,'EA')   SDUOM1 -- Unit of Measure - Primary [UDC (00 UM)] String (2)
 ,CAST((CUST_ORDER_LINE.ORDER_QTY * 10000) AS BIGINT)  SDPQOR -- Units - Primary Quantity Ordered [Generic Edit] Numeric (15)
-,ISNULL(ITEM_MASTER_1.SZUOM1,'')   SDUOM2 -- Unit of Measure - Secondary [UDC (00 UM)] String (2)
+,ISNULL(ITEM_MASTER_1.SZUOM1,'EA')   SDUOM2 -- Unit of Measure - Secondary [UDC (00 UM)] String (2)
 ,CAST((CUST_ORDER_LINE.ORDER_QTY * 10000) AS BIGINT)  SDSQOR -- Units - Secondary Quantity Ordered [Generic Edit] Numeric (15)
-,ISNULL(ITEM_MASTER_1.SZUOM1,'')   SDUOM4 -- Unit of Measure - Pricing [UDC (00 UM)] String (2)
+,ISNULL(ITEM_MASTER_1.SZUOM1,'EA')   SDUOM4 -- Unit of Measure - Pricing [UDC (00 UM)] String (2)
 ,CASE
     WHEN PART.WEIGHT IS NULL THEN ''
     ELSE CAST(CAST((PART.WEIGHT * 10000) AS BIGINT) AS VARCHAR)
@@ -380,3 +380,4 @@ LEFT JOIN PART PART
 
 LEFT JOIN _PREF_VENDORS _PREF_VENDORS
 	ON 'BC_' + CAST(PART.PREF_VENDOR_ID AS VARCHAR) = _PREF_VENDORS.ABALKY
+

@@ -99,7 +99,7 @@ SELECT
 ,''   SHURDT -- User Reserved Date [Generic Edit] Date (6)
 ,''   SHURAT -- User Reserved Amount [Generic Edit] Numeric (15)
 ,''   SHURAB -- User Reserved Number [Generic Edit] Numeric (8)
-,''   SHURRF -- User Reserved Reference [Generic Edit] String (15)
+,CUSTOMER_ORDER.ID   SHURRF -- User Reserved Reference [Generic Edit] String (15)
 ,'TSAMPSON'   SHUSER -- User ID [Generic Edit] String (10)
 ,'SQL'   SHPID -- Program ID [Generic Edit] String (10)
 ,''   SHJOBN -- Work Station ID [Generic Edit] String (10)
