@@ -1,3 +1,13 @@
+/*
+Tom Sampson 20191019
+NOTE:
+WHERE LEFT(ITEMASA.ITCLS,2) <> 'SP' -- no samples
+	AND ITEMASA.ITCLS <> 'NONI' -- no non-inventory items
+	AND ITEMBL.HOUSE = '1'
+
+
+*/
+
 SELECT DISTINCT
 
                  ITEMASA.ITNBR "ID"
@@ -12,10 +22,24 @@ SELECT DISTINCT
                     WHEN ITEMASA.ITTYP = '4' THEN 'Purchased'
                     WHEN ITEMASA.ITTYP = '9' THEN 'User Opt'
                     ELSE 'Other'
-                  END 	"Type"                  
+                  END 	"Type" 
+				,ITEMBL.HOUSE							 "WH"
+				,NULLIF(CAST(ITEMBL.MOHTQ AS INTEGER),0) "OH" -- "Qty On Hand"
+				,NULLIF(CAST(ITEMBL.USEYR AS INTEGER),0) "YU" -- "Yearly Usage"
+				,NULLIF(CAST(ITEMBL.AVMEB AS INTEGER),0) "APB" -- "Avg Period Balance"
+				,NULLIF(CAST(ITEMBL.AVSAL AS INTEGER),0) "APS" -- "Avg Period Sales"
+				,CASE
+					WHEN ITEMBL.DOFLS <> 0 AND ITEMBL.DOFLS IS NOT NULL
+						THEN
+							DATE(CONCAT(CONCAT(CONCAT(Substr(CHAR(( ITEMBL.DOFLS - 1000000 ) + 20000000), 1, 4), '-'),
+															   CONCAT(Substr(CHAR(( ITEMBL.DOFLS - 1000000 ) + 20000000), 5, 2), '-')),
+																	  Substr(CHAR(( ITEMBL.DOFLS - 1000000 ) + 20000000), 7, 2)))
+						-- ELSE ''
+				 END "DLS" -- date last sold
+
                 ,IFNULL(ITEMASC.CMDTY,'') "CC"                   
                 ,IFNULL(PROTYP.TYPDES,'') "Status"
-                ,MBB2CPP.B2C8CD          "CQ" -- Unit of measure class                
+                ,MBB2CPP.B2C8CD          "Pak" -- Unit of measure class                
                 ,DECIMAL(ITEMASA.WEGHT,8,2) "lbs"
                 ,CASE 
                     WHEN INTEGER(ITEMASA.UUD1IM) <= 99999
@@ -61,11 +85,12 @@ LEFT JOIN AMFLIB.MBJCREP MBJCREP
 -- Sales Family to Group/Family Ref
 LEFT JOIN AMFLIB.MBJBREP MBJBREP
                 ON MBJCREP.JCADR0 = MBJBREP.JBADR0 -- Item sales family code
+           
 
-/*
+
 WHERE LEFT(ITEMASA.ITCLS,2) <> 'SP' -- no samples
 	AND ITEMASA.ITCLS <> 'NONI' -- no non-inventory items
-*/
+	AND ITEMBL.HOUSE = '1'
 
 /*
 WHERE PROTYP.TYPDES <> 'Discontinued'
